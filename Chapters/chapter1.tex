@@ -1,0 +1,35 @@
+
+\chapter{Introduction}
+
+\section{Motivation}
+
+It is hard to disagree that we live in `big data' era. Data centers are processing a huge amount of information in order to find new trends, connections or even predict some phenomenons in every aspect of our life. Most of us has probably noticed suggestions, which appear while using social media or doing online shopping. It is sometimes amazing how accurate these suggestions are. In fact, applications learn our habits from data that we leave while surfing the Internet. The IT world is becoming closer and closer something, we can call true artificial intelligence. In my opinion the most suprising issue is that, there is no need to use sophisticated algorithms in order to achieve such promising results. It is caused by huge amount of data we can access and fast computing systems, which have become more significant than mathematical models.  
+
+Besides predicting trends or making suggestions, we could also use AI algorithms is some specific classification tasks. Let us imagine, there is an application which might assign hashtags to our post on Twitter or Instagram after analysing the text first. Or an application, which could assign categories to our article on Wikipedia. This paper is devoted to algorithms, which could be used to implement the applications, that make this kind of tasks. 
+
+\section{Machine learning}
+
+Machine learning is a branch of computer science which focuses on creating an automatic system, which can learn and improve itself from gathered experience (data). There are three main types of machine learning tasks:
+
+\begin{itemize}
+\item Supervised learning
+\item Unsupervised learning
+\item Reinforcement learning
+\end{itemize}
+
+In supervised learning the experience is represented by a set of an example input data with desired outputs. This set is provided by a "teacher" and the main goal is to find rules, which allow to predict output from given input. Reinforcement learning is more complicated issue. In this case we usually consider a dynamical environment with various states and an agent, which can perform one of available actions in order to achieve a goal. In contrast to supervised learning, there is no information about correct input/output pairs - there is no "teacher". As a result the environment must be explored by the agent in order to gain a knowledge. In other words instead of "teacher" there is a "naysayer", which tells how much  incorrect is the action performed by the agent. The last type of machine learning task - unsupervised learning aims at finding hidden structures in unlabeled data. Let us notice that 
+
+The most popular problem related with supervised learning is classification. The classification aims at matching specific category (also called class) to a new observation base on traning set. Training set is a the set of observations, for whom the class, they belong to, is known. Let us notice that classification can be considered as two separated problems: binary classification and multiclass classification. The difference between them is certainly connected with the number of classes. In the first case we have only two categories, whereas in the second one there are many of them. An algorithm, which solves the classification problem is usually called classifier.  
+
+Most of such algorithms treat an individual observation as a feature vector of measurable properties.  
+
+\section{Discussing a problem}
+
+One of the most interesing and challenging branches of machine learning is multi-label classification, which extends the problem of binary classification. In binary classication there is only one target, consisting off two classes, whereas in multi-label classification there are many of them. General solution to this problem is demanded by real-world application that are used to classify instances connected to various domains, ie. text, genes, scenes and so on. 
+In this paper I focus on methods that use linear algebra and statistic axioms. Feature space, as well as label space, might be treated as linear spaces, what allows to find linear connection between them using for example linear regressor. In order to decrease comptutational complexity of creating such model, these spaces can be transformed at first and then their dimensions can be reduced. There are certainly disadventages of this approach - in fact this kind of transformation is a lossy compression.
+
+\section{Scope of the thesis}
+
+The main purpose of this thesis is discussing, implementing and testing various approaches to multi-label classification problem. However, these methods can be collected into one library and then made available. There certainly exist libraries devoted to multi-label classification issue: for \textit{Java} programming language it is \textit{Mulan}, for \textit{Python} programming language it is \textit{scikit-learn} etc. However, in contrast to multi-class libraries it is not yet a rich offer. Therefore it is sensible to release new project.    
+
+The library is implemented in \textit{C++11} programming language. There are certainly prons and cons of choosing this programming language. In this particular case, this decision is dictated by efficiency profit and small amount of machine learning tools for \textit{C++} developers. However, creating similar solutions for different programming languages cannot be excluded.

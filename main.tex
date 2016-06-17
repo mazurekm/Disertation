@@ -1,0 +1,74 @@
+% Szkielet dla pracy pisanej w języku angielskim.
+
+\documentclass[english,a4paper,oneside]{ppfcmthesis}
+
+\usepackage{amssymb}
+\usepackage[utf8]{inputenc}
+\usepackage[OT4]{fontenc}
+\usepackage{cite}
+\usepackage{indentfirst}
+\usepackage{listings}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+\lstset{language=C++}
+
+\authortitle{}
+\author{Michał Mazurek}                              
+\title{Effective and scalable algorithms of multi-label classification based on transformation of attributes and labels spaces}           
+\ppsupervisor{~dr~inż.~Krzysztof Dembczyński} 
+\ppyear{2016}                                  
+
+\begin{document}
+
+% Front matter starts here
+\frontmatter\pagestyle{empty}%
+\maketitle\cleardoublepage%
+
+% Blank info page for "karta dyplomowa"
+\thispagestyle{empty}\vspace*{\fill}%
+\begin{center}Tutaj przychodzi karta pracy dyplomowej;\\oryginał wstawiamy do wersji dla archiwum PP, w pozostałych kopiach wstawiamy ksero.\end{center}%
+\vfill\cleardoublepage%
+
+\pagenumbering{Roman}\pagestyle{ppfcmthesis}%
+
+%Abstract
+\addcontentsline{toc}{chapter}{Abstract}
+\input{abstract.tex}
+
+%Acknowledgements
+\addcontentsline{toc}{chapter}{Acknowledgements}
+\input{acknowledgements.tex}
+
+% Table of contents.
+\tableofcontents* \cleardoublepage%
+
+\cleardoublepage
+\listoffigures
+
+\cleardoublepage
+\listoftables
+
+
+% Main content of your thesis starts here.
+\mainmatter%
+\input{\chapters@/chapter1.tex}
+\input{\chapters@/chapter2.tex}
+\input{\chapters@/chapter3.tex}
+\input{\chapters@/chapter4.tex}
+\input{\chapters@/chapter5.tex}
+
+% All appendices and extra material, if you have any.
+\cleardoublepage\appendix%
+%\input{0a-appendix.tex}
+
+% Bibliography (books, articles) starts here.
+\bibliographystyle{alpha}{\raggedright\sloppy\small\bibliography{bibliography}}
+
+% Colophon is a place where you should let others know about copyrights etc.
+\ppcolophon
+
+\end{document}

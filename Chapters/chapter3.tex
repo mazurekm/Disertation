@@ -1,0 +1,104 @@
+\chapter{Library}
+
+\section{Requirements}
+
+\subsection{General information}
+The library is implemented in \textit{C++11} programming language and should be compiled by \textit{GCC ($>=$4.9)} in order to support all of new \textit{C++} features. Other compilers (Clang, Visual C++ Compiler etc.) were not checked, so there is no warranty the build process succeeds in those cases.  The compilation process in managed by \textit{CMake} tool, which is cross-platform and can be used in various operating systems \cite{CMake}. However, the library was tested only in \textit{Linux} environment (Debian 8.2). 
+
+Besides using standard \textit{C++} library, there are also two external libraries, which must be installed in system: 
+
+\begin{itemize}
+    \item Boost ($>=$1.55)
+    \item Armadillo ($>=$6.100)
+\end{itemize}
+The first one contains useful modules which extends possibilities of standard library (unittests, file system etc.), while \textit{Armadillo} is an advanced linear algebra library. More details connected to build process is presented in Appendix. 
+
+
+\subsection{Discussing linear algebra library used in project}
+
+In order to implement algorithms presented in this paper, I needed \textit{API}, which provides fast linear algebra operations such as pseudoinverse, SVD decomposition etc. After analysing available solutions, I chose \textit{Armadillo} that is high-quality library dedicated \textit{C++} developers. The main strength of this \textit{API} is a good balance between speed and ease of use. In fact, its syntax is similar to \textit{Matlab} environment. The example of code is presented in Listing \ref{lst:arma1}.
+
+\lstinputlisting[numbers=left, label=lst:arma1, caption=Armadillo example code, language=C++]{listings/1.cpp}
+
+The usage of Armadillo is simple, as it is shawn by Listing \ref{lst:arma1}. However, the most important issue is a real speed of matrix operations. According to documentation, the \textit{API} is integrated with \textit{LAPACK} and \textit{BLAS}, which means that effectiveness of matrix multiplication or its decompositions are dependent on their implementations. These libraries are known as rather fast. Moreover there is also a possibility of linking \textit{OpenBLAS} instead of standard \textit{BLAS}, which is multi-threaded \cite{Arma}. 
+
+In the Figure \ref{fig:mul_perf} and Figure \ref{fig:svd_perf}  there are comparisons of speed of basic matrix operations between \textit{Armadillo} and \textit{NumPy}, which is linear algebra module for \textit{Python}. As you see \textit{Armadillo} was definitely faster than \textit{NumPy} for matrix multiplication and SVD decomposition as well.   
+The experiment was run on machine, which has Intel Core i3-350M 2.26 GHz and 4096 MB of RAM. In the case of \textit{Armadillo} test, the compliation of program was optimized (third level of optimization) and \textit{OpenBLAS} was used instead of standard \textit{BLAS} library. \textit{NumPy} (1.8.2) was tested in \textit{Python3.4} environment (standard installation from \textit{Debian} repository). The diffrences in time-consumption justify the choice of \textit{Armadillo}, however \textit{NumPy} also uses \textit{BLAS}, which means that it is possible to install \textit{NumPy} with \textit{OpenBLAS} support.
+
+\begin{figure}[h]
+\centering
+\label{fig:mul_perf}
+\caption{Multiplication matrix performance}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        xlabel={size of matrix},
+        ylabel={time [s]},
+        xmin=0,
+        xmax=10500,
+        ymin=0,
+        ymax=200000,
+        ymode=log]
+        \addplot table [x=size, y=arma, col sep=semicolon] {figures/mul_test.csv};
+        \addlegendentry{Armadillo}
+        \addplot table [x=size, y=numpy, col sep=semicolon] {figures/mul_test.csv};
+        \addlegendentry{NumPy}
+    \end{axis}
+\end{tikzpicture}
+\end{figure}
+
+\begin{figure}
+\centering
+\label{fig:svd_perf}
+\caption{SVD decomposition of matrix performance}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        xlabel={size of matrix},
+        ylabel={time [s]},
+        xmin=0,
+        xmax=4500,
+        ymin=0,
+        ymax=650]
+        \addplot table [x=size, y=arma, col sep=semicolon] {figures/svd_test.csv};
+        \addlegendentry{Armadillo}
+        \addplot table [x=size, y=numpy, col sep=semicolon] {figures/svd_test.csv};
+        \addlegendentry{NumPy}
+
+    \end{axis}
+\end{tikzpicture}
+\end{figure}
+
+
+\section{Structure of library}
+
+\textit{Mlcpack} consists off two main modules:
+\begin{itemize}
+\item Algorithms
+\item Utils
+\end{itemize}
+
+\subsection{Description of Algorithms module}
+
+The Algorithms module contains all implementations of algorithms discussed in this paper. Its building is based on \textit{Strategy} design pattern, which is typical for specific family of algorithms. A client is allowed to simply rotate various methods - in other words, algorithms are replaced regardless of clients which use them. The structure of this module is showed on Figure \ref{fig:alg_sh}. 
+The interface for an algorithm contains two pure, virtual methods: \textit{learn} and \textit{classify}, which must be implemented. The second function takes object of \textit{Intance} type as an argument, which certainly wraps an instance, and returns binary vector of labels. The Algorithms module also contains classes, which are used to evaluate particular methods. It allows to measure quality of classification by parameters, such as Micro-, Instance- and Macro-average of Precision, Recall and F-score. It also calculates Hamming Loss measure. 
+
+\begin{figure}
+\centering
+\label{fig:alg_sh}
+\caption{UML diagram of Algorithms module}
+\includegraphics[scale=0.5]{figures/mlcpack.png}
+\end{figure}
+
+\subsection{Description of Utils module}
+
+The Utils module provides classes which parse various data input format, such as ARFF or VW and manage instances. It also contains tools which make possible to serialize \textit{Armadillo} objects, ie. matrices or vectors.   
+
+\section{Examples of usage}
+
+The code showed on Listing \ref{lst:mlcpack1} is a basic learnig flow for classifier. In the first two lines, there are required header files included. The first header file contains a declaration of class which is a wrapper for \textit{CPLST} algorithm, while the second one has a declaration of an \textit{ARFF} parser. In the 14. line the parser object is declared and the data set is loaded into memory and represented as \textit{Instances} object (lines 15. and 16.). Finally an instance of \textit{CPLST} classifier is created and the learning process is performed. In the 21. the labels are predicted by trained classifer.
+
+\lstinputlisting[numbers=left, label=lst:mlcpack1, caption=Example of learning flow, language=C++]{listings/2.cpp}
+
+The second example, presented on Listing \ref{lst:mlcpack2}  
+
+\lstinputlisting[numbers=left, label=lst:mlcpack2, caption=Example of learning flow, language=C++]{listings/3.cpp}
+

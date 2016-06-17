@@ -1,0 +1,419 @@
+
+\chapter{Results}
+
+\section{Experiment environment}
+\subsection{Datasets used in trial}
+
+All of datasets used in the experiment come from \textit{Mulan} project web page. The sizes of sets are differential in order to check a behaviours of the algorithms for small, middle and large number of instances. The details and statistics are presented in Table \ref{tab:exp1}. 
+
+\begin{table}[h]
+\centering
+\caption{Statistic and details of datasets used in the experiment}
+\label{tab:exp1}
+    \begin{tabular}{l|c|r|r|r}
+    name & domain & instances & features & labels \\ \hline \hline
+    enron & text  &  1702  & 1001 &  53 \\
+    scene & image &  2407  & 294 & 6 \\   
+    yeast & biology & 2417 & 103 & 14 \\
+    bibtex & audio & 7395 & 1836 & 159 \\
+    corel16k (10 samples) & images & 13811 $\pm$ 87 & 500 & 161 $\pm$ 9\\
+    EUR-Lex (directory codes) & text & 19348 & 5000 & 412 \\
+    bookmarks & text & 87856 & 2150 & 208 \\
+    NUS-WIDE & images &  269648 & 128/500 & 81  
+    \end{tabular}
+\end{table}
+
+\subsection{Parameters of desktop}
+
+The experiment was performed on one of available instances (m4.4xlarge) provided by \textit{Amazon Web Services}. It has 64 GB of memory and 16 2.4 GHz Intel Xeon® E5-2676 v3 (Haswell) processors. The operating system, used in trial was \textit{Ubuntu 14}.
+
+The library was compiled by \textit{GCC 4.9} with third optimization level. The build process certainly takes more time and memory due to inlining functions or loop unrolling etc., however the performance of code is faster. More information about optimization flags you can find in \textit{GCC} documentation \cite{Opt}. It is worth mentioning that \textit{OpenBLAS} was used instead of standard \textit{BLAS} API in order to achieve fast linear algebra operations. 
+
+\section{Comparison of proposed methods}
+\subsection{Discussing evaluation metrics}
+
+
+The quality of the algorithms was measured by standard metrics, characteristic for multi-label classification.
+
+\subsubsection{Precision and recall} 
+
+These two measures are very similar. Precision is a fraction of correct labels to the number of predicted labels, while recall (als called sensitivity) is a fraction of correct labels to the number of targets. They can be simply described by the following formulas:  
+\begin{equation}
+\label{eq:exp2}
+\frac{|T \cap P|}{|P|}
+\end{equation}
+\begin{equation}
+\label{eq:exp3}
+\frac{|T \cap P|}{|T|}
+\end{equation}
+where $T$ is a set of targets, while $P$ is a set of predictions. Although their definitions are always the same, they can be computed by three different methods:
+\begin{itemize}
+\item Macro-average - in this method we compute precision and recall for each category of dataset independently. Finally we take an arithmetic average of them.
+\item Micro-average - this method is the most intuitive. We just sum up true positives, false positives and false negatives for whole set and then apply them to get the statistics. 
+\item Instance-average - in this approach we compute precision and recall for each instance. In the next step, similarly to Macro-average the arithmetic average is calculated.
+\end{itemize}
+
+Unfortunately any of these methods is more significant than others, so the best way is to use every approach in order to compare the quality of classifiers.  
+
+\subsubsection{F1 score}
+
+This metric is simply a harmonic average of Precision and Recall. Its value is certainly dependent on chosen method of calculataing Precision and Recall. As a result we define Micro-, Macro, Instance-average F1 score. 
+
+\subsubsection{Hamming loss}
+
+This metrics can be defined as a fraction of wrong labels to the total number of labels. It is described by following formula:
+\begin{equation}
+\label{eq:exp1}
+    \frac{1}{m}\sum\limits_{i=1}^{m}\frac{\sum\limits_{j=1}^{k}xor(y_{ij}, z_{ij})}{k}
+\end{equation}
+where $m$ is a number of instances, $k$ is a number of labels, $y_{ij}$ is a target and $z_{ij}$ is a prediction. Let you notice that it is a loss function, what means that the better classifier you have, the smaller value you get.  
+
+\subsection{Quality comparison}
+
+\subsubsection{Enron dataset}
+
+\begin{table}
+\centering
+\caption{Quality of classification for Enron dataset}
+\label{tab:exp1}
+\pgfplotstabletypeset [
+    col sep=semicolon,
+    columns/Method/.style={string type, column type={c|}},
+    columns/Macro F1 score/.style={column type={c|}},
+    columns/Micro F1 score/.style={column type={c|}},
+    columns/Instance F1 score/.style={column type={c|}},
+    columns/Hamming loss/.style={column type={c|}},
+    every head row/.style={after row=\hline\hline}
+]{figures/scene.csv}
+\end{table}
+
+\begin{figure}[h]
+%\centering
+\caption{Quality metrics and reduction degree relation for Enron dataset}
+\label{fig:enron}
+
+\begin{subfigure}{.5\textwidth}
+\label{fig:exp1}
+\caption{Hamming loss and reduction degree relation}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Hamming loss},
+        width=7cm,
+        xmax=1,
+        ymax=0.35]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/scene_0.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/scene_0.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/scene_0.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/scene_0.csv};
+        \addlegendentry{OCCA}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\label{fig:exp2}
+\caption{Macro f1 score and reduction degree relation}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Macro F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=1.1]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/scene_1.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/scene_1.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/scene_1.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/scene_1.csv};
+        \addlegendentry{OCCA}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+\begin{subfigure}{.5\textwidth}
+\label{fig:exp3}
+\caption{Micro f1 score and reduction degree relation}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Micro F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=1.1]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/scene_2.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/scene_2.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/scene_2.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/scene_2.csv};
+        \addlegendentry{OCCA}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\label{fig:exp4}
+\caption{Instance f1 score and reduction degree relation}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont},
+        xlabel={Degree of reduction},
+        ylabel={Instance f1 score},
+        width=7cm,
+        xmax=1,
+        ymax=1.1]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/scene_3.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/scene_3.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/scene_3.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/scene_3.csv};
+        \addlegendentry{OCCA}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+
+\end{figure}
+
+\subsubsection{Scene dataset}
+
+\begin{table}
+\centering
+\caption{Quality of classification for Scene dataset}
+\label{tab:exp2}
+\pgfplotstabletypeset [
+    col sep=semicolon,
+    columns/Method/.style={string type, column type={c|}},
+    columns/Macro F1 score/.style={column type={c|}},
+    columns/Micro F1 score/.style={column type={c|}},
+    columns/Instance F1 score/.style={column type={c|}},
+    columns/Hamming loss/.style={column type={c|}},
+    every head row/.style={after row=\hline\hline}
+]{figures/scene.csv}
+\end{table}
+
+\begin{figure}[h]
+%\centering
+\caption{Quality metrics and reduction degree relation for Scene dataset}
+\label{fig:scene}
+
+\begin{subfigure}{.5\textwidth}
+\label{fig:exp5}
+\caption{Hamming loss and reduction degree relation}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Hamming loss},
+        width=7cm,
+        xmax=1,
+        ymax=0.35]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/scene_0.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/scene_0.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/scene_0.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/scene_0.csv};
+        \addlegendentry{OCCA}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\label{fig:exp6}
+\caption{Macro f1 score and reduction degree relation}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Macro F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=1.1]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/scene_1.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/scene_1.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/scene_1.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/scene_1.csv};
+        \addlegendentry{OCCA}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+\begin{subfigure}{.5\textwidth}
+\label{fig:exp7}
+\caption{Micro f1 score and reduction degree relation}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Micro F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=1.1]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/scene_2.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/scene_2.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/scene_2.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/scene_2.csv};
+        \addlegendentry{OCCA}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\label{fig:exp8}
+\caption{Instance f1 score and reduction degree relation}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont},
+        xlabel={Degree of reduction},
+        ylabel={Instance f1 score},
+        width=7cm,
+        xmax=1,
+        ymax=1.1]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/scene_3.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/scene_3.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/scene_3.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/scene_3.csv};
+        \addlegendentry{OCCA}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+
+\end{figure}
+
+
+\subsubsection{Yeast dataset}
+
+\begin{table}
+\centering
+\caption{Quality of classification for Yeast dataset}
+\label{tab:exp3}
+\pgfplotstabletypeset [
+    col sep=semicolon,
+    columns/Method/.style={string type, column type={c|}},
+    columns/Macro F1 score/.style={column type={c|}},
+    columns/Micro F1 score/.style={column type={c|}},
+    columns/Instance F1 score/.style={column type={c|}},
+    columns/Hamming loss/.style={column type={c|}},
+    every head row/.style={after row=\hline\hline}
+]{figures/yeast.csv}
+\end{table}
+
+\begin{figure}[h]
+%\centering
+\caption{Quality metrics and reduction degree relation for Yeast dataset}
+\label{fig:yeast}
+
+\begin{subfigure}{.5\textwidth}
+\label{fig:exp9}
+\caption{Hamming loss and reduction degree relation}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Hamming loss},
+        width=7cm,
+        xmax=1,
+        ymax=0.35]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/yeast_0.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/yeast_0.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/yeast_0.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/yeast_0.csv};
+        \addlegendentry{OCCA}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\label{fig:exp10}
+\caption{Macro f1 score and reduction degree relation}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Macro F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=1.1]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/yeast_1.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/yeast_1.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/yeast_1.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/yeast_1.csv};
+        \addlegendentry{OCCA}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+\begin{subfigure}{.5\textwidth}
+\label{fig:exp11}
+\caption{Micro f1 score and reduction degree relation}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Micro F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=1.1]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/yeast_2.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/yeast_2.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/yeast_2.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/yeast_2.csv};
+        \addlegendentry{OCCA}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\label{fig:exp12}
+\caption{Instance f1 score and reduction degree relation}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont},
+        xlabel={Degree of reduction},
+        ylabel={Instance f1 score},
+        width=7cm,
+        xmax=1,
+        ymax=1.1]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/yeast_3.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/yeast_3.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/yeast_3.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/yeast_3.csv};
+        \addlegendentry{OCCA}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+
+\end{figure}
+\subsection{Efficency comparison}
+
