@@ -1,4 +1,4 @@
-\chapter{Library}
+\chapter{Implementation}
 
 \section{Requirements}
 
@@ -17,8 +17,6 @@ The first one contains useful modules which extends possibilities of standard li
 \subsection{Discussing linear algebra library used in project}
 
 In order to implement algorithms presented in this paper, I needed \textit{API}, which provides fast linear algebra operations such as pseudoinverse, SVD decomposition etc. After analysing available solutions, I chose \textit{Armadillo} that is high-quality library dedicated \textit{C++} developers. The main strength of this \textit{API} is a good balance between speed and ease of use. In fact, its syntax is similar to \textit{Matlab} environment. The example of code is presented in Listing \ref{lst:arma1}.
-
-\lstinputlisting[numbers=left, label=lst:arma1, caption=Armadillo example code, language=C++]{listings/1.cpp}
 
 The usage of Armadillo is simple, as it is shawn by Listing \ref{lst:arma1}. However, the most important issue is a real speed of matrix operations. According to documentation, the \textit{API} is integrated with \textit{LAPACK} and \textit{BLAS}, which means that effectiveness of matrix multiplication or its decompositions are dependent on their implementations. These libraries are known as rather fast. Moreover there is also a possibility of linking \textit{OpenBLAS} instead of standard \textit{BLAS}, which is multi-threaded \cite{Arma}. 
 
