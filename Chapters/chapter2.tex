@@ -3,7 +3,7 @@
 \section{Notation}
 
 Vectors are denoted by lowercase letters $w$, $x$ etc. while matrices by uppercase letters $W$, $X$ etc. Moreover $x^{(i)}$ is an $i-th$ row of matrix, $(x^T)^{(j)}$ is a $j-th$ column of matrix $X$ and $x_{ij}$ is an element in $i-th$ row and $j-th$ column. $X \in \mathbb{R}^{m \times n}$ symbol means that matrix $X$ has $m$ rows and $n$ columns. For $c \times d$  matrix $X \in \mathbb{R}^{c \times d}$, $\norm{X}_{F}$ is used for its Frobenius norm, $X^P$ is its pseudoinverse, $A^T$ is matrix transposed to $A$. 
-ehere are also several functions used in this paper, ecspecially in pseudocode sections:
+There are also several functions used in this paper, ecspecially in pseudocode sections:
 \begin{itemize}
 \item \textit{tr(X)} is a trace of matrix $X$, 
 \item \textit{randn(n,k)} generates $n \times k$ random matrix using normal distribution,
@@ -54,7 +54,7 @@ The solution of above optimization problem is equivalent to \cite{Weisberg}:
 \begin{equation}\label{eq:LR3}
     \hat{W} = (X^TX)^{P}X^TY
 \end{equation}
-Although $X^TX$ matrix is squared, there is no certainty that it is invertable. Therefore pseudoinverse must be used. There are of course prons and cons of this approach. First of all this model is simple and rather easy to implement - this is its main strength. Apart from that, it poses a base for different methods (some of them are described in this paper). On the other hand, there are strong assumptions which must be taken into account during costructing the model:
+The proof of the equation \ref{eq:LR3} can be found in the appendix \ref{app:least}. Although $X^TX$ matrix is squared, there is no certainty that it is invertable. Therefore pseudoinverse must be used. There are of course prons and cons of this approach. First of all this model is simple and rather easy to implement - this is its main strength. Apart from that, it poses a base for different methods (some of them are described in this paper). On the other hand, there are strong assumptions which must be taken into account during costructing the model:
 
 \begin{itemize}
     \item we assume linearity between feature variables and particular labels,
@@ -76,11 +76,11 @@ where $\lambda$ is a regularization parameter which is a control on fitting para
 \begin{equation}\label{eq:LR3}
     \hat{W} = (X^TX+\lambda\Gamma)^{-1}X^TY
 \end{equation}
-where $\Gamma$ is an $(n+1)\times(n+1)$ diagonal matrix. In many cases, this is chosen as the identity matrix or the identity matrix with zeroes in the first row. Let us notice that in contrast to the Equation \ref{eq:LR3} there is no need to use pseudoinverse in the regularized solution. It can be simply proved by \textit{singluar value decomposition} of symmetric $X^TX$ matrix and its properties:
+where $\Gamma$ is an $(n+1)\times(n+1)$ diagonal matrix. In many cases, this is chosen as the identity matrix or the identity matrix with zeroes in the first row. Let us notice that in contrast to the Equation \ref{eq:LR3} there is no need to use pseudoinverse in the regularized solution. It can be simply proved by \textit{singular value decomposition} of symmetric $X^TX$ matrix and its properties:
 \begin{equation}\label{eq:inv_proof}
     X^TX + \lambda\Gamma=V\Sigma{V^T} + \lambda\Gamma = V\Sigma{V^T} + \lambda{V}V^T\Gamma{V}V^T = V(\Sigma + \lambda{V^T}\Gamma{V})V^T = V(\Sigma + \lambda\Gamma)V^T 
 \end{equation}
-$V(\Sigma + \lambda\Gamma)V^T$ matrix is invertible, becasue $V$ is invertible (it is orthogonal) and $\Sigma +\lambda\Gamma$ is invertible as well (this is diagonal matrix and we have a certainty it does not have zero on its diagonal). The additional information about \textit{SVD} decomposition can be found in Appendix.
+$V(\Sigma + \lambda\Gamma)V^T$ matrix is invertible, becasue $V$ is invertible (it is orthogonal) and $\Sigma +\lambda\Gamma$ is invertible as well (this is diagonal matrix and we have a certainty it does not have zero on its diagonal). The additional information about \textit{SVD} decomposition can be found in appendix \ref{app:svd}.
 
 Both the solutions of linear regression proble certainly have similar complexity. There are two matrix operations used to create the regressor: multiplying and inverting, which can be computed in $O(n^{2.373})$ time by algorithms based on Coppersmith–Winograd method \cite{VVW}. Let us note that matrix $X^TX \in \mathbb{R}^{(n+1) \times (n+1)}$ is inverted, so reduction of feature space (less columns) decreases time complexity - if we assume that reduction procedure is fast. It is also worth considering the reduction of $Y$ - for many labels it affects time-consumption too. 
 
@@ -102,9 +102,9 @@ The full learning algorithm based on linear regression is as shown in Algorithm 
 
 \subsection{Standard PCA method}
 
-The main concept, which stands for PCA, is to reduce dimensionality of a data set consisting of a large number of iterrelated variables, while retaining as much as possible of the variation present in data set.Such the reduction can be achieved by transforming to a new set of variables, the principal components, which are uncorrelated, and which are ordered so that the first few retain most of variation present in all of the original variables. Computation of the principal components reduces to the solution of an eigenvalue-eigenvector for a positive-semifdefinite symmetric matrix (covariance or correlation matrix) \cite{Jolliffe}. Looking at this more intuitively, the data set can be considered as a cloud of points and the variables as their coordinates. All what we have to do is to find new coordinate system (ie. by rotation) such that the greatest variance by some projection of the data comes to lie on the first coordinate, the second greatest variance on the second coordinate, and so on. More information about the eigenvalues and the eigenvectors can be found in the Appendix. 
+The main concept, which stands for PCA, is to reduce dimensionality of a data set consisting of a large number of iterrelated variables, while retaining as much as possible of the variation present in data set.Such the reduction can be achieved by transforming to a new set of variables, the principal components, which are uncorrelated, and which are ordered so that the first few retain most of variation present in all of the original variables. Computation of the principal components reduces to the solution of an eigenvalue-eigenvector for a positive-semifdefinite symmetric matrix (covariance or correlation matrix) \cite{Jolliffe}. Looking at this more intuitively, the data set can be considered as a cloud of points and the variables as their coordinates. All what we have to do is to find new coordinate system (ie. by rotation) such that the greatest variance by some projection of the data comes to lie on the first coordinate, the second greatest variance on the second coordinate, and so on. More information about the eigenvalues and the eigenvectors can be found in the appendix \ref{app:eigen}. 
 
-Finding PCs can be obtained by \textit{Singular Value Decomposition}. More information about \textit{PCA} and its connection with eigenvalues and eigenvectors can be also found in the Appendix. Let $X \in \mathbb{R}_{m \times n}$ be an input matrix where $n$ is a number of variables. Moreover let us assume that $X$ is centered (a mean in each column is equal to $0$). Covariance matrix $C \in \mathbb{R}_{n \times n}$ is then equal to $\frac{X^TX}{n-1}$. Taking into account that $C$ is a symmetric matrix, its SVD decomposition is equivalent to:
+Finding PCs can be obtained by \textit{Singular Value Decomposition}. More information about \textit{PCA} and its connection with eigenvalues and eigenvectors can be also found in the appendix \ref{app:svd}. Let $X \in \mathbb{R}_{m \times n}$ be an input matrix where $n$ is a number of variables. Moreover let us assume that $X$ is centered (a mean in each column is equal to $0$). Covariance matrix $C \in \mathbb{R}_{n \times n}$ is then equal to $\frac{X^TX}{n-1}$. Taking into account that $C$ is a symmetric matrix, its SVD decomposition is equivalent to:
 
 \begin{equation}\label{eq:pca1}
     C=Q\Sigma{Q^T}
@@ -220,7 +220,7 @@ Kettenring showed that CCA is equivalent to simultaneously solving the following
 \end{split}
 \end{equation}
 
-From the machine learning point of view, we can treat $X$ and $Y$ matrices as feature and label matrices and perform CCA on them. Then we can obtain $U$ and $V$ matrices, which certainly are linear combinations of features and suitably labels in this case. The final step is to learn linear regressor from $U$ to $V$. Unfortunately, this kind of algorithm is time-consuming. Let us notice that encoding and decoding data operations are slow, because $W_x$ and $W_y$ matrices are not orthogonal (we cannot simply invert those matrices). The method that finds desired matrices is shown in the Appendix. 
+From the machine learning point of view, we can treat $X$ and $Y$ matrices as feature and label matrices and perform the CCA on them. Then we can obtain $U$ and $V$ matrices which certainly are linear combinations of features and suitably labels in this case. The final step is to learn linear regressor from $U$ to $V$. Unfortunately, this kind of algorithm is time-consuming. Let us notice that encoding and decoding data operations are slow, because $W_x$ and $W_y$ matrices are not orthogonal (we cannot simply invert those matrices). The method that finds desired matrices is shown in the appendix \ref{app::cca}. 
 
 Although there is no point in using pure CCA to build classifier, you can use methods which base on CCA concept. This kind of algorithm will be discussed in the next section.
 
@@ -251,13 +251,13 @@ For every matrix A $\norm{A}_{F}^2=tr(A^TA)$, so the above issue is equivalent t
 \end{equation}
 A matrix $H=XX^P$ is called a hat matrix for linear regression. The presented approach is called \textit{Orthogonally constraint CCA}. In order to solve (\ref{eq:cplst4}), we can consider the eigenvectors that correspond to the largest eigenvalues of $Y^T(H-I)Y$ (they can be computed by SVD decomposition) \cite{ChenLin}.
 
-As we see, \textit{OCCA} aims at minimizing the prediction error (\ref{eq:cplst1}), however an encoding error of the label space is not taken into account. In fact, the label space is transformed by eigenvectors captured from $Y^T(H-I)Y$ matrix. If we combine \textit{OCCA} approach with minimizing an encoding error, then we get the a method called \textit{CPLST} which stands for \textit{Conditional Principal Label Space Transformation}. It can be modelled by the following formula:
+As we see, the \textit{OCCA} aims at minimizing the prediction error (\ref{eq:cplst1}), however an encoding error of the label space is not taken into account. In fact, the label space is transformed by eigenvectors captured from $Y^T(H-I)Y$ matrix. If we combine the \textit{OCCA} approach with minimizing an encoding error, then we get the a method called \textit{CPLST} which stands for \textit{Conditional Principal Label Space Transformation}. It can be modelled by the following formula:
 
 \begin{equation}\label{eq:cplst5}
     \min_{W_x, W_y} \left(\norm{XW_x^T-YW_y^T}_{F}^2 + \norm{Y-YW_y^TW_y}_{F}^2\right)  
     \text{  subject to   } W_yW_y^T=I   
 \end{equation}
-If we use again (\ref{eq:cplst2}) and relation between a trace of matrix and its Frobenius norm, then we get:
+If we use again (\ref{eq:cplst2}) and the relation between a trace of matrix and its Frobenius norm, then we get:
 \begin{equation}\label{eq:cplst6}
     \min_{W_yW_y^T} tr(W_yY^T(I-H)YW_y^T-W_y^TW_yY^TY-Y^TYW_y^TW_y+W_y^TW_yY^TYW_y^TW_y)  
 \end{equation}
@@ -266,8 +266,9 @@ After eliminating a pair of $W_y$ and $W_y^T$ by cyclic permutation and combinin
 \begin{equation}\label{eq:cplst6}
     \max_{W_yW_y^T} tr(W_yY^THYW_y^T)  
 \end{equation}
+The above problem can be solved analogously to the OCCA - by finding eigenvectors and eigenvalues of $Y^THY$. Besides balance between the prediction error and the encoding error, the CPLST is faster than the OCCA. It is an effect of decomposing $Y^THY$ matrix instead of $Y^T(H-I)Y$. On the other hand, both methods are slower than the algorithms based on PCA reduction. It is caused by calculating the $H$ matrix which is time-consuming for a large input data \cite{ChenLin}.
 
-The above problem can be solved analogously to OCCA - by finding eigenvectors and eigenvalues of $Y^THYT$. The resulting algorithm is presented in the Algorithm \ref{alg:cplst1} \cite{ChenLin}. Besides balance between the prediction error and the encoding error, CPLST is faster than OCCA. It is an effect of decomposing $Z^THZ$ matrix instead of $Z^T(H-I)Z$. On the other hand, both methods are slower than the algorithms based on PCA reduction. It is caused by calculating the $H$ matrix which is time-consuming for a large input data.
+The resulting algorithm is presented in the Algorithm \ref{alg:cplst1} \cite{ChenLin}. As we see, the procedure is rather simple. First the desired \textit{SVD} decomposition is computed in order to transform a label space to a new space, which has certainly lower dimension. The classifier is then built using the linear regression method. After making a prediction, we must remember about decoding data (return to the original label space).  
 
 \begin{algorithm}
     \caption{Conditional Principal Label Space Transformation}\label{alg:cplst1}
