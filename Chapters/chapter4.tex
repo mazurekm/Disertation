@@ -24,9 +24,28 @@ All of datasets used in the experiment come from \textit{Mulan} project web page
 
 \subsection{Parameters of desktop}
 
-The experiment was performed on one of available instances (m4.4xlarge) provided by \textit{Amazon Web Services}. It has 64 GB of memory and 16 2.4 GHz Intel Xeon® E5-2676 v3 (Haswell) processors. The operating system, used in trial was \textit{Ubuntu 14}.
+The experiment was performed on one of the available instances (m4.4xlarge) provided by \textit{Amazon Web Services}. It has 64 GB of memory and \textit{Intel Xeon® E5-2676 v3 (Haswell)} processor. Some details connected with CPU can be found in table \ref{tab:cpu}  The operating system, used in the experiment, was \textit{Ubuntu 14}.
 
-The library was compiled by \textit{GCC 4.9} with third optimization level. The build process certainly takes more time and memory due to inlining functions or loop unrolling etc., however the performance of code is faster. More information about optimization flags you can find in \textit{GCC} documentation \cite{Opt}. It is worth mentioning that \textit{OpenBLAS} was used instead of standard \textit{BLAS} API in order to achieve fast linear algebra operations. 
+\begin{table}[h]
+\centering
+\caption{Extra information about \textit{Intel Xeon® E5-2676 v3 (Haswell)}}
+\label{tab:cpu}
+    \begin{tabular}{l|l}
+    & \\ \hline \hline
+    Cache & 20 MB SmartCache \\
+    Bus speed & 8 GT/s QPI \\
+    Instruction set & 64-bit \\
+    Number of cores & 8 \\
+    Number of threads & 16 \\
+    Processor base frequency & 2.4 GHZ \\
+    Intel$^{®}$ Turbo Boost Technology$^{‡}$ & 2.0 \\
+    Intel$^{®}$ Turbo vPro Technology$^{‡}$ & yes \\ 
+    Intel$^{®}$ Turbo Hyper-Threading Technology$^{‡}$ & yes \\
+    Intel$^{®}$ Turbo Virtualization Technology$^{‡}$ & yes
+    \end{tabular}
+\end{table}
+
+The library was compiled by \textit{GCC 4.9} with third optimization level. The build process certainly takes more time and memory due to inlining functions or loop unrolling etc., however the performance of code is faster. More information about optimization flags you can find in \textit{GCC} documentation \cite{Opt}. It is worth mentioning that \textit{OpenBLAS} was used instead of standard \textit{BLAS} API in order to enhance the efficency of linear algebra operations. 
 
 \section{Comparison of proposed methods}
 \subsection{Discussing evaluation metrics}
@@ -69,8 +88,20 @@ where $m$ is a number of instances, $k$ is a number of labels, $y_{ij}$ is a tar
 
 \subsection{Quality comparison}
 
-The quality results are divided into sections - each section is connected with a particular data set. The tables \ref{} 
+The quality results are divided into sections - each section is connected with a particular data set. The experiment involves the following algorithms:
+\begin{itemize}
+    \item CPLST;
+    \item LR, which stand for linear regression;
+    \item LRWithPCA, which is linear regression with PCA compression on a label space;
+    \item LRWithRandomPCA, which is linear regression with random PCA compression on a label space;
+    \item OCCA.
+\end{itemize}
+All of the tested approaches used the linear regressor with regularization - the regularization coefficient was equal to $7.0$. This value was certainly experimentally stated and for different data sets it does not have to be optimal.  
 
+The tables \ref{tab:exp1} - \ref{tab:exp7} contain scores for F1 Micro-, Macro-, Instance average metrics for particular methods. In case of the algorithms with data compression, an only label space was reduced. The reduction degree was equal to $0.6$, what means that $40\%$ of columns in a transformed space were rejected.
+The figures \ref{fig:enron} - \ref{fig:bookmarks} show an influence of the reduction degree on a specific metric. 
+
+\newpage
 \subsubsection{Enron dataset}
 
 \begin{table}[H]
@@ -94,8 +125,8 @@ The quality results are divided into sections - each section is connected with a
 \label{fig:enron}
 
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp1}
 \caption{Hamming loss and reduction degree relation}
+\label{fig:exp1}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -116,8 +147,8 @@ The quality results are divided into sections - each section is connected with a
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp2}
 \caption{Macro f1 score and reduction degree relation}
+\label{fig:exp2}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -139,8 +170,8 @@ The quality results are divided into sections - each section is connected with a
 \end{subfigure}
 
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp3}
 \caption{Micro f1 score and reduction degree relation}
+\label{fig:exp3}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -161,8 +192,8 @@ The quality results are divided into sections - each section is connected with a
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp4}
 \caption{Instance f1 score and reduction degree relation}
+\label{fig:exp4}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont},
@@ -209,8 +240,8 @@ The quality results are divided into sections - each section is connected with a
 \label{fig:scene}
 
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp5}
 \caption{Hamming loss and reduction degree relation}
+\label{fig:exp5}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -231,8 +262,8 @@ The quality results are divided into sections - each section is connected with a
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp6}
 \caption{Macro f1 score and reduction degree relation}
+\label{fig:exp6}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -254,8 +285,8 @@ The quality results are divided into sections - each section is connected with a
 \end{subfigure}
 
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp7}
 \caption{Micro f1 score and reduction degree relation}
+\label{fig:exp7}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -276,8 +307,8 @@ The quality results are divided into sections - each section is connected with a
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp8}
 \caption{Instance f1 score and reduction degree relation}
+\label{fig:exp8}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont},
@@ -325,8 +356,8 @@ The quality results are divided into sections - each section is connected with a
 \label{fig:yeast}
 
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp9}
 \caption{Hamming loss and reduction degree relation}
+\label{fig:exp9}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -347,8 +378,8 @@ The quality results are divided into sections - each section is connected with a
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp10}
 \caption{Macro f1 score and reduction degree relation}
+\label{fig:exp10}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -370,8 +401,8 @@ The quality results are divided into sections - each section is connected with a
 \end{subfigure}
 
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp11}
 \caption{Micro f1 score and reduction degree relation}
+\label{fig:exp11}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -392,8 +423,8 @@ The quality results are divided into sections - each section is connected with a
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp12}
 \caption{Instance f1 score and reduction degree relation}
+\label{fig:exp12}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont},
@@ -439,8 +470,8 @@ The quality results are divided into sections - each section is connected with a
 \label{fig:bibtex}
 
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp13}
 \caption{Hamming loss and reduction degree relation}
+\label{fig:exp13}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -461,8 +492,8 @@ The quality results are divided into sections - each section is connected with a
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp14}
 \caption{Macro f1 score and reduction degree relation}
+\label{fig:exp14}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -484,8 +515,8 @@ The quality results are divided into sections - each section is connected with a
 \end{subfigure}
 
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp15}
 \caption{Micro f1 score and reduction degree relation}
+\label{fig:exp15}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -506,8 +537,8 @@ The quality results are divided into sections - each section is connected with a
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp16}
 \caption{Instance f1 score and reduction degree relation}
+\label{fig:exp16}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont},
@@ -555,8 +586,8 @@ The quality results are divided into sections - each section is connected with a
 \label{fig:corel16k}
 
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp17}
 \caption{Hamming loss and reduction degree relation}
+\label{fig:exp17}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -577,8 +608,8 @@ The quality results are divided into sections - each section is connected with a
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp18}
 \caption{Macro f1 score and reduction degree relation}
+\label{fig:exp18}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -600,8 +631,8 @@ The quality results are divided into sections - each section is connected with a
 \end{subfigure}
 
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp19}
 \caption{Micro f1 score and reduction degree relation}
+\label{fig:exp19}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -622,8 +653,8 @@ The quality results are divided into sections - each section is connected with a
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp20}
 \caption{Instance f1 score and reduction degree relation}
+\label{fig:exp20}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont},
@@ -670,8 +701,8 @@ The quality results are divided into sections - each section is connected with a
 \label{fig:eurlex}
 
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp21}
 \caption{Hamming loss and reduction degree relation}
+\label{fig:exp21}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -692,8 +723,8 @@ The quality results are divided into sections - each section is connected with a
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp22}
 \caption{Macro f1 score and reduction degree relation}
+\label{fig:exp22}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -715,8 +746,8 @@ The quality results are divided into sections - each section is connected with a
 \end{subfigure}
 
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp23}
 \caption{Micro f1 score and reduction degree relation}
+\label{fig:exp23}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -737,8 +768,8 @@ The quality results are divided into sections - each section is connected with a
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp24}
 \caption{Instance f1 score and reduction degree relation}
+\label{fig:exp24}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont},
@@ -785,8 +816,8 @@ The quality results are divided into sections - each section is connected with a
 \label{fig:bookmarks}
 
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp25}
 \caption{Hamming loss and reduction degree relation}
+\label{fig:exp25}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -807,8 +838,8 @@ The quality results are divided into sections - each section is connected with a
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp26}
 \caption{Macro f1 score and reduction degree relation}
+\label{fig:exp26}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -830,8 +861,8 @@ The quality results are divided into sections - each section is connected with a
 \end{subfigure}
 
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp27}
 \caption{Micro f1 score and reduction degree relation}
+\label{fig:exp27}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont}, 
@@ -852,8 +883,8 @@ The quality results are divided into sections - each section is connected with a
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\label{fig:exp28}
 \caption{Instance f1 score and reduction degree relation}
+\label{fig:exp28}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont},
@@ -880,15 +911,85 @@ The quality results are divided into sections - each section is connected with a
 \newpage
 \subsection{Efficency comparison}
 
-\begin{figure}[h]
+The measurement of time of the methods was performed on \textit{bookmarks} data set with a changeable number of instances. The computation was run on sequentially on one core and parallelly on eight cores, in order to show the efficency difference. The experiment involves the following approaches:
+\begin{itemize}
+    \item CPLST;
+    \item LR, which stand for linear regression;
+    \item LRWithPCA, which is linear regression with PCA compression on a label space;
+    \item LRWithRPCA (1), which is linear regression with random PCA compression on a label space;
+    \item LRWithRPCA (2), which is linear regression with random PCA compression on a feature space;
+    \item OCCA.
+\end{itemize}
+Due to meaningful differences (even about an order of magnitude) between particular algorithms, the results are shown in three figures: \ref{fig:exp29} - \ref{fig:exp31}
+
+\newpage
+\subsubsection{Performance on one core}
+
+\begin{figure}[H]
 \centering
+\caption{Time measurement of \textit{LR}, \textit{LRWithRPCA (1)} and \textit{LRWithRPCA(2)} (1 core)}
 \label{fig:exp29}
-\caption{Multiplication matrix performance}
-\begin{tikzpicture}
+\begin{tikzpicture}[scale=0.93]
     \begin{axis}[legend pos=north east,
         xlabel={number of instances},
         ylabel={time [s]},
-        ymax=15]
+        ymax={60}]
+        \addplot table [x=instance, y=time, col sep=semicolon] {figures/LR1.csv};
+        \addlegendentry{LR}
+        \addplot table [x=instance, y=time, col sep=semicolon] {figures/LRWithRandomPCA1.csv};
+        \addlegendentry{LRWithRPCA (1)}
+        \addplot table [x=instance, y=time, col sep=semicolon] {figures/LRWithRandomPCA_d1.csv};
+        \addlegendentry{LRWithRPCA (2)}
+
+    \end{axis}
+\end{tikzpicture}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\caption{Time measurement of \textit{OCCA} and \textit{CPLST} (1 core)}
+\label{fig:exp30}
+\begin{tikzpicture}[scale=0.93]
+    \begin{axis}[legend pos=north east,
+        xlabel={number of instances},
+        ylabel={time [s]},
+        ymax={1500}]
+        \addplot table [x=instance, y=time, col sep=semicolon] {figures/CPLST1.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=instance, y=time, col sep=semicolon] {figures/OCCA1.csv};
+        \addlegendentry{OCCA}
+
+    \end{axis}
+\end{tikzpicture}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\caption{Time measurement of \textit{LRWithPCA} (1 core)}
+\label{fig:exp31}
+\begin{tikzpicture}[scale=0.93]
+    \begin{axis}[legend pos=north east,
+        xlabel={number of instances},
+        ylabel={time [s]},
+        ymax={5000}]
+        \addplot table [x=instance, y=time, col sep=semicolon] {figures/LRWithPCA1.csv};
+        \addlegendentry{LRWithPCA}
+
+    \end{axis}
+\end{tikzpicture}
+\end{figure}
+
+\subsubsection{Performance on 8 cores}
+
+\begin{figure}[H]
+\centering
+\caption{Time measurement of \textit{LR}, \textit{LRWithRPCA(1)} and \textit{LRWithRPCA}(2) (8 cores)}
+\label{fig:exp32}
+\begin{tikzpicture}[scale=0.93]
+    \begin{axis}[legend pos=north east,
+        xlabel={number of instances},
+        ylabel={time [s]},
+        ymax=16]
         \addplot table [x=instance, y=time, col sep=semicolon] {figures/LR.csv};
         \addlegendentry{LR}
         \addplot table [x=instance, y=time, col sep=semicolon] {figures/LRWithRandomPCA.csv};
@@ -900,14 +1001,15 @@ The quality results are divided into sections - each section is connected with a
 \end{tikzpicture}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
-\label{fig:exp30}
-\caption{Multiplication matrix performance}
-\begin{tikzpicture}
+\caption{Time measurement of \textit{OCCA} and \textit{CPLST} (8 cores)}
+\label{fig:exp33}
+\begin{tikzpicture}[scale=0.93]
     \begin{axis}[legend pos=north east,
         xlabel={number of instances},
-    ylabel={time [s]}]
+        ylabel={time [s]},
+        ymax=300]
         \addplot table [x=instance, y=time, col sep=semicolon] {figures/CPLST.csv};
         \addlegendentry{CPLST}
         \addplot table [x=instance, y=time, col sep=semicolon] {figures/OCCA.csv};
@@ -917,17 +1019,20 @@ The quality results are divided into sections - each section is connected with a
 \end{tikzpicture}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
-\label{fig:exp31}
-\caption{Multiplication matrix performance}
-\begin{tikzpicture}
+\caption{Time measurement of \textit{LRWithPCA} (8 cores)}
+\label{fig:exp34}
+\begin{tikzpicture}[scale=0.93]
     \begin{axis}[legend pos=north east,
         xlabel={number of instances},
-    ylabel={time [s]}]
+        ylabel={time [s]},
+        ymax=2500]
         \addplot table [x=instance, y=time, col sep=semicolon] {figures/LRWithPCA.csv};
         \addlegendentry{LRWithPCA}
 
     \end{axis}
 \end{tikzpicture}
 \end{figure}
+
+

@@ -7,7 +7,7 @@ It is hard to disagree that we live in `big data' era. Data centers are processi
 
 Besides predicting trends or making suggestions, we could also use AI algorithms is some specific classification tasks. Let us imagine, there is an application which might assign hashtags to our post on Twitter or Instagram after analysing the text first. Or an application, which could assign categories to our article on Wikipedia. This paper is devoted to algorithms, which could be used to implement the applications, that make this kind of tasks. 
 
-\section{Discussing the problem}
+\section{Problem discussion}
 
 Machine learning is a branch of computer science which focuses on creating an automatic system, which can learn and improve itself from gathered experience (data). There are three main types of machine learning tasks:
 
@@ -23,7 +23,7 @@ This study is devoted to multi-label classification which is one of basic proble
 
 The classification aims at matching specific category (also called class) to a new observation base on a traning set. The training set is a set of observations for whom the class, they belong to, is known. Let us notice that the classification can be considered as two separated problems: binary classification and multiclass classification. The difference between them is certainly connected with the number of classes. In the first case we have only two categories, whereas in the second one there are many of them. In other words, the mutlticlass classification is an extension of the binary classification for more than two categories, however there is always one target - the only one class is assigned to the object. If we increase the number of targets instead of the number of classed in binary classication, then we get multi-label classification problem. This time a sequence of labels is predicted for a specific instance. Let us notice that there is also a relation between multiclass and multi-label classification. We could treat each sequence of labels as an independent category. However, the number of classes grows exponentially with the increasing number of labels, what makes this approach useless. 
 
-\section{Scope of the thesis}
+\section{Scope of thesis}
 
 The scope of the thesis involves fast implementation of multi-label classification algorithms which base mainly on linear algebra axioms. Let us notice that matrix representation of training data is comfortable and a kind of intuitive. Moreover, linear algebra operations such as matrices multiplication or matrix invertion can be effectively performed in multi-thread environment.  As a result even for huge training sets, there might be a sensible time of building classifier achieved. 
 
