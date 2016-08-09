@@ -165,7 +165,7 @@ PCA features and/or labels reduction can be simply combined with classifier base
 Creating a regressor from reduced data has certainly lower complexity than from original data, however PCA algorithm costs a time. The implementation based on SVD decomposition for $m\times{n}$ matrix is $O(m^2n + n^3)$, so it is hard to expect this method will work faster. It is also important to remember, that PCA might be understood as a lossy compression. For some data sets it might prevent an algorithm from being overfitted, but it might also decrease its quality - it is naturally connected with compression degree. 
 One of possible ideas, which might deal with the complexity issue, is to use faster PCA algorithm which is not so accurate and gives only an estimation of principal components. This kind of algorithm is described in the next section.
 
-\subsection{Randomized PCA algorithm}
+\subsection{Random PCA algorithm}
 
 In order to make a computation of PCs faster, we can use randomized version of the algorithm. The full method is presented in Algorithm \ref{alg:rpca1}. 
 

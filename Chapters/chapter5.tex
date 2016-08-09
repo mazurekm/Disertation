@@ -1,6 +1,6 @@
 \chapter{Conclusion}
 
-\section{Summary of quality experiment}
+\section{Discussing quality experiment results}
 
 The quality of classification for all the methods is strongly dependent on a training set and a metric which is taken into account. The most "difficult" training set is \textit{corel16k}, even though it is not the biggest set - its number of features, number of labels and number of instances as well are lower than in case of \textit{bookmarks} or \textit{EUR-Lex} data sets. Besides \textit{Hamming loss} metric, which is satisfying, the rest of them is levelled of $10^2$ (Table \ref{tab:exp5}) and Figure \ref{fig:corel16k}) what is a very low score. As we see, a nature and a domain of data set also affect the results. On the other hand, it is hard to find the correlation between the domain and the scores. \textit{Scene} data set, as well as \textit{corel16k}, is connected with images, but the results are far better for the first one (Table \ref{tab:exp3}). It is worth mentioning that high results have been also achieved for \textit{yeast} set - its domain is biology.
 
@@ -8,12 +8,30 @@ The most effective approach, when it comes about quality and regardless of the m
 
 Figure \ref{fig:enron} - Figure \ref{fig:bookmarks} show the relation between the reduction degree and a value of a specific metric. As we see the lower reduction degree we use, the worse scores we get in almost all cases. An interesting anomaly is \textit{EUR-Lex} dataset. In this particular case \textit{hamming loss} increases regularly with a growth of reduction degree value. The situation is similar when it comes about f1 micro average (it should grow but it decreases). The domain of \textit{EUR-Lex} is text - this set is connected with \textit{TF-IDF} representation of documents. It is possible that most of the features are useless and make a noise in the data - it could explain the anomaly.  
 
-\section{Summary of efficency experiment}
+\section{Discussing efficency experiment results}
 
-All the methods, which took part in the experiment, perform faster in a multi-threaded environment. The difference is noticeable - for some algorithms the computation is even four times faster. It is certainly the result of efficient linear operations (matrix multiplication etc.) which are suitable for parallelization.
+All the methods, which took part in the experiment, perform faster in a multi-threaded environment. The difference is noticeable - for some algorithms the computation is even four times faster. It is certainly the result of efficient linear operations (matrix multiplication etc.) which are suitable for parallelization. It is also obvious that the greater dataset we take, the morei time is required to build the classigier.
 
-The best approach, when it comes about time-consumptions, 
+The best approach, when it comes about time-consumption, is classical linear regression (Figure \ref{fig:exp29} and Figure \ref{fig:exp32}). Although the other methods create a classifier from reduced data, the time cost of such the compression is too high. However, the results reached by \textit{LRWithRPCA} are not much worse than in case of \textit{LR}. Unlike the rest of methods based on preliminary compression, \textit{LRWithRPCA} doses not use \textit{SVD} decomposition. This fact explains why this method is much faster - it is worth reminding that \textit{SVD} has the complexity of $O(m^2n+n^3)$. 
+
+Figure \ref{fig:exp31} and Figure \ref{fig:34} show that the slowest approach is \textit{LRWithPCA}. We should remember that only a label space has been compressed in the experiment - if we compressed a feature space as well, the whole processwoud take longer. As we see this implementation is useless for massive data. 
+
+\textit{CPLST} and \textit{OCCA} (Figure \ref{fig:exp30} and Figure \ref{fig:exp33}) have almost the same time complexity. It is certainly not suprising - both the methods process matrices of the same size in a very similar way.
 
 \section{Future research implications}
 
-The solution 
+The efficency experiment has shown that parallelizing of computation has huge influence on time-consumption. Therefore it is sensible to implement the algorithms for environments which use GPU to process. This will probably improve the efficiency for all the methods. It is also worth checking if an involvement of greater amount of cores (threads) in processing decreases time-consumption.  
+
+Among the tested algorithms, there are two approaches which can be rejected: \textit{LRWithPCA} and \textit{OCCA}. The first one is definitely too slow and is also not satisfying when it comes about quality. In fact its random version gives similar quality results (sometimes even better). The second one is exactly as fast as \text{CPLST} algorithm, but has achieved worse scores in the quality experiment. 
+
+The most suprising aspect of the research is the result achieved by \textit{LR} algorithm in both the experiments - ecspecially in the second one. The transformations of feature and labels spaces have aimed at decreasing input matrices for linear regressor. Unfortunately these transformations are too time-consuming towards building a regressor. However, the time achieved by \textit{LRWithRPCA} is not much worse. Moreover it is possible to manipulate specific parameters of this method what can help obtain better results. All in all there is a lot to investigate in this particular approach.   
+
+Even though \textit{CPLST} is not as efficient as \textit{LR} and \textit{LRWithRPCA}, this approach should also be studied - more generally speaking the methods inspired by \textit{CCA}. Let us remind that the algorithm has reached better results in the quality experiment than the algorithms which use \textit{PCA}. In this specific implementation of \textit{CPLST}, the linear regressor is used to build a final classifier - it is sensible to check different solutions, for example logistic regressor etc. It is also sensible to check how some different regressor would cooperate with \textit{Random PCA} algorithm.
+
+\section{Summery}
+
+The scope of the thesis has involved fast implementations of multi-label classification algorithms based on preliminary transformations of feature and label spaces. This goal has been achieved - the efficency experiment has shown that the methods "learn" fast, even if we take massive data into account. However, as it has been mentioned in the previous section, there are still many approaches to test.  
+
+The implementations have become a part of the library called \textit{MLCPACK} which has been written in \textit{C++11} programming language. Besides the algorithms, the library contains additional tools, such as \textit{ARFF} parser or quality evaluators. 
+
+
