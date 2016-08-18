@@ -5,7 +5,7 @@
 \section{Least squares for multiple regression}
 \label{app:least}
 
-Given a design matrix $X \in \mathbb{R}^{m \times n}$ and a vector of dependent variables $y \in \mathbb{R}^{n}$, we want to find $w$, such as:
+Given a design matrix $X \in \mathbb{R}^{m \times n}$ and a vector of dependent variables $y \in \mathbb{R}^{n}$, we want to find $w$, such that:
 \begin{equation}
     \hat{w} = \argmin_{w \in \mathbb{R}^{n}}\sum\limits_{i=1}^{m}(y_i-x_iw^T_i)^2 = \argmin_{w \in \mathbb{R}^{n}}(y-Xw)^T(y-Xw)
 \end{equation}
@@ -13,7 +13,7 @@ The above optimization problem can be simply transformed to the following equati
 \begin{equation}\label{eq:least1}
     \nabla_w \frac{1}{2}(y-Xw)^T(y-Xw) = 0
 \end{equation}
-As we see, we need to calculate the derivative of $\frac{1}{2}(y-Xw)^T(y-Xw)$ in respect to $w$. In order to reach it, we can use a ralation between a derivative of matrix and its trace. Fist of all, let us note a few facts about trace of matrix and its connection with a derivative:
+As we see, we need to calculate the derivative of $\frac{1}{2}(y-Xw)^T(y-Xw)$ in respect to $w$. In order to reach it we can use ralations between derivatives with matrices and trace of a matrix. First of all, let us note a few facts about trace of a matrix:
 
 \begin{enumerate}
     \item $tr(A+B) = tr(A)+tr(B)$
@@ -24,11 +24,11 @@ As we see, we need to calculate the derivative of $\frac{1}{2}(y-Xw)^T(y-Xw)$ in
     \item if $a \in \mathbb{R}$ then $tr(a)=a$
     \item $\nabla_Atr(ABA^TC) = CAB+C^TAB^T$
 \end{enumerate}
-Calculating a dot product in \ref{eq:least1} and using the property (6.) of trace operator, we obtain:
+Calculating a dot product in \cref{eq:least1} and using the property (6.) of a trace operator, we obtain:
 \begin{equation}\label{eq:least2}
     \frac{1}{2} \nabla_w tr(w^TX^TXw-w^TX^Ty-y^TXw+y^Ty) = 0
 \end{equation}
-Next, using the properties (1.), (3.) and again (6.), \ref{eq:least2} is equivalent to:
+Next, using the properties (1.), (3.) and again (6.), \cref{eq:least2} can be expressed as:
 \begin{equation}\label{eq:least3}
     \frac{1}{2}[\nabla_wtr(ww^TX^TX)-\nabla_wtr(y^TXw)-\nabla_wtr(y^TXw))] = 0
 \end{equation}
@@ -36,16 +36,16 @@ The derivative of $y^Ty$ is $0$, because it does not depend on $w$. Thus it has 
 \begin{equation}\label{eq:least4}
     \nabla_wtr(ww^TX^TX) = \nabla_wtr(wIw^TX^TX) = X^TXwI + XTXwI = X^TXw+X^TXw
 \end{equation}
-because of (7.) property of trace operator and:
+because of the property (7.) of a trace operator and:
 \begin{equation}\label{eq:least5}
     \nabla_wtr(y^TXw) = X^Ty
 \end{equation}
-because of (4.) property.
-Now we can simply use \ref{eq:least4} and \ref{eq:least5} expressions in \ref{eq:least3} and calculate the desired derivative:
+because of the property (4.).
+Now we can simply use \cref{eq:least4} and \cref{eq:least5} in \cref{eq:least3} and calculate the desired derivative:
 \begin{equation}\label{eq:least6}
     \frac{1}{2}[X^TXw+X^TXw-X^Ty-X^Ty] = 0
 \end{equation}
-Finally, we obtain $w$ from the equation \ref{eq:least6}:
+Finally, we obtain $w$ from \cref{eq:least6}:
 \begin{equation}
     w=(X^TX)^{-1}X^Ty
 \end{equation}
@@ -54,35 +54,35 @@ Finally, we obtain $w$ from the equation \ref{eq:least6}:
 \section{Eigenvalues and eigenvectors of matrices}
 \label{app:eigen}
 
-Let matrix $T \in \mathbb{R}^{m \times n}$ be a linear transformation matrix - such a matrix can express primary linear transformations, for instance rotation, scaling, transposition, reflection, etc. If there are a column vector $v$ and a scalar $\lambda$, such as:
+Let a matrix $T \in \mathbb{R}^{m \times n}$ be a linear transformation matrix - such a matrix can express primary linear transformations, for instance rotation, scaling, transposition, etc. If there are a column vector $v$ and a scalar $\lambda$, such that:
 \begin{equation}\label{eq:eigen1}
     Tv=\lambda{v}
 \end{equation}
-then we call them an eigenvector and suitably an eigenvalue of matrix $T$. Intuitively, the  eigenvector $v$ of the matrix $T$ is transformed by the $T$ into itself - its direction does not change. The eigenvalue can be then intepreted as a scale factor. Formally, the eigenvectors and the eigenvalues chracterize an endomorphism of a particular linear space.  
+then we call them an eigenvector and suitably an eigenvalue of a matrix $T$. Intuitively an eigenvector $v$ of a matrix $T$ is transformed by $T$ into itself - its direction does not change. An eigenvalue can be then intepreted as a scale factor. Formally eigenvectors and eigenvalues chracterize an endomorphism of a particular linear space.  
 
 The equation \ref{eq:eigen1} can be certainly stated equivalenty as:
 
 \begin{equation}\label{eq:eigen2}
     (T-\lambda{I})v=0
 \end{equation}
-where $I$ is an identity matrix. Let us notice that \ref{eq:eigen2} has a solution if and only if the determinant of the matrix $(T-\lambda{I})$ is equal to zero. As a result, we can find eigenvalues by solving the following equation:
+where $I$ is the identity matrix. Let us notice that \cref{eq:eigen2} has a solution if and only if the determinant of a matrix $(T-\lambda{I})$ is equal to zero. As a result, we can find eigenvalues by solving the following equation:
 \begin{equation}\label{eq:eigen3}
     det(T-\lambda{I}) = (\lambda_1-\lambda)(\lambda_2-\lambda)\cdots(\lambda_n-\lambda) = 0
 \end{equation}
-The equation \ref{eq:eigen3} is called a characteristic equation, while its left-hand side is called characteristic polynomial. In practise this method is not used to calculate eigenvectors and eigenvalues. The most popular algorithm is \textit{power iteration} which is also called \textit{Von Mises iteration}.
+\Cref{eq:eigen3} is called the characteristic equation, while its left-hand side is called the characteristic polynomial. In practise this method is not used to calculate eigenvectors and eigenvalues. The most popular algorithm is \textit{Power iteration} which is also called \textit{Von Mises iteration}.
 
 
 \newpage
 \section{Singular value decomposition}
 \label{app:svd}
 
-\textit{SVD} decomposition is a particular factorization of a real or complex matrix. Formally, each arbitrary matrix $X \in \mathbb{R}^{n \times p}$ can be written as \cite{Jolliffe}:
+\textit{SVD} decomposition is a particular factorization of a real or a complex matrix. Formally, each arbitrary matrix $X \in \mathbb{R}^{n \times p}$ can be written as \cite{Jolliffe}:
 \begin{equation}
     X=U\Sigma{V^T}
 \end{equation}
 where:
 \begin{enumerate}
-    \item $U$ and $V$ are $(n \times r)$, $(p \times r)$ matrices which have orthonormal columns. It means that $UU^T=I$ and $VV^T=I$, where $I$ is an identity matrix;
+    \item $U$ and $V$ are $(n \times r)$, $(p \times r)$ matrices which have orthonormal columns. It means that $UU^T=I$ and $VV^T=I$, where $I$ is the identity matrix;
     \item $\Sigma$ is an $(r \times r)$ matrix;
     \item $r$ is a rank of $X$.
 \end{enumerate}
@@ -97,9 +97,9 @@ The factorization with such properties can be computed using the following obser
     \item The values found on the diagonal entries of $\Sigma$ are square roots of non-zero eigenvalues of both $XX^T$ and $X^TX$.
 \end{itemize}
 
-Besides a few interesting mathematical properties, the \textit{SVD} decomposition has also an intuitive intepretation. If we assume that $X \in \mathbb{R}^{n \times n}$ is a square matrix of linear transformation with positive determinant, then $\Sigma$ can be thought as a scaling matrix while $V^T$ and $U$ can be viewed as rotation matrices. Therefore the expression $U\Sigma{V^T}$ can be regarded as a composition of three geometrical transformations: two rotations and scaling\cite{SVD}.
+Besides a few interesting mathematical properties, the \textit{SVD} decomposition has also an intuitive intepretation. If we assume that $X \in \mathbb{R}^{n \times n}$ is a square matrix of a linear transformation with the positive determinant, then $\Sigma$ can be thought as a scaling matrix while $V^T$ and $U$ can be viewed as rotation matrices. Therefore the expression $U\Sigma{V^T}$ can be regarded as a composition of three geometrical transformations: two rotations and scaling\cite{SVD}.
 
-The standard \textit{SVD} algorithm has complexity of $O(np^2+p^3)$ and consists off two steps. In the first step, the origin matrix is transformed into bidiagonal matrix. It is usually made by \textit{Householder reflection} algorithm which is $O(np^2+p^3)$ in the worst case. The second step is connected with proceeding \textit{SVD} on the reduced matrix obtained in the first step. This part of the algorithm costs $O(p^2)$ and is computed by \textit{QR} decomposition \cite{SVD}. 
+The standard \textit{SVD} algorithm has complexity of $O(np^2+p^3)$ and consists off two steps. In the first step, an origin matrix is transformed into a bidiagonal matrix. It is usually made by \textit{Householder reflection} algorithm which is $O(np^2+p^3)$ in the worst case. The second step is connected with proceeding \textit{SVD} on a reduced matrix obtained in the first step. This part of the algorithm costs $O(p^2)$ and is computed by \textit{QR} decomposition \cite{SVD}. 
 
 \newpage
 \section{CCA computing algorithm based on \textit{SVD} decomposition}
@@ -109,7 +109,7 @@ The algorithm based on \textit{SVD} is not the fastest way of computing \textit{
 \begin{equation}
     X=U_1S_1V^T_1, \quad X=U_2S_2V^T_2
 \end{equation}
-Next, $U_1^TU_2$ matrix is formed and also decomposed by \textit{SVD}:
+Next, a matrix $U_1^TU_2$ is formed and also decomposed by \textit{SVD}:
 \begin{equation}
     U_1^TU_2 = Q\Sigma{L^T}
 \end{equation}
@@ -125,11 +125,7 @@ Finally, matrices of coefficents of linear combinations for $X$ and $Y$ are comp
 \lstinputlisting[numbers=left, language=C++, caption=armadillo.cpp]{listings/armadillo.cpp}
 
 \newpage
-\section{Build process management}
-\label{app:build}
-
-\newpage
-\section{Example of data in ARFF format}
+\section{Example of data in \textit{ARFF} format}
 \label{app:arff}
 \lstinputlisting[caption=iris.arff]{listings/iris.arff}
 \lstinputlisting[caption=iris.xml, language=xml]{listings/iris.xml}

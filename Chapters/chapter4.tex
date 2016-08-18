@@ -4,7 +4,7 @@
 \section{Experiment environment}
 \subsection{Datasets used in trial}
 
-All of datasets used in the experiment come from \textit{Mulan} project web page. The sizes of sets are differential in order to check a behaviours of the algorithms for small, middle and large number of instances. The details and statistics are presented in Table \ref{tab:exp1}. 
+All of the datasets used in the experiment come from \textit{Mulan} project web page. The sizes of sets are differential in order to check behaviours of the algorithms for a small, a middle and a large number of instances. The detailed information about datasets are presented in \cref{tab:exp1}. 
 
 \begin{table}[h]
 \centering
@@ -24,7 +24,7 @@ All of datasets used in the experiment come from \textit{Mulan} project web page
 
 \subsection{Parameters of desktop}
 
-The experiment was performed on one of the available instances (m4.4xlarge) provided by \textit{Amazon Web Services}. It has 64 GB of memory and \textit{Intel Xeon® E5-2676 v3 (Haswell)} processor. Some details connected with CPU can be found in table \ref{tab:cpu}  The operating system, used in the experiment, was \textit{Ubuntu 14}.
+The experiment was performed on one of the available instances (m4.4xlarge) provided by \textit{Amazon Web Services}. It has 64 GB of memory and \textit{Intel Xeon® E5-2676 v3 (Haswell)} processor. Some details connected with CPU can be found in \cref{tab:cpu}. The operating system, used in the experiment, was \textit{Ubuntu 14}.
 
 \begin{table}[h]
 \centering
@@ -45,17 +45,17 @@ The experiment was performed on one of the available instances (m4.4xlarge) prov
     \end{tabular}
 \end{table}
 
-The library was compiled by \textit{GCC 4.9} with third optimization level. The build process certainly takes more time and memory due to inlining functions or loop unrolling etc., however the performance of code is faster. More information about optimization flags you can find in \textit{GCC} documentation \cite{Opt}. It is worth mentioning that \textit{OpenBLAS} was used instead of standard \textit{BLAS} API in order to enhance the efficency of linear algebra operations. 
+The library was compiled by \textit{GCC 4.9} with the third optimization level (\textit{-O3} flag). The build process certainly takes more time and memory due to inlining functions or loop unrolling etc., however a performance of code is faster. We can find more information about the optimization flags in \textit{GCC} documentation \cite{Opt}. It is also worth mentioning that \textit{OpenBLAS} was used instead of standard \textit{BLAS} \textit{API} in order to enhance the efficency of linear algebra operations and to use the multithreaded environment. 
 
 \section{Comparison of proposed methods}
 \subsection{Discussing evaluation metrics}
 
 
-The quality of the algorithms was measured by standard metrics, characteristic for multi-label classification.
+The quality of the algorithms was measured by the standard metrics, characteristic for the multi-label classification.
 
-\subsubsection{Precision and recall} 
+\subsubsection{\textit{Precision} and \textit{Recall}} 
 
-These two measures are very similar. Precision is a fraction of correct labels to the number of predicted labels, while recall (als called sensitivity) is a fraction of correct labels to the number of targets. They can be simply described by the following formulas:  
+\textit{Precision} and \textit{Recall} are very similar measures. \textit{Precision} is a fraction of a number of correct labels to a number of predicted labels, while \textit{Recall} (also called \textit{sensitivity}) is a fraction of a number of correct labels to a number of targets. They can be simply described by the following formulas:  
 \begin{equation}
 \label{eq:exp2}
 \frac{|T \cap P|}{|P|}
@@ -66,40 +66,40 @@ These two measures are very similar. Precision is a fraction of correct labels t
 \end{equation}
 where $T$ is a set of targets, while $P$ is a set of predictions. Although their definitions are always the same, they can be computed by three different methods:
 \begin{itemize}
-\item Macro-average - in this method we compute precision and recall for each category of dataset independently. Finally we take an arithmetic average of them.
-\item Micro-average - this method is the most intuitive. We just sum up true positives, false positives and false negatives for whole set and then apply them to get the statistics. 
-\item Instance-average - in this approach we compute precision and recall for each instance. In the next step, similarly to Macro-average the arithmetic average is calculated.
+\item \textit{Macro-average} - in this method we compute \textit{Precision} and \textit{Recall} for each category of a dataset independently. Finally we take the arithmetic average of these values.
+\item \textit{Micro-average} - this method is the most intuitive. We simply sum up true positives, false positives and false negatives for a whole set and then apply them to get the metric. 
+\item \textit{Instance-average} - in this approach we compute \textit{Precision} and \textit{Recall} for each instance. In the next step, similarly to \textit{Macro-average}, the arithmetic average is calculated.
 \end{itemize}
 
-Unfortunately any of these methods is more significant than others, so the best way is to use every approach in order to compare the quality of classifiers.  
+Unfortunately none of these methods is more significant than the others, so the best way is to use every approach in order to compare the quality of classifiers.  
 
-\subsubsection{F1 score}
+\subsubsection{\textit{F1 score}}
 
-This metric is simply a harmonic average of Precision and Recall. Its value is certainly dependent on chosen method of calculataing Precision and Recall. As a result we define Micro-, Macro, Instance-average F1 score. 
+This metric is simply the harmonic average of \textit{Precision} and \textit{Recall}. Its value is certainly dependent on a chosen method of calculataing \textit{Precision} and \textit{Recall}. As a result, we define \textit{Micro-}, \textit{Macro}, \textit{Instance-average F1 score}. 
 
-\subsubsection{Hamming loss}
+\subsubsection{\textit{Hamming loss}}
 
-This metrics can be defined as a fraction of wrong labels to the total number of labels. It is described by following formula:
+This metrics can be defined as a fraction of number of wrong labels to a total number of labels. It is described by the following formula:
 \begin{equation}
 \label{eq:exp1}
     \frac{1}{m}\sum\limits_{i=1}^{m}\frac{\sum\limits_{j=1}^{k}xor(y_{ij}, z_{ij})}{k}
 \end{equation}
-where $m$ is a number of instances, $k$ is a number of labels, $y_{ij}$ is a target and $z_{ij}$ is a prediction. Let you notice that it is a loss function, what means that the better classifier you have, the smaller value you get.  
+where $m$ is a number of instances, $k$ is a number of labels, $y_{ij}$ is a target and $z_{ij}$ is a prediction. Let you notice that it is a loss function what means that the better classifier you have, the smaller value you get.  
 
-\subsection{Quality comparison}
+\subsection{Algorithms quality comparison}
 
-The quality results are divided into sections - each section is connected with a particular data set. The experiment involves the following algorithms:
+The results of quality experiment are divided into sections - each section is connected with a particular data set. The experiment involves the following algorithms:
 \begin{itemize}
     \item CPLST;
-    \item LR, which stand for linear regression;
-    \item LRWithPCA, which is linear regression with PCA compression on a label space;
-    \item LRWithRandomPCA, which is linear regression with random PCA compression on a label space;
+    \item LR which stands for linear regression;
+    \item LRWithPCA which denotes linear regression with PCA compression on a label space;
+    \item LRWithRandomPCA which denotes linear regression with random PCA compression on a label space;
     \item OCCA.
 \end{itemize}
-All of the tested approaches used the linear regressor with regularization - the regularization coefficient was equal to $7.0$. This value was certainly experimentally stated and for different data sets it does not have to be optimal.  
+All of the tested approaches used a linear regressor with \textit{Tikhonov} regularization - the regularization coefficient was equal to $7.0$. This value was certainly experimentally stated and for different data sets it does not have to be optimal.  
 
-The tables \ref{tab:exp1} - \ref{tab:exp7} contain scores for F1 Micro-, Macro-, Instance average metrics for particular methods. In case of the algorithms with data compression, an only label space was reduced. The reduction degree was equal to $0.6$, what means that $40\%$ of columns in a transformed space were rejected.
-The figures \ref{fig:enron} - \ref{fig:bookmarks} show an influence of the reduction degree on a specific metric. 
+\Crefrange{tab:exp1}{tab:exp7} contain scores of \textit{Micro-}, \textit{Macro-}, \textit{Instance-average F1 score} metrics for particular methods. In case of the algorithms with data compression, an only label space was reduced. The reduction degree was equal to $0.6$ what means that $40\%$ of columns in a transformed space were rejected.
+\Crefrange{fig:enron}{fig:bookmarks} show the influence of a reduction degree on a specific metrics. 
 
 \newpage
 \subsubsection{Enron dataset}
