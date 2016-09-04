@@ -56,7 +56,7 @@ The solution of the above optimization problem is equivalent to \cite{Weisberg}:
 \begin{equation}\label{eq:LR3}
     \hat{W} = (X^TX)^{P}X^TY
 \end{equation}
-The proof of \cref{eq:LR3} can be found in \cref{app:least}. Although a matrix $X^TX$ is squared, there is no certainty that it is invertable. Therefore a pseudoinverse must be used. There are of course prons and cons of this approach. First of all, this model is simple and rather easy to implement - this is its main strength. Apart from that, it poses a base for the different methods proposed in this paper. On the other hand, there are strong assumptions which must be met during costructing a model:
+The proof of \Cref{eq:LR3} can be found in \Cref{app:least}. Although a matrix $X^TX$ is squared, there is no certainty that it is invertable. Therefore a pseudoinverse must be used. There are of course prons and cons of this approach. First of all, this model is simple and rather easy to implement - this is its main strength. Apart from that, it poses a base for the different methods proposed in this paper. On the other hand, there are strong assumptions which must be met during costructing a model:
 
 \begin{itemize}
     \item we assume linearity between feature variables and particular labels,
@@ -68,25 +68,25 @@ The proof of \cref{eq:LR3} can be found in \cref{app:least}. Although a matrix $
 
 From the machine learning point of view, the main problem of the linear regression is connected with a tendency to overfitting. In fact, hyperplanes are fitted a training set, as well as it is possible. However, we can deal with that by regularization.
 
-In general, the regularization refers to a process of adding additional information to a mathematical or a statistical model. This additional information is used to make this model more general and, as a result, prevent it from being overlearned. The most commonly used method of regularization is \textit{Tikhonov regularization}. This method deals well with \textit{ill-posed} problems which are solved by the \textit{least squared error} estimation. The most characteristic feature of the \textit{ill-posed} problems is a lack of a unique solution. Let us notice that \cref{eq:LR1} meets these two conditions, so \textit{Tikhonov} method can be used in this case. If we want \cref{eq:LR2} to be given the regularization, we need to include the additional term. This is presented by the following formula:
+In general, the regularization refers to a process of adding additional information to a mathematical or a statistical model. This additional information is used to make this model more general and, as a result, prevent it from being overlearned. The most commonly used method of regularization is \textit{Tikhonov regularization}. This method deals well with \textit{ill-posed} problems which are solved by the \textit{least squared error} estimation. The most characteristic feature of the \textit{ill-posed} problems is a lack of a unique solution. Let us notice that \Cref{eq:LR1} meets these two conditions, so \textit{Tikhonov} method can be used in this case. If we want \Cref{eq:LR2} to be given the regularization, we need to include the additional term. This is presented by the following formula:
 
 \begin{equation}\label{eq:LR2}
     \hat{W} = \argmin_{W \in \mathbb{R}^{(n+1) \times k}}\left[\sum\limits_{i=1}^{m}\sum\limits_{j=1}^{k}(y_{ij}-x^T_iw_j)^2 + \lambda\sum\limits_{i=1}^{n}\sum\limits_{j=1}^{k}w_{ij}^2\right]
 \end{equation}
-where $\lambda$ is a regularization parameter which is a control on fitting parameters. The solution of \cref{eq:LR2}, based on the \textit{least squared error} method and taking into account \textit{Tikhonov regularization}, is then equivalent to \cite{Tikh}:
+where $\lambda$ is a regularization parameter which is a control on fitting parameters. The solution of \Cref{eq:LR2}, based on the \textit{least squared error} method and taking into account \textit{Tikhonov regularization}, is then equivalent to \cite{Tikh}:
 
 \begin{equation}\label{eq:LR3}
     \hat{W} = (X^TX+\lambda\Gamma)^{-1}X^TY
 \end{equation}
-where $\Gamma$ is an $(n+1)\times(n+1)$ diagonal matrix which is usually the identity matrix or the identity matrix with zeroes in the first row. Let us notice that in contrast to \cref{eq:LR3} there is no need to use pseudoinverse in the regularized solution. It can be simply proved by \textit{Singular Value Decomposition} of a symmetric matrix $X^TX$ and its properties:
+where $\Gamma$ is an $(n+1)\times(n+1)$ diagonal matrix which is usually the identity matrix or the identity matrix with zeroes in the first row. Let us notice that in contrast to \Cref{eq:LR3} there is no need to use pseudoinverse in the regularized solution. It can be simply proved by \textit{Singular Value Decomposition} of a symmetric matrix $X^TX$ and its properties:
 \begin{equation}\label{eq:inv_proof}
     X^TX + \lambda\Gamma=V\Sigma{V^T} + \lambda\Gamma = V\Sigma{V^T} + \lambda{V}V^T\Gamma{V}V^T = V(\Sigma + \lambda{V^T}\Gamma{V})V^T = V(\Sigma + \lambda\Gamma)V^T 
 \end{equation}
-$V(\Sigma + \lambda\Gamma)V^T$ is invertible, becasue $V$ is invertible (it is orthogonal) and $\Sigma +\lambda\Gamma$ is invertible as well (this is a diagonal matrix and we have certainty that it does not have zeros on its diagonal). Additional information about \textit{SVD} decomposition can be found in \cref{app:svd}.
+$V(\Sigma + \lambda\Gamma)V^T$ is invertible, becasue $V$ is invertible (it is orthogonal) and $\Sigma +\lambda\Gamma$ is invertible as well (this is a diagonal matrix and we have certainty that it does not have zeros on its diagonal). Additional information about \textit{SVD} decomposition can be found in \Cref{app:svd}.
 
 Both the solutions of the linear regression problem certainly have similar complexity. There are two matrix operations used to create the regressor: multiplying and inverting which can be computed in $O(n^{2.373})$ time by algorithms based on \textit{Coppersmith–Winograd} method \cite{VVW}. Let us note that $X^TX \in \mathbb{R}^{(n+1) \times (n+1)}$ is inverted, so a reduction of feature space (less columns) could decrease a time complexity if we assume that a reduction procedure is fast. It is also worth considering a reduction of $Y$ - for many labels it affects time-consumption too. 
 
-The full learning algorithm based on linear regression is shown in \cref{alg:LR} 
+The full learning algorithm based on linear regression is shown in \Cref{alg:LR} 
 
 \begin{algorithm}
     \caption{Linear regression based classifier}\label{alg:LR}
@@ -104,9 +104,9 @@ The full learning algorithm based on linear regression is shown in \cref{alg:LR}
 
 \subsection{Standard \textit{PCA} method}
 
-The main concept, which is behind \textit{PCA}, is to reduce dimensionality of a data set consisting of a large number of iterrelated variables, while retaining as much as possible of the variation present in a data set. Such the reduction can be achieved by transforming to a new set of variables, the principal components, which are uncorrelated, and which are ordered so that the first few retain most of variation present in all of the original variables. Computation of the principal components reduces to the solution of an eigenvalue-eigenvector for a positive-semifdefinite symmetric matrix (a covariance or correlation matrix) \cite{Jolliffe}. Looking at this more intuitively, the data set can be considered as a cloud of points while variables can be thought as their coordinates. All what we have to do is to find new coordinate system (ie. by rotation) such that the greatest variance by some projection of the data comes to lie on the first coordinate, the second greatest variance on the second coordinate, and so on. More information about eigenvalues and eigenvectors can be found in \cref{app:eigen}. 
+The main concept, which is behind \textit{PCA}, is to reduce dimensionality of a data set consisting of a large number of iterrelated variables, while retaining as much as possible of the variation present in a data set. Such the reduction can be achieved by transforming to a new set of variables, the principal components, which are uncorrelated, and which are ordered so that the first few retain most of variation present in all of the original variables. Computation of the principal components reduces to the solution of an eigenvalue-eigenvector for a positive-semifdefinite symmetric matrix (a covariance or correlation matrix) \cite{Jolliffe}. Looking at this more intuitively, the data set can be considered as a cloud of points while variables can be thought as their coordinates. All what we have to do is to find new coordinate system (ie. by rotation) such that the greatest variance by some projection of the data comes to lie on the first coordinate, the second greatest variance on the second coordinate, and so on. More information about eigenvalues and eigenvectors can be found in \Cref{app:eigen}. 
 
-Finding \textit{PCs} can be obtained by \textit{Singular Value Decomposition}. More information about \textit{PCA} and its connection with eigenvalues and eigenvectors can be found in \cref{app:svd}. Let $X \in \mathbb{R}_{m \times n}$ be an input matrix where $n$ is a number of variables. Moreover let us assume that $X$ is centered (the mean in each column is equal to $0$). A covariance matrix $C \in \mathbb{R}_{n \times n}$ is then equal to $\frac{X^TX}{n-1}$. Taking into account that $C$ is a symmetric matrix, its \textit{SVD} decomposition is equivalent to:
+Finding \textit{PCs} can be obtained by \textit{Singular Value Decomposition}. More information about \textit{PCA} and its connection with eigenvalues and eigenvectors can be found in \Cref{app:svd}. Let $X \in \mathbb{R}_{m \times n}$ be an input matrix where $n$ is a number of variables. Moreover let us assume that $X$ is centered (the mean in each column is equal to $0$). A covariance matrix $C \in \mathbb{R}_{n \times n}$ is then equal to $\frac{X^TX}{n-1}$. Taking into account that $C$ is a symmetric matrix, its \textit{SVD} decomposition is equivalent to:
 
 \begin{equation}\label{eq:pca1}
     C=Q\Sigma{Q^T}
@@ -129,7 +129,7 @@ In fact, there is no need to use a covariance matrix to compute its principal ax
 \end{equation}
 The reduction of data can be made by leaving first $h$ columns of a matrix $PCs$ , where $h<n+1$.
 
-Features and/or labels reduction by \textit{PCA} can be simply combined with a classifier based onthe linear regression model. At first data are transformed into a principal components space. A new space is then reduced and finally a regressor can be learnt from such encoded data. If a classifier is learnt from an encoded label space, then a score of prediction must be decoded to the original space. All required steps are presented in \cref{alg:pca1}.
+Features and/or labels reduction by \textit{PCA} can be simply combined with a classifier based onthe linear regression model. At first data are transformed into a principal components space. A new space is then reduced and finally a regressor can be learnt from such encoded data. If a classifier is learnt from an encoded label space, then a score of prediction must be decoded to the original space. All required steps are presented in \Cref{alg:pca1}.
 
 \begin{algorithm}
     \caption{Multi-dimension linear regressor with preliminary data reduction}\label{alg:pca1}
@@ -169,7 +169,7 @@ One of possible ideas, which might deal with the complexity issue, is to use fas
 
 \subsection{Random \textit{PCA} algorithm}
 
-In order to make a computation of principal components faster, we can use a randomized version of the \textit{PCA} algorithm. The full method is presented in \cref{alg:rpca1}. 
+In order to make a computation of principal components faster, we can use a randomized version of the \textit{PCA} algorithm. The full method is presented in \Cref{alg:rpca1}. 
 
 \begin{algorithm}
     \caption{Randomized PCA}\label{alg:rpca1}
@@ -194,7 +194,7 @@ The algorithm takes two parameters on its input: data matrix $X \in \mathbb{R}^{
 The randomized range finder begins in 4. At first we start with a set of $k+p$ random vectors and probe a range. Next an orthogonal basis for $\psi$ is computed. This operation is repeated $q$ times. We can certainly manipulate a parameter of $q$, however it should be rather low, beacues the complexity of computing an orthogonal basis is $O(nk^2)$. 
 After finding a good aproximation for a principal subspace of $X^TX$, we optimize fully over that subspace and back out the solution. It is worth emphasising that the last steps, including eigendecoposition of $F \in \mathbb{R}^{(k+p) \times (k+p)}$, are cheap. It is caused by low dimensions of a matrix $F$ \cite{Mineiro}.
 
-The full classifying algorithm is very similar to \cref{alg:pca1}. We just have to replace standard \textit{PCA} algorithm with the random one.
+The full classifying algorithm is very similar to \Cref{alg:pca1}. We just have to replace standard \textit{PCA} algorithm with the random one.
 
 \section{Label space reduction inspired by \textit{CCA}}
 
@@ -222,7 +222,7 @@ Kettenring showed that \textit{CCA} is equivalent to simultaneously solving the 
 \end{split}
 \end{equation}
 
-From the machine learning point of view, we can certainly treat $X$ and $Y$ as feature and label matrices and perform \textit{CCA} with them. Then we can obtain $U$ and $V$ matrices which are linear combinations of features and suitably labels in this case. The final step is to learn a linear regressor from $U$ to $V$. Unfortunately, such the algorithm is time-consuming. Let us notice that encoding and decoding data operations are slow, because $W_x$ and $W_y$ are not orthogonal (we cannot invert them by a simple transposition). The example algorithm, that perform \textit{CCA}, is shown in \cref{app:cca}. 
+From the machine learning point of view, we can certainly treat $X$ and $Y$ as feature and label matrices and perform \textit{CCA} with them. Then we can obtain $U$ and $V$ matrices which are linear combinations of features and suitably labels in this case. The final step is to learn a linear regressor from $U$ to $V$. Unfortunately, such the algorithm is time-consuming. Let us notice that encoding and decoding data operations are slow, because $W_x$ and $W_y$ are not orthogonal (we cannot invert them by a simple transposition). The example algorithm, that perform \textit{CCA}, is shown in \Cref{app:cca}. 
 
 Although there is no point in using pure \textit{CCA} to build a classifier, we can use methods which are based on \textit{CCA} concept. Such the algorithm will be discussed in the next section.
 
@@ -230,7 +230,7 @@ Although there is no point in using pure \textit{CCA} to build a classifier, we 
 
 \textit{CPLST} algorithm stands for \textit{Conditional Prinicipal Label Space Transformation} which means that only a label space will be transformed and then reduced. In contrast to \textit{PCA} approach, such the reduction is feature-aware. 
 
-As it has been already mentioned, \textit{CCA} can be thought as an optimization problem of finding minimal prediction error (\cref{eq:cca3}) under the constraint $W_xX^TXW_x^T=W_yY^TYW_y^T=I$. As long as we take into account only a label space, we can drop $W_xX^TXW_x^T=I$ constraint, because it is connected with a feature space which is not transformed. It is also worth enforcing orthogonalization of $W_y$  which simplifies a decoding of data. As a result we obtain the following problem:
+As it has been already mentioned, \textit{CCA} can be thought as an optimization problem of finding minimal prediction error (\Cref{eq:cca3}) under the constraint $W_xX^TXW_x^T=W_yY^TYW_y^T=I$. As long as we take into account only a label space, we can drop $W_xX^TXW_x^T=I$ constraint, because it is connected with a feature space which is not transformed. It is also worth enforcing orthogonalization of $W_y$  which simplifies a decoding of data. As a result we obtain the following problem:
 
 \begin{equation}\label{eq:cplst1}
     \min_{W_x, W_y} \norm{XW_x^T-YW_y^T}_{F}^2  
@@ -243,7 +243,7 @@ Let us notice that finding $W_x$ is simply the linear regression from $X$ to $YW
     W_x^T=X^PYW_y^T
 \end{split}
 \end{equation}
-When optimal $W_x$ is inserted back into \cref{eq:cplst1}, the optimization problem becomes:
+When optimal $W_x$ is inserted back into \Cref{eq:cplst1}, the optimization problem becomes:
 \begin{equation}\label{eq:cplst3}
     \min_{W_yW_y^T=I} \norm{XX^PYW_y^T-YW_y^T}_{F}^2=\min_{W_yW_y^T=I} \norm{(XX^P-I)YW_y^T}_{F}^2
 \end{equation}
@@ -251,26 +251,26 @@ For every matrix A $\norm{A}_{F}^2=tr(A^TA)$, so the above issue is equivalent t
 \begin{equation}\label{eq:cplst4}
     \min_{W_yW_y^T=I} tr(W_yY^T(I-H)YW_y^T)
 \end{equation}
-A matrix $H=XX^P$ is called a hat matrix for the linear regression. The presented approach is called \textit{Orthogonally constraint CCA}. In order to solve \cref{eq:cplst4}, we can consider eigenvectors that correspond to the largest eigenvalues of $Y^T(H-I)Y$ (they can be computed by \textit{SVD} decomposition) \cite{ChenLin}.
+A matrix $H=XX^P$ is called a hat matrix for the linear regression. The presented approach is called \textit{Orthogonally constraint CCA}. In order to solve \Cref{eq:cplst4}, we can consider eigenvectors that correspond to the largest eigenvalues of $Y^T(H-I)Y$ (they can be computed by \textit{SVD} decomposition) \cite{ChenLin}.
 
-As we see, \textit{OCCA} aims at minimizing the prediction error described by \cref{eq:cplst1}, however an encoding error of a label space is not taken into account. In fact, a label space is transformed by eigenvectors captured from $Y^T(H-I)Y$ matrix. If we combine \textit{OCCA} approach with minimizing an encoding error, then we get the method called \textit{CPLST} which stands for \textit{Conditional Principal Label Space Transformation}. It can be modelled by the following formula:
+As we see, \textit{OCCA} aims at minimizing the prediction error described by \Cref{eq:cplst1}, however an encoding error of a label space is not taken into account. In fact, a label space is transformed by eigenvectors captured from $Y^T(H-I)Y$ matrix. If we combine \textit{OCCA} approach with minimizing an encoding error, then we get the method called \textit{CPLST} which stands for \textit{Conditional Principal Label Space Transformation}. It can be modelled by the following formula:
 
 \begin{equation}\label{eq:cplst5}
     \min_{W_x, W_y} \left(\norm{XW_x^T-YW_y^T}_{F}^2 + \norm{Y-YW_y^TW_y}_{F}^2\right)  
     \text{  subject to   } W_yW_y^T=I   
 \end{equation}
-If we use again \cref{eq:cplst2} and the relation between a trace of matrix and its Frobenius norm, then we get:
+If we use again \Cref{eq:cplst2} and the relation between a trace of matrix and its Frobenius norm, then we get:
 \begin{equation}\label{eq:cplst6}
     \min_{W_yW_y^T} tr(W_yY^T(I-H)YW_y^T-W_y^TW_yY^TY-Y^TYW_y^TW_y+W_y^TW_yY^TYW_y^TW_y)  
 \end{equation}
-After eliminating a pair of $W_y$ and $W_y^T$ by cyclic permutation and combining the last three terms of \cref{eq:cplst6}, we get:
+After eliminating a pair of $W_y$ and $W_y^T$ by cyclic permutation and combining the last three terms of \Cref{eq:cplst6}, we get:
 
 \begin{equation}\label{eq:cplst6}
     \max_{W_yW_y^T} tr(W_yY^THYW_y^T)  
 \end{equation}
 The above problem can be solved analogously to \textit{OCCA} - by finding eigenvectors and eigenvalues of $Y^THY$. Besides balance between the prediction error and the encoding error, \textit{CPLST} is faster than \textit{OCCA}. It is an effect of decomposing $Y^THY$ instead of $Y^T(H-I)Y$. On the other hand, both the methods are slower than the algorithms based on the reduction by \textit{PCA}. It is caused by calculating a matrix $H$ what is time-consuming for large input data \cite{ChenLin}.
 
-The algorithm is presented in \cref{alg:cplst1} \cite{ChenLin}. As we see, the procedure is rather simple. First, \textit{SVD} decomposition of $Z^THZ$  is computed in order to transform a label space to a new space which has certainly lower dimension. A classifier is then built using the linear regression method. After making a prediction, we must remember about decoding data (return to an original label space).  
+The algorithm is presented in \Cref{alg:cplst1} \cite{ChenLin}. As we see, the procedure is rather simple. First, \textit{SVD} decomposition of $Z^THZ$  is computed in order to transform a label space to a new space which has certainly lower dimension. A classifier is then built using the linear regression method. After making a prediction, we must remember about decoding data (return to an original label space).  
 
 \begin{algorithm}
     \caption{Conditional Principal Label Space Transformation}\label{alg:cplst1}
