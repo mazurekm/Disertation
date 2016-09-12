@@ -4,7 +4,7 @@
 \section{Experiment environment}
 \subsection{Datasets used in trial}
 
-All of the datasets used in the experiment come from \textit{Mulan} project web page. The sizes of sets are differential in order to check behaviours of the algorithms for a small, a middle and a large number of instances. The detailed information about datasets are presented in \Cref{tab:exp1}. 
+All of the datasets used in the experiment come from \textit{Mulan} project web page. The sizes of sets are differentiated in order to check behaviours of the algorithms for a small, a middle and a large number of instances. The detailed information about datasets are presented in \Cref{tab:exp1}. 
 
 \begin{table}[h]
 \centering
@@ -45,13 +45,13 @@ The experiment was performed on one of the available instances (m4.4xlarge) prov
     \end{tabular}
 \end{table}
 
-The library was compiled by \textit{GCC 4.9} with the third optimization level (\textit{-O3} flag). The build process certainly takes more time and memory due to inlining functions or loop unrolling etc., however a performance of code is faster. We can find more information about the optimization flags in \textit{GCC} documentation \cite{Opt}. It is also worth mentioning that \textit{OpenBLAS} was used instead of standard \textit{BLAS} \textit{API} in order to enhance the efficency of linear algebra operations and to use the multithreaded environment. 
+The library was compiled by \textit{GCC 4.9} with the third optimization level (\textit{-O3} flag). The build process certainly takes more time and memory due to inlining functions or loop unrolling etc., however a performance of code is faster. We can find more information about the optimization flags in \textit{GCC} documentation (\cite{Opt}). It is also worth mentioning that \textit{OpenBLAS} was used instead of standard \textit{BLAS} \textit{API} in order to enhance the efficency of linear algebra operations and to use the multithreaded environment. 
 
 \section{Comparison of proposed methods}
 \subsection{Discussing evaluation metrics}
 
 
-The quality of the algorithms was measured by the standard metrics, characteristic for the multi-label classification.
+The quality of the algorithms was measured by the standard metrics, characteristic for multi-label classification.
 
 \subsubsection{\textit{Precision} and \textit{Recall}} 
 
@@ -66,7 +66,7 @@ The quality of the algorithms was measured by the standard metrics, characterist
 \end{equation}
 where $T$ is a set of targets, while $P$ is a set of predictions. Although their definitions are always the same, they can be computed by three different methods:
 \begin{itemize}
-\item \textit{Macro-average} - in this method we compute \textit{Precision} and \textit{Recall} for each category of a dataset independently. Finally we take the arithmetic average of these values.
+\item \textit{Macro-average} - in this method we compute \textit{Precision} and \textit{Recall} for each category independently. Finally we take the arithmetic average of these values.
 \item \textit{Micro-average} - this method is the most intuitive. We simply sum up true positives, false positives and false negatives for a whole set and then apply them to get the metric. 
 \item \textit{Instance-average} - in this approach we compute \textit{Precision} and \textit{Recall} for each instance. In the next step, similarly to \textit{Macro-average}, the arithmetic average is calculated.
 \end{itemize}
@@ -90,16 +90,16 @@ where $m$ is a number of instances, $k$ is a number of labels, $y_{ij}$ is a tar
 
 The results of quality experiment are divided into sections - each section is connected with a particular data set. The experiment involves the following algorithms:
 \begin{itemize}
-    \item CPLST;
-    \item LR which stands for linear regression;
-    \item LRWithPCA which denotes linear regression with PCA compression on a label space;
-    \item LRWithRandomPCA which denotes linear regression with random PCA compression on a label space;
-    \item OCCA.
+    \item \textit{CPLST},
+    \item \textit{LR},
+    \item \textit{OCCA},
+    \item \textit{LRWithPCA} which denotes linear regression with \textit{PCA} transformation on a label space,
+    \item \textit{LRWithRandomPCA} which denotes linear regression with randomized \textit{PCA} compression on a label space.
 \end{itemize}
 All of the tested approaches used a linear regressor with \textit{Tikhonov} regularization - the regularization coefficient was equal to $7.0$. This value was certainly experimentally stated and for different data sets it does not have to be optimal.  
 
 \Crefrange{tab:exp1}{tab:exp7} contain scores of \textit{Micro-}, \textit{Macro-}, \textit{Instance-average F1 score} metrics for particular methods. In case of the algorithms with data compression, an only label space was reduced. The reduction degree was equal to $0.6$ what means that $40\%$ of columns in a transformed space were rejected.
-\Crefrange{fig:enron}{fig:bookmarks} show the influence of a reduction degree on a specific metrics. 
+\Crefrange{fig:enron}{fig:bookmarks} show the influence of a reduction degree on a specific metric. 
 
 \newpage
 \subsubsection{Enron dataset}
