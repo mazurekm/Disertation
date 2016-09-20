@@ -5,69 +5,69 @@
 \section{Least squares for multiple regression}
 \label{app:least}
 
-Given a design matrix $X \in \mathbb{R}^{m \times n}$ and a vector of dependent variables $y \in \mathbb{R}^{n}$, we want to find $w$, such that:
+Given a design matrix $\boldsymbol{X} \in \mathbb{R}^{m \times (n+1)}$ and a vector of real values $y \in \mathbb{R}^{n}$, we want to find $\boldsymbol{\beta}$, such that:
 \begin{equation}
-    \hat{w} = \argmin_{w \in \mathbb{R}^{n}}\sum\limits_{i=1}^{m}(y_i-x_iw^T_i)^2 = \argmin_{w \in \mathbb{R}^{n}}(y-Xw)^T(y-Xw)
+    \boldsymbol{\hat{\beta}} = \argmin_{\boldsymbol{\beta} \in \mathbb{R}^{n+1}}\sum\limits_{i=1}^{m}(\boldsymbol{y}_i-\sum\limits_{j=1}^{n+1}\boldsymbol{x}_{ij}\boldsymbol{\beta}_j)^2 = \argmin_{\boldsymbol{\beta} \in \mathbb{R}^{n+1}}(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})^T(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})
 \end{equation}
 The above optimization problem can be simply transformed to the following equation:
 \begin{equation}\label{eq:least1}
-    \nabla_w \frac{1}{2}(y-Xw)^T(y-Xw) = 0
+    \nabla_{\boldsymbol{\beta}} \frac{1}{2}(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})^T(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta}) = 0
 \end{equation}
-As we see, we need to calculate the derivative of $\frac{1}{2}(y-Xw)^T(y-Xw)$ in respect to $w$. In order to reach it we can use ralations between derivatives with matrices and trace of a matrix. First of all, let us note a few facts about trace of a matrix:
+As we see, we need to calculate the derivative of $\frac{1}{2}(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})^T(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})$ in respect to $\boldsymbol{\beta}$. In order to reach it we can use ralations between derivatives with matrices and trace of a matrix. First of all, let us note a few facts about trace of a matrix:
 
 \begin{enumerate}
-    \item $tr(A+B) = tr(A)+tr(B)$
-    \item $tr(AB) = tr(BA)$
-    \item $tr(ABC) = tr(CAB) = tr(BCA)$
-    \item $\nabla_Atr(AB) = B^T$
-    \item $tr(A)=tr(A^T)$
+    \item $tr(\boldsymbol{A}+\boldsymbol{B}) = tr(\boldsymbol{A})+tr(\boldsymbol{B})$
+    \item $tr(\boldsymbol{AB}) = tr(\boldsymbol{BA})$
+    \item $tr(\boldsymbol{ABC}) = tr(\boldsymbol{CAB}) = tr(\boldsymbol{BCA})$
+    \item $\nabla_{\boldsymbol{A}}tr(\boldsymbol{AB}) = \boldsymbol{B}^T$
+    \item $tr(\boldsymbol{A})=tr(\boldsymbol{A}^T)$
     \item if $a \in \mathbb{R}$ then $tr(a)=a$
-    \item $\nabla_Atr(ABA^TC) = CAB+C^TAB^T$
+    \item $\nabla_{\boldsymbol{A}}tr(\boldsymbol{ABA}^T\boldsymbol{C}) = \boldsymbol{CAB}+\boldsymbol{C}^T\boldsymbol{AB}^T$
 \end{enumerate}
-Calculating a dot product in \cref{eq:least1} and using the property (6.) of a trace operator, we obtain:
+Calculating a dot product in \Cref{eq:least1} and using the property (6.) of a trace operator, we obtain:
 \begin{equation}\label{eq:least2}
-    \frac{1}{2} \nabla_w tr(w^TX^TXw-w^TX^Ty-y^TXw+y^Ty) = 0
+    \frac{1}{2} \nabla_{\boldsymbol{\beta}} tr(\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}-\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{y}-\boldsymbol{y}^T\boldsymbol{X}\boldsymbol{\beta}+\boldsymbol{y}^T\boldsymbol{y}) = 0
 \end{equation}
-Next, using the properties (1.), (3.) and again (6.), \cref{eq:least2} can be expressed as:
+Next, using the properties (1.), (3.) and again (6.), \Cref{eq:least2} can be expressed as:
 \begin{equation}\label{eq:least3}
-    \frac{1}{2}[\nabla_wtr(ww^TX^TX)-\nabla_wtr(y^TXw)-\nabla_wtr(y^TXw))] = 0
+    \frac{1}{2}[\nabla_{\boldsymbol{\beta}}tr(\boldsymbol{\beta}\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{X})-\nabla_{\boldsymbol{\beta}}tr(\boldsymbol{y}^T\boldsymbol{X}\boldsymbol{\beta})-\nabla_{\boldsymbol{\beta}}tr(\boldsymbol{y}^T\boldsymbol{X}\boldsymbol{\beta})] = 0
 \end{equation}
-The derivative of $y^Ty$ is $0$, because it does not depend on $w$. Thus it has been removed. Let us also notice that:
+The derivative of $\boldsymbol{y}^T\boldsymbol{y}$ is $0$, because it does not depend on $\boldsymbol{\beta}$. Thus, it has been removed. Let us also notice that:
 \begin{equation}\label{eq:least4}
-    \nabla_wtr(ww^TX^TX) = \nabla_wtr(wIw^TX^TX) = X^TXwI + XTXwI = X^TXw+X^TXw
+    \nabla_{\boldsymbol{\beta}}tr(\boldsymbol{\beta}\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{X}) = \nabla_{\boldsymbol{\beta}}tr(\boldsymbol{\beta}\boldsymbol{I}\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{X}) = \boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}I + \boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}\boldsymbol{I} = \boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}+\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}
 \end{equation}
 because of the property (7.) of a trace operator and:
 \begin{equation}\label{eq:least5}
-    \nabla_wtr(y^TXw) = X^Ty
+    \nabla_{\boldsymbol{\beta}}tr(\boldsymbol{y}^T\boldsymbol{X}\boldsymbol{\beta}) = \boldsymbol{X}^T\boldsymbol{y}
 \end{equation}
 because of the property (4.).
-Now we can simply use \cref{eq:least4} and \cref{eq:least5} in \cref{eq:least3} and calculate the desired derivative:
+Now we can simply use \Cref{eq:least4} and \Cref{eq:least5} in \Cref{eq:least3} and calculate the desired derivative:
 \begin{equation}\label{eq:least6}
-    \frac{1}{2}[X^TXw+X^TXw-X^Ty-X^Ty] = 0
+    \frac{1}{2}[\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}+\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}-\boldsymbol{X}^T\boldsymbol{y}-\boldsymbol{X}^T\boldsymbol{y}] = 0
 \end{equation}
-Finally, we obtain $w$ from \cref{eq:least6}:
+Finally, we obtain $\boldsymbol{\beta}$ from \cref{eq:least6}:
 \begin{equation}
-    w=(X^TX)^{-1}X^Ty
+    \boldsymbol{\beta}=(\boldsymbol{X}^T\boldsymbol{X})^{-1}\boldsymbol{X}^T\boldsymbol{y}
 \end{equation}
 
 \newpage
 \section{Eigenvalues and eigenvectors of matrices}
 \label{app:eigen}
 
-Let a matrix $T \in \mathbb{R}^{m \times n}$ be a linear transformation matrix - such a matrix can express primary linear transformations, for instance rotation, scaling, transposition, etc. If there are a column vector $v$ and a scalar $\lambda$, such that:
+Let a matrix $\boldsymbol{T} \in \mathbb{R}^{m \times n}$ be a linear transformation matrix - such the matrix can express primary linear transformations, for instance rotation, scaling, transposition, etc. If there are a column vector $\boldsymbol{v}$ and a scalar $\lambda$, such that:
 \begin{equation}\label{eq:eigen1}
-    Tv=\lambda{v}
+    \boldsymbol{T}\boldsymbol{v}=\lambda{\boldsymbol{v}}
 \end{equation}
-then we call them an eigenvector and suitably an eigenvalue of a matrix $T$. Intuitively an eigenvector $v$ of a matrix $T$ is transformed by $T$ into itself - its direction does not change. An eigenvalue can be then intepreted as a scale factor. Formally eigenvectors and eigenvalues chracterize an endomorphism of a particular linear space.  
+then we call them an eigenvector and suitably an eigenvalue of a matrix $\boldsymbol{T}$. Intuitively an eigenvector $\boldsymbol{v}$ of a matrix $\boldsymbol{T}$ is transformed by $\boldsymbol{T}$ into itself - its direction does not change. An eigenvalue can be then intepreted as a scale factor. Formally eigenvectors and eigenvalues chracterize an endomorphism of a particular linear space.  
 
 The equation \ref{eq:eigen1} can be certainly stated equivalenty as:
 
 \begin{equation}\label{eq:eigen2}
-    (T-\lambda{I})v=0
+    (\boldsymbol{T}-\lambda{\boldsymbol{I}})\boldsymbol{v}=0
 \end{equation}
-where $I$ is the identity matrix. Let us notice that \cref{eq:eigen2} has a solution if and only if the determinant of a matrix $(T-\lambda{I})$ is equal to zero. As a result, we can find eigenvalues by solving the following equation:
+where $\boldsymbol{I}$ is the identity matrix. Let us notice that \cref{eq:eigen2} has a solution if and only if the determinant of a matrix $(\boldsymbol{T}-\lambda{\boldsymbol{I}})$ is equal to zero. As a result, we can find eigenvalues by solving the following equation:
 \begin{equation}\label{eq:eigen3}
-    det(T-\lambda{I}) = (\lambda_1-\lambda)(\lambda_2-\lambda)\cdots(\lambda_n-\lambda) = 0
+    det(\boldsymbol{T}-\lambda{\boldsymbol{I}}) = (\lambda_1-\lambda)(\lambda_2-\lambda)\cdots(\lambda_n-\lambda) = 0
 \end{equation}
 \Cref{eq:eigen3} is called the characteristic equation, while its left-hand side is called the characteristic polynomial. In practise this method is not used to calculate eigenvectors and eigenvalues. The most popular algorithm is \textit{Power iteration} which is also called \textit{Von Mises iteration}.
 
@@ -76,28 +76,28 @@ where $I$ is the identity matrix. Let us notice that \cref{eq:eigen2} has a solu
 \section{Singular value decomposition}
 \label{app:svd}
 
-\textit{SVD} decomposition is a particular factorization of a real or a complex matrix. Formally, each arbitrary matrix $X \in \mathbb{R}^{n \times p}$ can be written as \cite{Jolliffe}:
+\textit{SVD} decomposition is a particular factorization of a real or a complex matrix. Formally, each arbitrary matrix $\boldsymbol{X} \in \mathbb{R}^{n \times p}$ can be written as \cite{Jolliffe}:
 \begin{equation}
-    X=U\Sigma{V^T}
+    \boldsymbol{X}=\boldsymbol{U}\boldsymbol{\Sigma}{\boldsymbol{V}^T}
 \end{equation}
 where:
 \begin{enumerate}
-    \item $U$ and $V$ are $(n \times r)$, $(p \times r)$ matrices which have orthonormal columns. It means that $UU^T=I$ and $VV^T=I$, where $I$ is the identity matrix;
-    \item $\Sigma$ is an $(r \times r)$ matrix;
-    \item $r$ is a rank of $X$.
+    \item $\boldsymbol{U}$ and $\boldsymbol{V}$ are $(n \times r)$, $(p \times r)$ matrices which have orthonormal columns. It means that $\boldsymbol{U}\boldsymbol{U}^T=\boldsymbol{I}$ and $\boldsymbol{V}\boldsymbol{V}^T=\boldsymbol{I}$, where $\boldsymbol{I}$ is the identity matrix;
+    \item $\boldsymbol{\Sigma}$ is an $(r \times r)$ matrix;
+    \item $r$ is a rank of $\boldsymbol{X}$.
 \end{enumerate}
-If $X$ is a symmetric matrix, its decomposition is equivalent to:
+If $\boldsymbol{X}$ is a symmetric matrix, its decomposition is equivalent to:
 \begin{equation}
-    X=V\Sigma{V^T}
+    \boldsymbol{X}=\boldsymbol{V}\boldsymbol{\Sigma}{\boldsymbol{V}^T}
 \end{equation}
 The factorization with such properties can be computed using the following observations:
 \begin{itemize}
-    \item The columns of $U$ matrix are eigenvectors of $XX^T$.
-    \item The columns of $V$ matrix are eigenvectors of $X^TX$.
-    \item The values found on the diagonal entries of $\Sigma$ are square roots of non-zero eigenvalues of both $XX^T$ and $X^TX$.
+    \item The columns of $\boldsymbol{U}$ matrix are eigenvectors of $\boldsymbol{X}\boldsymbol{X}^T$.
+    \item The columns of $\boldsymbol{V}$ matrix are eigenvectors of $\boldsymbol{X}^T\boldsymbol{X}$.
+    \item The values found on the diagonal entries of $\boldsymbol{\Sigma}$ are square roots of non-zero eigenvalues of both $\boldsymbol{X}\boldsymbol{X}^T$ and $\boldsymbol{X}^T\boldsymbol{X}$.
 \end{itemize}
 
-Besides a few interesting mathematical properties, the \textit{SVD} decomposition has also an intuitive intepretation. If we assume that $X \in \mathbb{R}^{n \times n}$ is a square matrix of a linear transformation with the positive determinant, then $\Sigma$ can be thought as a scaling matrix while $V^T$ and $U$ can be viewed as rotation matrices. Therefore the expression $U\Sigma{V^T}$ can be regarded as a composition of three geometrical transformations: two rotations and scaling\cite{SVD}.
+Besides a few interesting mathematical properties, the \textit{SVD} decomposition has also an intuitive intepretation. If we assume that $\boldsymbol{X} \in \mathbb{R}^{n \times n}$ is a square matrix of a linear transformation with the positive determinant, then $\boldsymbol{\Sigma}$ can be thought as a scaling matrix while $\boldsymbol{V}^T$ and $\boldsymbol{U}$ can be viewed as rotation matrices. Therefore the expression $\boldsymbol{U}\boldsymbol{\Sigma}{\boldsymbol{V}^T}$ can be regarded as a composition of three geometrical transformations: two rotations and scaling\cite{SVD}.
 
 The standard \textit{SVD} algorithm has complexity of $O(np^2+p^3)$ and consists off two steps. In the first step, an origin matrix is transformed into a bidiagonal matrix. It is usually made by \textit{Householder reflection} algorithm which is $O(np^2+p^3)$ in the worst case. The second step is connected with proceeding \textit{SVD} on a reduced matrix obtained in the first step. This part of the algorithm costs $O(p^2)$ and is computed by \textit{QR} decomposition \cite{SVD}. 
 
@@ -105,17 +105,17 @@ The standard \textit{SVD} algorithm has complexity of $O(np^2+p^3)$ and consists
 \section{CCA computing algorithm based on \textit{SVD} decomposition}
 \label{app:cca}
 
-The algorithm based on \textit{SVD} is not the fastest way of computing \textit{CCA}. However, this approach is clear and shows the idea which is behind \textit{CCA}. Let $X$ and $Y$ be $(m \times n)$ and $(m \times k)$ matrices. The first step of the method is to find \textit{SVD} decomposition of $X$ and $Y$:
+The algorithm based on \textit{SVD} is not the fastest way of computing \textit{CCA}. However, this approach is clear and shows the idea which is behind \textit{CCA}. Let $\boldsymbol{X}$ and $\boldsymbol{Y}$ be $(m \times n)$ and $(m \times k)$ matrices. The first step of the method is to find \textit{SVD} decomposition of $\boldsymbol{X}$ and $\boldsymbol{Y}$:
 \begin{equation}
-    X=U_1S_1V^T_1, \quad X=U_2S_2V^T_2
+    \boldsymbol{X}=\boldsymbol{U}_1\boldsymbol{S}_1\boldsymbol{V}^T_1, \quad \boldsymbol{X}=\boldsymbol{U}_2\boldsymbol{S}_2\boldsymbol{V}^T_2
 \end{equation}
-Next, a matrix $U_1^TU_2$ is formed and also decomposed by \textit{SVD}:
+Next, a matrix $\boldsymbol{U}_1^T\boldsymbol{U}_2$ is formed and also decomposed by \textit{SVD}:
 \begin{equation}
-    U_1^TU_2 = Q\Sigma{L^T}
+    \boldsymbol{U}_1^T\boldsymbol{U}_2 = \boldsymbol{Q}\boldsymbol{\Sigma}{\boldsymbol{L}^T}
 \end{equation}
-Finally, matrices of coefficents of linear combinations for $X$ and $Y$ are computed \cite{William}:
+Finally, matrices of coefficents of linear combinations for $\boldsymbol{X}$ and $\boldsymbol{Y}$ are computed \cite{William}:
 \begin{equation}
-    W_x=V_1S_1^{-1}Q, \quad  W_y=V_2S_2^{-1}L
+    \boldsymbol{W}_x=\boldsymbol{V}_1\boldsymbol{S}_1^{-1}\boldsymbol{Q}, \quad  \boldsymbol{W}_y=\boldsymbol{V}_2\boldsymbol{S}_2^{-1}\boldsymbol{L}
 \end{equation}
 
 
