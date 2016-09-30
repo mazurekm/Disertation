@@ -2,13 +2,13 @@
 \chapter{Results}
 
 \section{Experiment environment}
-\subsection{Datasets used in trial}
+\subsection{Data sets used in experiment}
 
-All of the datasets used in the experiment come from \textit{Mulan} project web page. The sizes of sets are differentiated in order to check behaviours of the algorithms for a small, a middle and a large number of instances. The detailed information about datasets are presented in \Cref{tab:exp1}. 
+All of the data sets used in the experiment come from \textit{Mulan} project web page. The sizes of sets are differentiated in order to check behaviours of the algorithms for a low, a medium and a high number of instances. The detailed information about data sets are presented in \Cref{tab:exp1}. 
 
 \begin{table}[h]
 \centering
-\caption{Statistic and details of datasets used in the experiment}
+\caption{Statistic and details of data sets used in the experiment}
 \label{tab:exp1}
     \begin{tabular}{l|c|r|r|r}
     name & domain & instances & features & labels \\ \hline \hline
@@ -28,7 +28,7 @@ The experiment was performed on one of the available instances (m4.4xlarge) prov
 
 \begin{table}[h]
 \centering
-\caption{Extra information about \textit{Intel Xeon® E5-2676 v3 (Haswell)}}
+\caption{Extra information about Intel Xeon® E5-2676 v3 (Haswell)}
 \label{tab:cpu}
     \begin{tabular}{l|l}
     & \\ \hline \hline
@@ -45,68 +45,67 @@ The experiment was performed on one of the available instances (m4.4xlarge) prov
     \end{tabular}
 \end{table}
 
-The library was compiled by \textit{GCC 4.9} with the third optimization level (\textit{-O3} flag). The build process certainly takes more time and memory due to inlining functions or loop unrolling etc., however a performance of code is faster. We can find more information about the optimization flags in \textit{GCC} documentation (\cite{Opt}). It is also worth mentioning that \textit{OpenBLAS} was used instead of standard \textit{BLAS} \textit{API} in order to enhance the efficency of linear algebra operations and to use the multithreaded environment. 
+The library was compiled by GCC 4.9 with the third optimization level (\textit{-O3} flag). The build process certainly takes more time and memory due to inlining functions or loop unrolling etc., however a performance of code is faster. We can find more information about the optimization flags in GCC documentation\footnote{\bibentry{Opt}}. It is also worth mentioning that OpenBLAS was used instead of standard BLAS API in order to enhance the efficiency of linear algebra operations and to use multithreading. 
 
 \section{Comparison of proposed methods}
-\subsection{Discussing evaluation metrics}
+\subsection{Metrics of accuracy}
 
+The accuracy of the algorithms was measured by the standard metrics, characteristic for multi-label classification.
 
-The quality of the algorithms was measured by the standard metrics, characteristic for multi-label classification.
+\subsubsection{Precision and recall} 
 
-\subsubsection{\textit{Precision} and \textit{Recall}} 
-
-\textit{Precision} and \textit{Recall} are very similar measures. \textit{Precision} is a fraction of a number of correct labels to a number of predicted labels, while \textit{Recall} (also called \textit{sensitivity}) is a fraction of a number of correct labels to a number of targets. They can be simply described by the following formulas:  
+\textit{Precision} and \textit{recall} are very similar measures. Precision is a fraction of a number of correct labels to a number of predicted labels, while recall (also called \textit{sensitivity}) is a fraction of a number of correct labels to a number of targets. They can be simply described by the following formulas:  
 \begin{equation}
 \label{eq:exp2}
-\frac{|T \cap P|}{|P|}
+precision=\frac{|T \cap P|}{|P|}
 \end{equation}
 \begin{equation}
 \label{eq:exp3}
-\frac{|T \cap P|}{|T|}
+recall=\frac{|T \cap P|}{|T|}
 \end{equation}
 where $T$ is a set of targets, while $P$ is a set of predictions. Although their definitions are always the same, they can be computed by three different methods:
 \begin{itemize}
-\item \textit{Macro-average} - in this method we compute \textit{Precision} and \textit{Recall} for each category independently. Finally we take the arithmetic average of these values.
-\item \textit{Micro-average} - this method is the most intuitive. We simply sum up true positives, false positives and false negatives for a whole set and then apply them to get the metric. 
-\item \textit{Instance-average} - in this approach we compute \textit{Precision} and \textit{Recall} for each instance. In the next step, similarly to \textit{Macro-average}, the arithmetic average is calculated.
+\item Macro-average - in this method we compute precision and recall for each category independently. Finally we take the arithmetic average of these values.
+\item Micro-average - this method is the most intuitive. We simply sum up true positives, false positives and false negatives for a whole set and then apply them to get the metric. 
+\item Instance-average - in this approach we compute precision and recall for each instance. In the next step, similarly to Macro-average, the arithmetic average is calculated.
 \end{itemize}
 
-Unfortunately none of these methods is more significant than the others, so the best way is to use every approach in order to compare the quality of classifiers.  
+Unfortunately none of these methods is more significant than the others, so the best way is to use every approach in order to compare the accuracy of classifiers.  
 
-\subsubsection{\textit{F1 score}}
+\subsubsection{F1 score}
 
-This metric is simply the harmonic average of \textit{Precision} and \textit{Recall}. Its value is certainly dependent on a chosen method of calculataing \textit{Precision} and \textit{Recall}. As a result, we define \textit{Micro-}, \textit{Macro}, \textit{Instance-average F1 score}. 
+This metric is simply the harmonic average of Precision and Recall. Its value is certainly dependent on a chosen method of calculating Precision and Recall. As a result, we define Micro-, Macro-, Instance-average F1 score. 
 
-\subsubsection{\textit{Hamming loss}}
+\subsubsection{Hamming loss}
 
-This metrics can be defined as a fraction of number of wrong labels to a total number of labels. It is described by the following formula:
+This metric\footnote{\bibentry{Loss}} can be defined as a fraction of number of wrong labels to a total number of labels. It is described by the following formula:
 \begin{equation}
 \label{eq:exp1}
-    \frac{1}{m}\sum\limits_{i=1}^{m}\frac{\sum\limits_{j=1}^{k}xor(y_{ij}, z_{ij})}{k}
+    HammingLoss(z_i, y_i)=\frac{1}{m}\sum\limits_{i=1}^{m}\frac{xor(z_i,y_i)}{k}
 \end{equation}
-where $m$ is a number of instances, $k$ is a number of labels, $y_{ij}$ is a target and $z_{ij}$ is a prediction. Let you notice that it is a loss function what means that the better classifier you have, the smaller value you get.  
+where $m$ is a number of instances, $k$ is a number of labels, $y_{i}$ is the ground truth and $z_{i}$ is the prediction. Let you notice that unlike the other metrics, we want Hamming loss to be as low as possible.  
 
-\subsection{Algorithms quality comparison}
+\subsection{Comparison of methods accuracy}
 
-The results of quality experiment are divided into sections - each section is connected with a particular data set. The experiment involves the following algorithms:
+The results of accuracy experiment are divided into sections. Each section is connected with a particular data set. The experiment involves the following algorithms:
 \begin{itemize}
-    \item \textit{CPLST},
-    \item \textit{LR},
-    \item \textit{OCCA},
-    \item \textit{LRWithPCA} which denotes linear regression with \textit{PCA} transformation on a label space,
-    \item \textit{LRWithRandomPCA} which denotes linear regression with randomized \textit{PCA} compression on a label space.
+    \item CPLST,
+    \item LR,
+    \item OCCA,
+    \item LRWithPCA which denotes linear regression with PCA transformation on a label space,
+    \item LRWithRandomPCA which denotes linear regression with randomized PCA compression on a label space.
 \end{itemize}
-All of the tested approaches used a linear regressor with \textit{Tikhonov} regularization - the regularization coefficient was equal to $7.0$. This value was certainly experimentally stated and for different data sets it does not have to be optimal.  
+All of the tested approaches used a linear regressor with Tikhonov regularization. The regularization coefficient was equal to $7.0$. This value was certainly stated experimentally and for different data sets it does not have to be optimal.  
 
-\Crefrange{tab:exp1}{tab:exp7} contain scores of \textit{Micro-}, \textit{Macro-}, \textit{Instance-average F1 score} metrics for particular methods. In case of the algorithms with data compression, an only label space was reduced. The reduction degree was equal to $0.6$ what means that $40\%$ of columns in a transformed space were rejected.
-\Crefrange{fig:enron}{fig:bookmarks} show the influence of a reduction degree on a specific metric. 
+\Crefrange{tab:exp1}{tab:exp7} contain scores of Micro-, Macro-, Instance-average F1 score metrics for particular methods. In case of the algorithms with data compression, an only label space was reduced. The reduction degree was equal to $0.6$ what means that $40\%$ of columns in a transformed space were rejected.
+\Crefrange{fig:enron}{fig:bookmarks} show the influence of a value of reduction degree on a specific metric. 
 
 \newpage
-\subsubsection{Enron dataset}
+\subsubsection{Enron data set}
 
 \begin{table}[H]
 \centering
-\caption{Quality of classification for enron dataset}
+\caption{Accuracy of methods for enron data set}
 \label{tab:exp1}
 \pgfplotstabletypeset [
     col sep=semicolon,
@@ -121,11 +120,11 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
 
 \begin{figure}[H]
 %\centering
-\caption{Quality metrics and reduction degree relation for enron dataset}
+\caption{Relation between reduction degree and accuracy for enron data set}
 \label{fig:enron}
 
 \begin{subfigure}{.5\textwidth}
-\caption{Hamming loss and reduction degree relation}
+\caption{Hamming loss}
 \label{fig:exp1}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -141,13 +140,16 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{CPLST}
         \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/enron_0.csv};
         \addlegendentry{LRWithRandomPCA}
-        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/enron_0.csv};
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/enron_0.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/enron_0.csv};
+        \addlegendentry{LR}
+
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\caption{Macro f1 score and reduction degree relation}
+\caption{Macro F1 score}
 \label{fig:exp2}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -165,12 +167,15 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/enron_1.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/enron_1.csv};
+        \addlegendentry{LR}
+
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 
 \begin{subfigure}{.5\textwidth}
-\caption{Micro f1 score and reduction degree relation}
+\caption{Micro F1 score}
 \label{fig:exp3}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -179,7 +184,7 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         ylabel={Micro F1 score},
         width=7cm,
         xmax=1,
-        ymax=0.6]
+        ymax=0.65]
         \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/enron_2.csv};
         \addlegendentry{LRWithPCA}
         \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/enron_2.csv};
@@ -188,20 +193,23 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/enron_2.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/enron_2.csv};
+        \addlegendentry{LR}
+
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\caption{Instance f1 score and reduction degree relation}
+\caption{Instance F1 score}
 \label{fig:exp4}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont},
         xlabel={Degree of reduction},
-        ylabel={Instance f1 score},
+        ylabel={Instance F1 score},
         width=7cm,
         xmax=1,
-        ymax=0.63]
+        ymax=0.7]
         \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/enron_3.csv};
         \addlegendentry{LRWithPCA}
         \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/enron_3.csv};
@@ -210,18 +218,19 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/enron_3.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/enron_3.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 
-
 \end{figure}
 
-\subsubsection{Scene dataset}
+\subsubsection{Scene data set}
 
 \begin{table}[H]
 \centering
-\caption{Quality of classification for scene dataset}
+\caption{Accuracy of methods for scene data set}
 \label{tab:exp2}
 \pgfplotstabletypeset [
     col sep=semicolon,
@@ -236,11 +245,11 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
 
 \begin{figure}[H]
 %\centering
-\caption{Quality metrics and reduction degree relation for scene dataset}
+\caption{Relation between reduction degree and accuracy for scene data set}
 \label{fig:scene}
 
 \begin{subfigure}{.5\textwidth}
-\caption{Hamming loss and reduction degree relation}
+\caption{Hamming loss}
 \label{fig:exp5}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -258,11 +267,13 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/scene_0.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/scene_0.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\caption{Macro f1 score and reduction degree relation}
+\caption{Macro F1 score}
 \label{fig:exp6}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -271,7 +282,7 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         ylabel={Macro F1 score},
         width=7cm,
         xmax=1,
-        ymax=1.3]
+        ymax=1.5]
         \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/scene_1.csv};
         \addlegendentry{LRWithPCA}
         \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/scene_1.csv};
@@ -280,12 +291,14 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/scene_1.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/scene_1.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 
 \begin{subfigure}{.5\textwidth}
-\caption{Micro f1 score and reduction degree relation}
+\caption{Micro F1 score}
 \label{fig:exp7}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -294,7 +307,7 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         ylabel={Micro F1 score},
         width=7cm,
         xmax=1,
-        ymax=1.3]
+        ymax=1.5]
         \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/scene_2.csv};
         \addlegendentry{LRWithPCA}
         \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/scene_2.csv};
@@ -303,20 +316,22 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/scene_2.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/scene_2.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\caption{Instance f1 score and reduction degree relation}
+\caption{Instance F1 score}
 \label{fig:exp8}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont},
         xlabel={Degree of reduction},
-        ylabel={Instance f1 score},
+        ylabel={Instance F1 score},
         width=7cm,
         xmax=1,
-        ymax=1.1]
+        ymax=1.3]
         \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/scene_3.csv};
         \addlegendentry{LRWithPCA}
         \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/scene_3.csv};
@@ -325,6 +340,8 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/scene_3.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/scene_3.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
@@ -333,11 +350,11 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
 \end{figure}
 
 
-\subsubsection{Yeast dataset}
+\subsubsection{Yeast data set}
 
 \begin{table}[H]
 \centering
-\caption{Quality of classification for yeast dataset}
+\caption{Accuracy of methods for yeast data set}
 \label{tab:exp3}
 \pgfplotstabletypeset [
     col sep=semicolon,
@@ -352,11 +369,11 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
 
 \begin{figure}[H]
 %\centering
-\caption{Quality metrics and reduction degree relation for yeast dataset}
+\caption{Relation between reduction degree and accuracy for yeast data set}
 \label{fig:yeast}
 
 \begin{subfigure}{.5\textwidth}
-\caption{Hamming loss and reduction degree relation}
+\caption{Hamming loss}
 \label{fig:exp9}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -374,11 +391,13 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/yeast_0.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/yeast_0.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\caption{Macro f1 score and reduction degree relation}
+\caption{Macro F1 score}
 \label{fig:exp10}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -396,12 +415,14 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/yeast_1.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/yeast_1.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 
 \begin{subfigure}{.5\textwidth}
-\caption{Micro f1 score and reduction degree relation}
+\caption{Micro F1 score}
 \label{fig:exp11}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -419,20 +440,22 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/yeast_2.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/yeast_2.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\caption{Instance f1 score and reduction degree relation}
+\caption{Instance F1 score}
 \label{fig:exp12}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont},
         xlabel={Degree of reduction},
-        ylabel={Instance f1 score},
+        ylabel={Instance F1 score},
         width=7cm,
         xmax=1,
-        ymax=0.7]
+        ymax=0.8]
         \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/yeast_3.csv};
         \addlegendentry{LRWithPCA}
         \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/yeast_3.csv};
@@ -441,17 +464,19 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/yeast_3.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/yeast_3.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 
 \end{figure}
 
-\subsubsection{Bibtex dataset}
+\subsubsection{Bibtex data set}
 
 \begin{table}[H]
 \centering
-\caption{Quality of classification for bibtex dataset}
+\caption{Accuracy of methods for bibtex data set}
 \label{tab:exp4}
 \pgfplotstabletypeset [
     col sep=semicolon,
@@ -466,11 +491,11 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
 
 \begin{figure}[H]
 %\centering
-\caption{Quality metrics and reduction degree relation for bibtex dataset}
+\caption{Relation between reduction degree and accuracy for bibtex data set}
 \label{fig:bibtex}
 
 \begin{subfigure}{.5\textwidth}
-\caption{Hamming loss and reduction degree relation}
+\caption{Hamming loss}
 \label{fig:exp13}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -488,11 +513,13 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/bibtex_0.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/bibtex_0.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\caption{Macro f1 score and reduction degree relation}
+\caption{Macro F1 score}
 \label{fig:exp14}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -501,7 +528,7 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         ylabel={Macro F1 score},
         width=7cm,
         xmax=1,
-        ymax=0.4]
+        ymax=0.45]
         \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/bibtex_1.csv};
         \addlegendentry{LRWithPCA}
         \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/bibtex_1.csv};
@@ -510,12 +537,14 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/bibtex_1.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/bibtex_1.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 
 \begin{subfigure}{.5\textwidth}
-\caption{Micro f1 score and reduction degree relation}
+\caption{Micro F1 score}
 \label{fig:exp15}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -524,7 +553,7 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         ylabel={Micro F1 score},
         width=7cm,
         xmax=1,
-        ymax=0.7]
+        ymax=0.75]
         \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/bibtex_2.csv};
         \addlegendentry{LRWithPCA}
         \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/bibtex_2.csv};
@@ -533,20 +562,22 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/bibtex_2.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/bibtex_2.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\caption{Instance f1 score and reduction degree relation}
+\caption{Instance F1 score}
 \label{fig:exp16}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont},
         xlabel={Degree of reduction},
-        ylabel={Instance f1 score},
+        ylabel={Instance F1 score},
         width=7cm,
         xmax=1,
-        ymax=0.6]
+        ymax=0.65]
         \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/bibtex_3.csv};
         \addlegendentry{LRWithPCA}
         \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/bibtex_3.csv};
@@ -555,6 +586,8 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/bibtex_3.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/bibtex_3.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
@@ -563,11 +596,11 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
 \end{figure}
 
 
-\subsubsection{Corel16k dataset}
+\subsubsection{Corel16k data set}
 
 \begin{table}[H]
 \centering
-\caption{Quality of classification for corel16k dataset}
+\caption{Accuracy of methods for corel16k data set}
 \label{tab:exp5}
 \pgfplotstabletypeset [
     col sep=semicolon,
@@ -582,11 +615,11 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
 
 \begin{figure}[H]
 %\centering
-\caption{Quality metrics and reduction degree relation for corel16k dataset}
+\caption{Relation between reduction degree and accuracy for corel16k data set}
 \label{fig:corel16k}
 
 \begin{subfigure}{.5\textwidth}
-\caption{Hamming loss and reduction degree relation}
+\caption{Hamming loss}
 \label{fig:exp17}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -604,11 +637,13 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/Corel16k001_0.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/Corel16k001_0.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\caption{Macro f1 score and reduction degree relation}
+\caption{Macro F1 score}
 \label{fig:exp18}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -626,12 +661,14 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/Corel16k001_1.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/Corel16k001_1.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 
 \begin{subfigure}{.5\textwidth}
-\caption{Micro f1 score and reduction degree relation}
+\caption{Micro F1 score}
 \label{fig:exp19}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -641,7 +678,7 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         ylabel style={yshift=0.4cm},
         width=7cm,
         xmax=1,
-        ymax=0.13]
+        ymax=0.15]
         \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/Corel16k001_2.csv};
         \addlegendentry{LRWithPCA}
         \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/Corel16k001_2.csv};
@@ -650,17 +687,19 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/Corel16k001_2.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/Corel16k001_2.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\caption{Instance f1 score and reduction degree relation}
+\caption{Instance F1 score}
 \label{fig:exp20}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont},
         xlabel={Degree of reduction},
-        ylabel={Instance f1 score},
+        ylabel={Instance F1 score},
         ylabel style={yshift=0.4cm},
         width=7cm,
         xmax=1,
@@ -673,6 +712,8 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/Corel16k001_3.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/Corel16k001_3.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
@@ -680,11 +721,11 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
 
 \end{figure}
 
-\subsubsection{EUR-Lex dataset}
+\subsubsection{EUR-Lex data set}
 
 \begin{table}[H]
 \centering
-\caption{Quality of classification for EUR-Lex dataset}
+\caption{Accuracy of methods for EUR-Lex data set}
 \label{tab:exp6}
 \pgfplotstabletypeset [
     col sep=semicolon,
@@ -699,11 +740,11 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
 
 \begin{figure}[H]
 %\centering
-\caption{Quality metrics and reduction degree relation for EUR-Lex dataset}
+\caption{Relation between reduction degree and accuracy for EUR-Lex data set}
 \label{fig:eurlex}
 
 \begin{subfigure}{.5\textwidth}
-\caption{Hamming loss and reduction degree relation}
+\caption{Hamming loss}
 \label{fig:exp21}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -712,7 +753,7 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         ylabel={Hamming loss},
         width=7cm,
         xmax=1,
-        ymax=0.03]
+        ymax=0.05]
         \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/eurlex_0.csv};
         \addlegendentry{LRWithPCA}
         \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/eurlex_0.csv};
@@ -721,11 +762,13 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/eurlex_0.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/eurlex_0.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\caption{Macro f1 score and reduction degree relation}
+\caption{Macro F1 score}
 \label{fig:exp22}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -735,7 +778,7 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         ylabel style={yshift=0.4cm},
         width=7cm,
         xmax=1,
-        ymax=0.13]
+        ymax=0.15]
         \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/eurlex_1.csv};
         \addlegendentry{LRWithPCA}
         \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/eurlex_1.csv};
@@ -744,12 +787,14 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/eurlex_1.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/eurlex_1.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 
 \begin{subfigure}{.5\textwidth}
-\caption{Micro f1 score and reduction degree relation}
+\caption{Micro F1 score}
 \label{fig:exp23}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -758,7 +803,7 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         ylabel={Micro F1 score},
         width=7cm,
         xmax=1,
-        ymax=0.35]
+        ymax=0.4]
         \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/eurlex_2.csv};
         \addlegendentry{LRWithPCA}
         \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/eurlex_2.csv};
@@ -767,20 +812,22 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/eurlex_2.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/eurlex_2.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\caption{Instance f1 score and reduction degree relation}
+\caption{Instance F1 score}
 \label{fig:exp24}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont},
         xlabel={Degree of reduction},
-        ylabel={Instance f1 score},
+        ylabel={Instance F1 score},
         width=7cm,
         xmax=1,
-        ymax=0.6]
+        ymax=0.65]
         \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/eurlex_3.csv};
         \addlegendentry{LRWithPCA}
         \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/eurlex_3.csv};
@@ -796,11 +843,11 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
 
 \end{figure}
 
-\subsubsection{Bookmarks dataset}
+\subsubsection{Bookmarks data set}
 
 \begin{table}[H]
 \centering
-\caption{Quality of classification for bookmarks dataset}
+\caption{Accuracy of methods for bookmarks data set}
 \label{tab:exp7}
 \pgfplotstabletypeset [
     col sep=semicolon,
@@ -815,11 +862,11 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
 
 \begin{figure}[H]
 %\centering
-\caption{Quality metrics and reduction degree relation for bookmarks dataset}
+\caption{Relation between reduction degree and accuracy for bookmarks data set}
 \label{fig:bookmarks}
 
 \begin{subfigure}{.5\textwidth}
-\caption{Hamming loss and reduction degree relation}
+\caption{Hamming loss}
 \label{fig:exp25}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -837,11 +884,13 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/bookmarks_0.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/bookmarks_0.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\caption{Macro f1 score and reduction degree relation}
+\caption{Macro F1 score}
 \label{fig:exp26}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -860,12 +909,14 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/bookmarks_1.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/bookmarks_1.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 
 \begin{subfigure}{.5\textwidth}
-\caption{Micro f1 score and reduction degree relation}
+\caption{Micro F1 score}
 \label{fig:exp27}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
@@ -874,7 +925,7 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         ylabel={Micro F1 score},
         width=7cm,
         xmax=1,
-        ymax=0.25]
+        ymax=0.3]
         \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/bookmarks_2.csv};
         \addlegendentry{LRWithPCA}
         \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/bookmarks_2.csv};
@@ -883,17 +934,19 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/bookmarks_2.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/bookmarks_2.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\caption{Instance f1 score and reduction degree relation}
+\caption{Instance F1 score}
 \label{fig:exp28}
 \begin{tikzpicture}
     \begin{axis}[legend pos=north east,
         legend style={font=\fontsize{7}{5}\selectfont},
         xlabel={Degree of reduction},
-        ylabel={Instance f1 score},
+        ylabel={Instance F1 score},
         width=7cm,
         xmax=1,
         ymax=0.25]
@@ -905,6 +958,8 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
         \addlegendentry{LRWithRandomPCA}
         \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/bookmarks_3.csv};
         \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/bookmarks_3.csv};
+        \addlegendentry{LR}
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
@@ -913,25 +968,25 @@ All of the tested approaches used a linear regressor with \textit{Tikhonov} regu
 \end{figure}
 
 \newpage
-\subsection{Efficency comparison}
+\subsection{Comparison of methods efficiency}
 
-The measurement of time of the methods was performed on \textit{bookmarks} data set with a changeable number of instances. The computation was run on sequentially on one core and parallelly on eight cores, in order to show the efficency difference. The experiment involves the following approaches:
+The efficiency experiment aimed at measuring time of training classifier by particular methods and was performed on bookmarks data set with a changeable number of instances. The computation was run in single- and multi-threaded environment, in order to show how multithreading affects the efficiency. The test involved the following algorithms:
 \begin{itemize}
-    \item CPLST;
-    \item LR, which stand for linear regression;
-    \item LRWithPCA, which is linear regression with PCA compression on a label space;
-    \item LRWithRPCA (1), which is linear regression with random PCA compression on a label space;
-    \item LRWithRPCA (2), which is linear regression with random PCA compression on a feature space;
+    \item CPLST,
+    \item LR,
+    \item LRWithPCA,
+    \item LRWithRPCA(L) which is linear regression with random PCA compression on a label space,
+    \item LRWithRPCA(F) which is linear regression with random PCA compression on a feature space,
     \item OCCA.
 \end{itemize}
-Due to meaningful differences (even about an order of magnitude) between particular algorithms, the results are shown in three figures: \ref{fig:exp29} - \ref{fig:exp31}
+Due to meaningful differences (even about an order of magnitude) between particular algorithms, the results are shown in three figures: \Crefrange{fig:exp29}{fig:exp31}.
 
 \newpage
-\subsubsection{Performance on one core}
+\subsubsection{Single-threaded performance}
 
 \begin{figure}[H]
 \centering
-\caption{Time measurement of \textit{LR}, \textit{LRWithRPCA (1)} and \textit{LRWithRPCA(2)} (1 core)}
+\caption{Efficiency of single-threaded LR and RPCA classifiers}
 \label{fig:exp29}
 \begin{tikzpicture}[scale=0.93]
     \begin{axis}[legend pos=north east,
@@ -941,9 +996,9 @@ Due to meaningful differences (even about an order of magnitude) between particu
         \addplot table [x=instance, y=time, col sep=semicolon] {figures/LR1.csv};
         \addlegendentry{LR}
         \addplot table [x=instance, y=time, col sep=semicolon] {figures/LRWithRandomPCA1.csv};
-        \addlegendentry{LRWithRPCA (1)}
+        \addlegendentry{LRWithRPCA(L)}
         \addplot table [x=instance, y=time, col sep=semicolon] {figures/LRWithRandomPCA_d1.csv};
-        \addlegendentry{LRWithRPCA (2)}
+        \addlegendentry{LRWithRPCA(F)}
 
     \end{axis}
 \end{tikzpicture}
@@ -951,7 +1006,7 @@ Due to meaningful differences (even about an order of magnitude) between particu
 
 \begin{figure}[H]
 \centering
-\caption{Time measurement of \textit{OCCA} and \textit{CPLST} (1 core)}
+\caption{Efficiency of single-threaded OCCA and CPLST}
 \label{fig:exp30}
 \begin{tikzpicture}[scale=0.93]
     \begin{axis}[legend pos=north east,
@@ -969,7 +1024,7 @@ Due to meaningful differences (even about an order of magnitude) between particu
 
 \begin{figure}[H]
 \centering
-\caption{Time measurement of \textit{LRWithPCA} (1 core)}
+\caption{Efficiency of single-threaded LRWithPCA}
 \label{fig:exp31}
 \begin{tikzpicture}[scale=0.93]
     \begin{axis}[legend pos=north east,
@@ -983,11 +1038,11 @@ Due to meaningful differences (even about an order of magnitude) between particu
 \end{tikzpicture}
 \end{figure}
 
-\subsubsection{Performance on 8 cores}
+\subsubsection{Multi-threaded performance}
 
 \begin{figure}[H]
 \centering
-\caption{Time measurement of \textit{LR}, \textit{LRWithRPCA(1)} and \textit{LRWithRPCA}(2) (8 cores)}
+\caption{Efficiency of multi-threaded LR and RPCA classifiers}
 \label{fig:exp32}
 \begin{tikzpicture}[scale=0.93]
     \begin{axis}[legend pos=north east,
@@ -997,9 +1052,9 @@ Due to meaningful differences (even about an order of magnitude) between particu
         \addplot table [x=instance, y=time, col sep=semicolon] {figures/LR.csv};
         \addlegendentry{LR}
         \addplot table [x=instance, y=time, col sep=semicolon] {figures/LRWithRandomPCA.csv};
-        \addlegendentry{LRWithRPCA (1)}
+        \addlegendentry{LRWithRPCA(L)}
         \addplot table [x=instance, y=time, col sep=semicolon] {figures/LRWithRandomPCA_d.csv};
-        \addlegendentry{LRWithRPCA (2)}
+        \addlegendentry{LRWithRPCA(F)}
 
     \end{axis}
 \end{tikzpicture}
@@ -1007,7 +1062,7 @@ Due to meaningful differences (even about an order of magnitude) between particu
 
 \begin{figure}[H]
 \centering
-\caption{Time measurement of \textit{OCCA} and \textit{CPLST} (8 cores)}
+\caption{Efficiency of multi-threaded OCCA and CPLST}
 \label{fig:exp33}
 \begin{tikzpicture}[scale=0.93]
     \begin{axis}[legend pos=north east,
@@ -1025,7 +1080,7 @@ Due to meaningful differences (even about an order of magnitude) between particu
 
 \begin{figure}[H]
 \centering
-\caption{Time measurement of \textit{LRWithPCA} (8 cores)}
+\caption{Efficiency of multi-threaded LRWithPCA}
 \label{fig:exp34}
 \begin{tikzpicture}[scale=0.93]
     \begin{axis}[legend pos=north east,
@@ -1034,9 +1089,6 @@ Due to meaningful differences (even about an order of magnitude) between particu
         ymax=2500]
         \addplot table [x=instance, y=time, col sep=semicolon] {figures/LRWithPCA.csv};
         \addlegendentry{LRWithPCA}
-
     \end{axis}
 \end{tikzpicture}
 \end{figure}
-
-

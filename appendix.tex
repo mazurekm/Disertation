@@ -13,7 +13,7 @@ The above optimization problem can be simply transformed to the following equati
 \begin{equation}\label{eq:least1}
     \nabla_{\boldsymbol{\beta}} \frac{1}{2}(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})^T(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta}) = 0
 \end{equation}
-As we see, we need to calculate the derivative of $\frac{1}{2}(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})^T(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})$ in respect to $\boldsymbol{\beta}$. In order to reach it we can use ralations between derivatives with matrices and trace of a matrix. First of all, let us note a few facts about trace of a matrix:
+As we see, we need to calculate the derivative of $\frac{1}{2}(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})^T(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})$ in respect to $\boldsymbol{\beta}$. In order to reach it we can use relations between derivatives with matrices and trace of a matrix. First of all, let us note a few facts about trace of a matrix:
 
 \begin{enumerate}
     \item $tr(\boldsymbol{A}+\boldsymbol{B}) = tr(\boldsymbol{A})+tr(\boldsymbol{B})$
@@ -58,9 +58,9 @@ Let a matrix $\boldsymbol{T} \in \mathbb{R}^{m \times n}$ be a linear transforma
 \begin{equation}\label{eq:eigen1}
     \boldsymbol{T}\boldsymbol{v}=\lambda{\boldsymbol{v}}
 \end{equation}
-then we call them an eigenvector and suitably an eigenvalue of a matrix $\boldsymbol{T}$. Intuitively an eigenvector $\boldsymbol{v}$ of a matrix $\boldsymbol{T}$ is transformed by $\boldsymbol{T}$ into itself - its direction does not change. An eigenvalue can be then intepreted as a scale factor. Formally eigenvectors and eigenvalues chracterize an endomorphism of a particular linear space.  
+then we call them an eigenvector and suitably an eigenvalue of a matrix $\boldsymbol{T}$. Intuitively an eigenvector $\boldsymbol{v}$ of a matrix $\boldsymbol{T}$ is transformed by $\boldsymbol{T}$ into itself - its direction does not change. An eigenvalue can be then interpreted as a scale factor. Formally eigenvectors and eigenvalues characterize an endomorphism of a particular linear space.  
 
-The equation \ref{eq:eigen1} can be certainly stated equivalenty as:
+The equation \ref{eq:eigen1} can be certainly stated equivalently as:
 
 \begin{equation}\label{eq:eigen2}
     (\boldsymbol{T}-\lambda{\boldsymbol{I}})\boldsymbol{v}=0
@@ -76,7 +76,7 @@ where $\boldsymbol{I}$ is the identity matrix. Let us notice that \cref{eq:eigen
 \section{Singular value decomposition}
 \label{app:svd}
 
-\textit{SVD} decomposition is a particular factorization of a real or a complex matrix. Formally, each arbitrary matrix $\boldsymbol{X} \in \mathbb{R}^{n \times p}$ can be written as \cite{Jolliffe}:
+SVD decomposition is a particular factorization of a real or a complex matrix. Formally, each arbitrary matrix $\boldsymbol{X} \in \mathbb{R}^{n \times p}$ can be written as \cite{Jolliffe}:
 \begin{equation}
     \boldsymbol{X}=\boldsymbol{U}\boldsymbol{\Sigma}{\boldsymbol{V}^T}
 \end{equation}
@@ -97,35 +97,54 @@ The factorization with such properties can be computed using the following obser
     \item The values found on the diagonal entries of $\boldsymbol{\Sigma}$ are square roots of non-zero eigenvalues of both $\boldsymbol{X}\boldsymbol{X}^T$ and $\boldsymbol{X}^T\boldsymbol{X}$.
 \end{itemize}
 
-Besides a few interesting mathematical properties, the \textit{SVD} decomposition has also an intuitive intepretation. If we assume that $\boldsymbol{X} \in \mathbb{R}^{n \times n}$ is a square matrix of a linear transformation with the positive determinant, then $\boldsymbol{\Sigma}$ can be thought as a scaling matrix while $\boldsymbol{V}^T$ and $\boldsymbol{U}$ can be viewed as rotation matrices. Therefore the expression $\boldsymbol{U}\boldsymbol{\Sigma}{\boldsymbol{V}^T}$ can be regarded as a composition of three geometrical transformations: two rotations and scaling\cite{SVD}.
+Besides a few interesting mathematical properties, the SVD decomposition has also an intuitive interpretation. If we assume that $\boldsymbol{X} \in \mathbb{R}^{n \times n}$ is a square matrix of a linear transformation with the positive determinant, then $\boldsymbol{\Sigma}$ can be thought as a scaling matrix while $\boldsymbol{V}^T$ and $\boldsymbol{U}$ can be viewed as rotation matrices. Therefore the expression $\boldsymbol{U}\boldsymbol{\Sigma}{\boldsymbol{V}^T}$ can be regarded as a composition of three geometrical transformations: two rotations and scaling\footnote{\bibentry{SVD}}.
 
-The standard \textit{SVD} algorithm has complexity of $O(np^2+p^3)$ and consists off two steps. In the first step, an origin matrix is transformed into a bidiagonal matrix. It is usually made by \textit{Householder reflection} algorithm which is $O(np^2+p^3)$ in the worst case. The second step is connected with proceeding \textit{SVD} on a reduced matrix obtained in the first step. This part of the algorithm costs $O(p^2)$ and is computed by \textit{QR} decomposition \cite{SVD}. 
+The standard SVD algorithm has complexity of $O(np^2+p^3)$ and consists off two steps. In the first step, an origin matrix is transformed into a bidiagonal matrix. It is usually made by \textit{Householder reflection} algorithm which is $O(np^2+p^3)$ in the worst case. The second step is connected with proceeding SVD on a reduced matrix obtained in the first step. This part of the algorithm costs $O(p^2)$ and is computed by \textit{QR} decomposition\footnote{\bibentry{SVD}}. 
 
 \newpage
-\section{CCA computing algorithm based on \textit{SVD} decomposition}
+\section{Invertibility of matrix in shrinkage regression}
+\label{app:reg}
+
+In this section we will show that it is not necessary to use pseudo inverse in shrinkage regression algorithm. Let us remind that the solution of shrinkage regression problem is given by the following formula:
+
+\begin{equation}\label{eq:shrink}
+    \boldsymbol{\hat{\beta}} = (\boldsymbol{X}^T\boldsymbol{X}+\lambda\boldsymbol{I})^{-1}\boldsymbol{X}^T\boldsymbol{y}
+\end{equation}
+
+In the proof we will use singular value decomposition. Using SVD of a symmetric matrix $\boldsymbol{X}^T\boldsymbol{X}$ and its properties, we can express $\boldsymbol{X}^T\boldsymbol{X}+\lambda\boldsymbol{I}$ as: 
+\begin{equation}\label{eq:inv_proof}
+\begin{split}
+    \boldsymbol{X}^T\boldsymbol{X} + \lambda\boldsymbol{I}&=\boldsymbol{V}\boldsymbol{\Sigma}\boldsymbol{V}^T + \lambda\boldsymbol{I} = \boldsymbol{V}\boldsymbol{\Sigma}\boldsymbol{V}^T + \lambda\boldsymbol{V}\boldsymbol{V}^T\boldsymbol{I}\boldsymbol{V}\boldsymbol{V}^T \\ 
+    = &\boldsymbol{V}(\boldsymbol{\Sigma} + \lambda\boldsymbol{V}^T\boldsymbol{I}\boldsymbol{V})\boldsymbol{V}^T = \boldsymbol{V}(\boldsymbol{\Sigma} + \lambda\boldsymbol{I})\boldsymbol{V}^T 
+\end{split}
+\end{equation}
+Let us notice that $\boldsymbol{V}(\boldsymbol{\Sigma} + \lambda\boldsymbol{I})\boldsymbol{V}^T$ is invertible, because $\boldsymbol{V}$ is invertible (it is orthogonal) and $\boldsymbol{\Sigma} +\lambda\boldsymbol{I}$ is invertible as well (this is a diagonal matrix and we have certainty that it does not have zeros on its diagonal).
+
+\newpage
+\section{CCA computing algorithm based on SVD decomposition}
 \label{app:cca}
 
-The algorithm based on \textit{SVD} is not the fastest way of computing \textit{CCA}. However, this approach is clear and shows the idea which is behind \textit{CCA}. Let $\boldsymbol{X}$ and $\boldsymbol{Y}$ be $(m \times n)$ and $(m \times k)$ matrices. The first step of the method is to find \textit{SVD} decomposition of $\boldsymbol{X}$ and $\boldsymbol{Y}$:
+The algorithm based on SVD is not the fastest way of computing CCA. However, this approach is clear and shows the idea which is behind CCA. Let $\boldsymbol{X}$ and $\boldsymbol{Y}$ be $(m \times n)$ and $(m \times k)$ matrices. The first step of the method is to find SVD decomposition of $\boldsymbol{X}$ and $\boldsymbol{Y}$:
 \begin{equation}
     \boldsymbol{X}=\boldsymbol{U}_1\boldsymbol{S}_1\boldsymbol{V}^T_1, \quad \boldsymbol{X}=\boldsymbol{U}_2\boldsymbol{S}_2\boldsymbol{V}^T_2
 \end{equation}
-Next, a matrix $\boldsymbol{U}_1^T\boldsymbol{U}_2$ is formed and also decomposed by \textit{SVD}:
+Next, a matrix $\boldsymbol{U}_1^T\boldsymbol{U}_2$ is formed and also decomposed by SVD:
 \begin{equation}
     \boldsymbol{U}_1^T\boldsymbol{U}_2 = \boldsymbol{Q}\boldsymbol{\Sigma}{\boldsymbol{L}^T}
 \end{equation}
-Finally, matrices of coefficents of linear combinations for $\boldsymbol{X}$ and $\boldsymbol{Y}$ are computed \cite{William}:
+Finally, matrices of coefficients of linear combinations for $\boldsymbol{X}$ and $\boldsymbol{Y}$ are computed (\cite{William}):
 \begin{equation}
     \boldsymbol{W}_x=\boldsymbol{V}_1\boldsymbol{S}_1^{-1}\boldsymbol{Q}, \quad  \boldsymbol{W}_y=\boldsymbol{V}_2\boldsymbol{S}_2^{-1}\boldsymbol{L}
 \end{equation}
 
 
 \chapter{Multi-label classification library in practise}
-\section{Example of usage of \textit{Armadillo} library}
+\section{Example of usage of Armadillo library}
 \label{app:arma}
 \lstinputlisting[numbers=left, language=C++, caption=armadillo.cpp]{listings/armadillo.cpp}
 
 \newpage
-\section{Example of data in \textit{ARFF} format}
+\section{Example of data in ARFF format}
 \label{app:arff}
 \lstinputlisting[caption=iris.arff]{listings/iris.arff}
 \lstinputlisting[caption=iris.xml, language=xml]{listings/iris.xml}

@@ -1,5 +1,3 @@
-% Szkielet dla pracy pisanej w języku angielskim.
-
 \documentclass[english,a4paper,twoside]{ppfcmthesis}
 
 \usepackage{amssymb}
@@ -17,6 +15,7 @@
 \usepackage{float}
 \usepackage{cleveref}
 \usepackage{natbib}
+\usepackage{bibentry}
 
 \lstset{language=C++}
 
@@ -25,6 +24,7 @@
 \title{Efficient and scalable algorithms for multi-label classification based on feature and label space transformation}           
 \ppsupervisor{~dr~inż.~Krzysztof Dembczyński} 
 \ppyear{2016}                                  
+
 
 \begin{document}
 
@@ -56,6 +56,7 @@
 \cleardoublepage
 \listoftables
 
+\nobibliography*
 
 % Main content of your thesis starts here.
 \mainmatter%
@@ -70,6 +71,7 @@
 \input{appendix.tex}
 
 % Bibliography (books, articles) starts here.
+
 \bibliographystyle{unsrtnat}{\bibliography{bibliography}}
 
 % Colophon is a place where you should let others know about copyrights etc.
