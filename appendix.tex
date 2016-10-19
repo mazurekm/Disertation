@@ -5,15 +5,15 @@
 \section{Least squares for multiple regression}
 \label{app:least}
 
-Given a design matrix $\boldsymbol{X} \in \mathbb{R}^{m \times (n+1)}$ and a vector of real values $y \in \mathbb{R}^{n}$, we want to find $\boldsymbol{\beta}$, such that:
-\begin{equation}
-    \boldsymbol{\hat{\beta}} = \argmin_{\boldsymbol{\beta} \in \mathbb{R}^{n+1}}\sum\limits_{i=1}^{m}(\boldsymbol{y}_i-\sum\limits_{j=1}^{n+1}\boldsymbol{x}_{ij}\boldsymbol{\beta}_j)^2 = \argmin_{\boldsymbol{\beta} \in \mathbb{R}^{n+1}}(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})^T(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})
+Given a design matrix $\boldsymbol{X} \in \mathbb{R}^{m \times (n+1)}$ and a vector of real values $\boldsymbol{y} \in \mathbb{R}^{n}$, we want to find $\boldsymbol{\beta}$, such that:
+\begin{equation}\label{eq:least0}
+    \boldsymbol{\hat{\beta}} = \argmin_{\boldsymbol{\beta} \in \mathbb{R}^{n+1}}(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})^T(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})
 \end{equation}
-The above optimization problem can be simply transformed to the following equation:
+Let us notice that we can treat $(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})^T(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})$ as the function of $\boldsymbol{\beta}$. So, we can solve \Cref{eq:least0} by finding the global minimum of this function. This, of course, can be achieved by calculating the derivative in respect to $\boldsymbol{\beta}$:
 \begin{equation}\label{eq:least1}
     \nabla_{\boldsymbol{\beta}} \frac{1}{2}(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})^T(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta}) = 0
 \end{equation}
-As we see, we need to calculate the derivative of $\frac{1}{2}(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})^T(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})$ in respect to $\boldsymbol{\beta}$. In order to reach it we can use relations between derivatives with matrices and trace of a matrix. First of all, let us note a few facts about trace of a matrix:
+We will solve the above equation by using the relations between derivatives with matrices and the trace of a matrix \citep{LRV}. First of all, let us remind that for a square matrix $\boldsymbol{A} \in \mathbb{R}^{n \times n}$ its trace is defined as: $tr(\boldsymbol{A})= \sum\limits_{i=1}^{n}a_{ii}$. We also note a few facts about the trace:
 
 \begin{enumerate}
     \item $tr(\boldsymbol{A}+\boldsymbol{B}) = tr(\boldsymbol{A})+tr(\boldsymbol{B})$
@@ -45,7 +45,7 @@ Now we can simply use \Cref{eq:least4} and \Cref{eq:least5} in \Cref{eq:least3} 
 \begin{equation}\label{eq:least6}
     \frac{1}{2}[\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}+\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}-\boldsymbol{X}^T\boldsymbol{y}-\boldsymbol{X}^T\boldsymbol{y}] = 0
 \end{equation}
-Finally, we obtain $\boldsymbol{\beta}$ from \cref{eq:least6}:
+Finally, we obtain $\boldsymbol{\beta}$ from \Cref{eq:least6}:
 \begin{equation}
     \boldsymbol{\beta}=(\boldsymbol{X}^T\boldsymbol{X})^{-1}\boldsymbol{X}^T\boldsymbol{y}
 \end{equation}
@@ -54,36 +54,36 @@ Finally, we obtain $\boldsymbol{\beta}$ from \cref{eq:least6}:
 \section{Eigenvalues and eigenvectors of matrices}
 \label{app:eigen}
 
-Let a matrix $\boldsymbol{T} \in \mathbb{R}^{m \times n}$ be a linear transformation matrix - such the matrix can express primary linear transformations, for instance rotation, scaling, transposition, etc. If there are a column vector $\boldsymbol{v}$ and a scalar $\lambda$, such that:
+Let a matrix $\boldsymbol{T} \in \mathbb{R}^{m \times n}$ be a linear transformation matrix. Such matrix can certainly express primary linear transformations, for instance rotation, scaling, transposition, etc. If there are a column vector $\boldsymbol{v}$ and a scalar $\lambda$, such that:
 \begin{equation}\label{eq:eigen1}
     \boldsymbol{T}\boldsymbol{v}=\lambda{\boldsymbol{v}}
 \end{equation}
-then we call them an eigenvector and suitably an eigenvalue of a matrix $\boldsymbol{T}$. Intuitively an eigenvector $\boldsymbol{v}$ of a matrix $\boldsymbol{T}$ is transformed by $\boldsymbol{T}$ into itself - its direction does not change. An eigenvalue can be then interpreted as a scale factor. Formally eigenvectors and eigenvalues characterize an endomorphism of a particular linear space.  
+then we call them an eigenvector and suitably an eigenvalue of a matrix $\boldsymbol{T}$. Intuitively an eigenvector $\boldsymbol{v}$ of a matrix $\boldsymbol{T}$ is transformed by $\boldsymbol{T}$ into itself. An eigenvalue can be then interpreted as a scale factor. Formally eigenvectors and eigenvalues characterize an endomorphism of a particular linear space.  
 
 The equation \ref{eq:eigen1} can be certainly stated equivalently as:
 
 \begin{equation}\label{eq:eigen2}
     (\boldsymbol{T}-\lambda{\boldsymbol{I}})\boldsymbol{v}=0
 \end{equation}
-where $\boldsymbol{I}$ is the identity matrix. Let us notice that \cref{eq:eigen2} has a solution if and only if the determinant of a matrix $(\boldsymbol{T}-\lambda{\boldsymbol{I}})$ is equal to zero. As a result, we can find eigenvalues by solving the following equation:
+where $\boldsymbol{I}$ is the identity matrix. Let us notice that \Cref{eq:eigen2} has a solution if and only if the determinant of a matrix $(\boldsymbol{T}-\lambda{\boldsymbol{I}})$ is equal to zero. As a result, we can find eigenvalues by solving the following equation:
 \begin{equation}\label{eq:eigen3}
     det(\boldsymbol{T}-\lambda{\boldsymbol{I}}) = (\lambda_1-\lambda)(\lambda_2-\lambda)\cdots(\lambda_n-\lambda) = 0
 \end{equation}
-\Cref{eq:eigen3} is called the characteristic equation, while its left-hand side is called the characteristic polynomial. In practise this method is not used to calculate eigenvectors and eigenvalues. The most popular algorithm is \textit{Power iteration} which is also called \textit{Von Mises iteration}.
+\Cref{eq:eigen3} is called the characteristic equation, while its left-hand side is called the characteristic polynomial \citep{Banerjee}. In practice this method is not used to calculate eigenvectors and eigenvalues. The most popular algorithm is \textit{Power iteration} which is also called \textit{Von Mises iteration}.
 
 
 \newpage
 \section{Singular value decomposition}
 \label{app:svd}
 
-SVD decomposition is a particular factorization of a real or a complex matrix. Formally, each arbitrary matrix $\boldsymbol{X} \in \mathbb{R}^{n \times p}$ can be written as \cite{Jolliffe}:
+SVD decomposition is a particular factorization of a real or a complex matrix. Formally, each arbitrary matrix $\boldsymbol{X} \in \mathbb{R}^{n \times p}$ can be written as \citep{Jolliffe}:
 \begin{equation}
     \boldsymbol{X}=\boldsymbol{U}\boldsymbol{\Sigma}{\boldsymbol{V}^T}
 \end{equation}
 where:
 \begin{enumerate}
-    \item $\boldsymbol{U}$ and $\boldsymbol{V}$ are $(n \times r)$, $(p \times r)$ matrices which have orthonormal columns. It means that $\boldsymbol{U}\boldsymbol{U}^T=\boldsymbol{I}$ and $\boldsymbol{V}\boldsymbol{V}^T=\boldsymbol{I}$, where $\boldsymbol{I}$ is the identity matrix;
-    \item $\boldsymbol{\Sigma}$ is an $(r \times r)$ matrix;
+    \item $\boldsymbol{U}$ and $\boldsymbol{V}$ are $(n \times r)$, $(p \times r)$ matrices which have orthonormal columns. It means that $\boldsymbol{U}\boldsymbol{U}^T=\boldsymbol{I}$ and $\boldsymbol{V}\boldsymbol{V}^T=\boldsymbol{I}$, where $\boldsymbol{I}$ is the identity matrix,
+    \item $\boldsymbol{\Sigma}$ is an $(r \times r)$ matrix,
     \item $r$ is a rank of $\boldsymbol{X}$.
 \end{enumerate}
 If $\boldsymbol{X}$ is a symmetric matrix, its decomposition is equivalent to:
@@ -97,15 +97,40 @@ The factorization with such properties can be computed using the following obser
     \item The values found on the diagonal entries of $\boldsymbol{\Sigma}$ are square roots of non-zero eigenvalues of both $\boldsymbol{X}\boldsymbol{X}^T$ and $\boldsymbol{X}^T\boldsymbol{X}$.
 \end{itemize}
 
-Besides a few interesting mathematical properties, the SVD decomposition has also an intuitive interpretation. If we assume that $\boldsymbol{X} \in \mathbb{R}^{n \times n}$ is a square matrix of a linear transformation with the positive determinant, then $\boldsymbol{\Sigma}$ can be thought as a scaling matrix while $\boldsymbol{V}^T$ and $\boldsymbol{U}$ can be viewed as rotation matrices. Therefore the expression $\boldsymbol{U}\boldsymbol{\Sigma}{\boldsymbol{V}^T}$ can be regarded as a composition of three geometrical transformations: two rotations and scaling\footnote{\bibentry{SVD}}.
+Besides a few interesting mathematical properties, the SVD decomposition has also an intuitive interpretation. If we assume that $\boldsymbol{X} \in \mathbb{R}^{n \times n}$ is a square matrix of a linear transformation with the positive determinant, then $\boldsymbol{\Sigma}$ can be thought as a scaling matrix while $\boldsymbol{V}^T$ and $\boldsymbol{U}$ can be viewed as rotation matrices. Therefore the expression $\boldsymbol{U}\boldsymbol{\Sigma}{\boldsymbol{V}^T}$ can be regarded as a composition of three geometrical transformations: two rotations and scaling.\footnote{\bibentry{SVD}}
 
-The standard SVD algorithm has complexity of $O(np^2+p^3)$ and consists off two steps. In the first step, an origin matrix is transformed into a bidiagonal matrix. It is usually made by \textit{Householder reflection} algorithm which is $O(np^2+p^3)$ in the worst case. The second step is connected with proceeding SVD on a reduced matrix obtained in the first step. This part of the algorithm costs $O(p^2)$ and is computed by \textit{QR} decomposition\footnote{\bibentry{SVD}}. 
+The standard SVD algorithm has complexity of $O(np^2+p^3)$ and consists off two steps. In the first step, an origin matrix is transformed into a bidiagonal matrix. It is usually made by \textit{Householder reflection} algorithm which is $O(np^2+p^3)$ in the worst case. The second step is connected with proceeding SVD on a reduced matrix obtained in the first step. This part of the algorithm costs $O(p^2)$ and is computed by \textit{QR} decomposition \citep{Banerjee}. 
+
+\newpage
+\section{Pseudoinverse of matrix}\label{app:pseudo}
+
+In this section we will define the pseudoinverse of a matrix $\boldsymbol{X}$ which is used if $\boldsymbol{X}$ is not invertible. Let us consider two cases: 
+\begin{itemize}
+    \item $\boldsymbol{X}$ is a diagonal square matrix,
+    \item $\boldsymbol{X}$ is an arbitrary square matrix.
+\end{itemize}
+Let us remind that in order to compute inverse of a diagonal matrix, we have to inverse its diagonal elements. The pseudoinverse of such matrix is very similar -- we simply inverse elements which are not equal to $0$. The second case is more complex. First of all let us decompose $\boldsymbol{X}$ by SVD (\Cref{app:svd}):
+\begin{equation}
+    \boldsymbol{X}=\boldsymbol{U}\boldsymbol{\Sigma}{\boldsymbol{V}^T}
+\end{equation}
+Now, using the fact that $(\boldsymbol{A}\boldsymbol{B})^{-1}=\boldsymbol{B}^{-1}\boldsymbol{A}^{-1}$, we can express the inverse of $\boldsymbol{X}$ in the following way:
+\begin{equation}\label{eq:invert}
+    \boldsymbol{X}^{-1}=(\boldsymbol{U}\boldsymbol{\Sigma}{\boldsymbol{V}^T})^{-1}=(\boldsymbol{V}^T)^{-1}{\boldsymbol{\Sigma}}^{-1}\boldsymbol{U}^{-1}
+\end{equation}
+$\boldsymbol{V}$ and $\boldsymbol{U}$ matrices are orthogonal so we can simplify \Cref{eq:invert}:
+\begin{equation}
+    \boldsymbol{X}^{-1}=\boldsymbol{V}{\boldsymbol{\Sigma}}^{-1}\boldsymbol{U}^T
+\end{equation}
+As we see, the problem is with the ivertibility of $\boldsymbol{\Sigma}$ matrix. However, $\boldsymbol{\Sigma}$ is diagonal and we have defined the pseudoinverse for such a matrix. Finally, we obtain the following definition:
+\begin{equation}
+    \boldsymbol{X}^P=\boldsymbol{V}\boldsymbol{\Sigma}^{P}{\boldsymbol{U}^T}
+\end{equation}
 
 \newpage
 \section{Invertibility of matrix in shrinkage regression}
 \label{app:reg}
 
-In this section we will show that it is not necessary to use pseudo inverse in shrinkage regression algorithm. Let us remind that the solution of shrinkage regression problem is given by the following formula:
+In this section we will show that it is not necessary to use pseudoinverse in shrinkage regression algorithm. Let us remind that the solution of shrinkage regression problem is given by the following formula:
 
 \begin{equation}\label{eq:shrink}
     \boldsymbol{\hat{\beta}} = (\boldsymbol{X}^T\boldsymbol{X}+\lambda\boldsymbol{I})^{-1}\boldsymbol{X}^T\boldsymbol{y}
@@ -132,13 +157,13 @@ Next, a matrix $\boldsymbol{U}_1^T\boldsymbol{U}_2$ is formed and also decompose
 \begin{equation}
     \boldsymbol{U}_1^T\boldsymbol{U}_2 = \boldsymbol{Q}\boldsymbol{\Sigma}{\boldsymbol{L}^T}
 \end{equation}
-Finally, matrices of coefficients of linear combinations for $\boldsymbol{X}$ and $\boldsymbol{Y}$ are computed (\cite{William}):
+Finally, matrices of coefficients of linear combinations for $\boldsymbol{X}$ and $\boldsymbol{Y}$ are computed \citep{William}:
 \begin{equation}
     \boldsymbol{W}_x=\boldsymbol{V}_1\boldsymbol{S}_1^{-1}\boldsymbol{Q}, \quad  \boldsymbol{W}_y=\boldsymbol{V}_2\boldsymbol{S}_2^{-1}\boldsymbol{L}
 \end{equation}
 
 
-\chapter{Multi-label classification library in practise}
+\chapter{Multi-label classification library in practice}
 \section{Example of usage of Armadillo library}
 \label{app:arma}
 \lstinputlisting[numbers=left, language=C++, caption=armadillo.cpp]{listings/armadillo.cpp}
@@ -150,13 +175,13 @@ Finally, matrices of coefficients of linear combinations for $\boldsymbol{X}$ an
 \lstinputlisting[caption=iris.xml, language=xml]{listings/iris.xml}
 
 \newpage
-\label{app:learning}
 \section{Example of learning flow}
+\label{app:learning}
 \lstinputlisting[numbers=left, language=C++, caption=learning.cpp]{listings/learning.cpp}
 
 \newpage
-\label{app:evaluating}
 \section{Example of evaluation flow}
+\label{app:evaluating}
 \lstinputlisting[numbers=left, language=C++, caption=evaluation.cpp]{listings/evaluation.cpp}
 
 \end{appendices}

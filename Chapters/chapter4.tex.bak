@@ -3,9 +3,9 @@
 
 The computational experiment consisted off two parts: measuring of the accuracy of prediction and the time of training a classifier. 
 
-In the first part of the experiment (let us call it \textit{the accuracy experiment}) the accuracy of prediction was measured by typical metrics for multi-label classification -- a detailed description of these metrics can be found in \Cref{sec:metrics}. It is worth emphasizing that the computation was performed on six data sets which vary a number of instances and attributes. A particular training set was divided into equal halves: the first one was used to train a classifier and the second one was used to evaluate this classifier. Before starting the whole procedure, a specific training set was shuffled a few times in order to choose instances randomly for training process. The results of this part of the experiment are shown in \Cref{sec:exp_a}. They are gathered in tables which present values of a specific metric for a particular algorithm and a particular data set. There are also charts which present an influence of the reduction degree on values of the metrics.   
+In the first part of the experiment (let us call it \textit{the accuracy experiment}) the accuracy of prediction was measured by typical metrics for multi-label classification -- a detailed description of these metrics can be found in \Cref{sec:metrics}. It is worth emphasising that the computation was performed with six data sets which vary a number of instances and attributes. A particular training set was devided into equal halves: the first one was used to train a classifier and the second one was used to evaluate this classifier. Before starting the whole procedure, a specific training set was shuffled a few times in order to choose instances randomly for training process. The results of this part of the experiment are shown in \Cref{sec:exp_a}. They are gathered in tables which present a value of a specific metric for a particular algorithm and a particular data set. There are also charts which present an influence of the reduction degree on values of the metrics.   
 
-The second part of the experiment was connected with measuring the time of training a classifier in a single-threaded and a multi-threaded environment as well (let us call it \textit{the efficiency experiment}). It is worth mentioning that this test was performed on the bookmarks data set with changeable number of instances. The results of this part of the experiment are shown in \Cref{sec:exp_e} and are visualized by charts which present a relation between the training time and the number of instances. 
+The second part of the experiment was connected with measuring the time of training the classifier in a single-threaded and a multi-threaded environment as well (let us call it \textit{the efficiency experiment}). It is worth mentioning that this test was performed on the bookmarks data set with changeable number of instances. The results of this part of the experiment are shown in \Cref{sec:exp_e} and are visualized by charts which present a relation between the training time and the number of instances. 
 
 The computational experiment involved the following algorithms:
 \begin{itemize}
@@ -16,6 +16,8 @@ The computational experiment involved the following algorithms:
     \item LRWithRandomPCA which denotes linear regression with randomized PCA compression on a label space (\Cref{sec:rpca}).
 \end{itemize}
 All of the tested approaches used linear regression with Tikhonov regularization. The regularization coefficient was equal to $7.0$. This value was set up experimentally and does not have to be optimal for different data sets. The algorithms with reduction discarded $40\%$ of variables in new linear spaces (reduction degree was equal to $0.6$).
+
+The relation between the reduction degree and values of the metrics for LR should be a constant function, however, we can observe little fluctuations in \Crefrange{fig:scene}{fig:bookmarks}. It is an effect of shuffling instances. 
 
 
 \section{Experiment environment}
@@ -102,7 +104,7 @@ F1=\frac{2*precision*recall}{precision+recall}
 
 \subsubsection{Hamming loss}
 
-This metric\footnote{\bibentry{Loss}} can be defined as a fraction of a number of wrong labels ($FP+FN$) to a total number of labels. It is described by the following formula:
+This metric\footnote{\bibentry{Loss}} can be defined as a fraction of number of wrong labels ($FN+FN$) to a total number of labels. It is described by the following formula:
 \begin{equation}
 \label{eq:exp1}
     HammingLoss(z_i, y_i)=\frac{1}{m}\sum\limits_{i=1}^{m}\frac{xor(z_i,y_i)}{k}

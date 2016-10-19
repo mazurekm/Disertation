@@ -2,11 +2,11 @@
 \begin{abstract}
 \thispagestyle{plain}
 
-Multi-label classification is one of fundamental tasks in \textit{machine learning} and is used in real world applications which categorize texts or label images. This thesis presents algorithms which can be used to solve multi-label problems. The main concept, common for each of presented methods, is to transform feature and label spaces to new linear spaces, and then to use regression analysis in order to train a classifier. The main aim of the thesis is to check how such the algorithms deal with various data sets.
+\textit{Multi-label classification} is one of fundamental tasks in \textit{machine learning} and is used in real world applications which categorize texts or label images. This thesis presents algorithms which can be used to solve multi-label problems. The main concept, common for each of presented methods, is to transform feature and label spaces to new linear spaces, and then to use regression analysis in order to train a classifier. The main aim of the thesis is to make implementation of these approaches which is fast enough to work with massive data sets.
 
 In the first chapter, the thesis puts across what is multi-label classification from machine learning point of view. It also explains why the methods based on simple linear transformations can be effective and competitive to the most popular approaches used in multi-label classification. The thesis then shows mathematical background behind the algorithms and presents their pseudocode. The third section contains a detailed description of implementation of these methods in \textit{C++} programming language. It is worth emphasizing that the implementation can work in a multi-threaded environment. In the fourth chapter, the thesis presents results of the computational experiments with various data sets.  
 
-The results of the experiments show that the algorithms adapt well to multi-threaded environment. In fact, the efficiency profit is noticeable. Unfortunately, linear transformations are costly in time and usually affect negatively the accuracy of prediction. However, there is still a potential in the discussed approach and there is still a lot to investigate.
+The results of the experiments show that the algorithms adapt well to multi-threaded environment. In fact, the efficiency profit is noticeable. Unfortunately, linear transformations are costly in time and usually affect negatively the accuracy of prediction. However, there is still a potential in the discussed approaches and there is still a lot to investigate.
 
 \end{abstract}
 \cleardoublepage

@@ -1,0 +1,1839 @@
+\documentclass[english,a4paper,twoside]{ppfcmthesis}
+
+\usepackage{amssymb}
+\usepackage[utf8]{inputenc}
+\usepackage[OT4]{fontenc}
+\usepackage{cite}
+\usepackage{indentfirst}
+\usepackage{listings}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{appendix}
+\usepackage{float}
+\usepackage{cleveref}
+\usepackage{natbib}
+\usepackage{bibentry}
+
+\lstset{language=C++}
+
+\authortitle{}
+\author{Michał Mazurek}                              
+\title{Efficient and scalable algorithms for multi-label classification based on feature and label space transformation}           
+\ppsupervisor{~dr~inż.~Krzysztof Dembczyński} 
+\ppyear{2016}                                  
+
+
+\begin{document}
+
+% Front matter starts here
+\frontmatter\pagestyle{empty}%
+\maketitle\cleardoublepage%
+
+% Blank info page for "karta dyplomowa"
+\thispagestyle{empty}\vspace*{\fill}%
+\begin{center}Tutaj przychodzi karta pracy dyplomowej;\\oryginał wstawiamy do wersji dla archiwum PP, w pozostałych kopiach wstawiamy ksero.\end{center}%
+\vfill\cleardoublepage%
+
+\pagenumbering{Roman}\pagestyle{ppfcmthesis}%
+
+%Abstract
+\addcontentsline{toc}{chapter}{Abstract}
+
+\begin{abstract}
+\thispagestyle{plain}
+
+\textit{Multi-label classification} is one of fundamental tasks in \textit{machine learning} and is used in real world applications which categorize texts or label images. This thesis presents algorithms which can be used to solve multi-label problems. The main concept, common for each of presented methods, is to transform feature and label spaces to new linear spaces, and then to use regression analysis in order to train a classifier. The main aim of the thesis is to make implementation of these approaches which is fast enough to work with massive data sets.
+
+In the first chapter, the thesis puts across what is multi-label classification from machine learning point of view. It also explains why the methods based on simple linear transformations can be effective and competitive to the most popular approaches used in multi-label classification. The thesis then shows mathematical background behind the algorithms and presents their pseudocode. The third section contains a detailed description of implementation of these methods in \textit{C++} programming language. It is worth emphasizing that the implementation can work in a multi-threaded environment. In the fourth chapter, the thesis presents results of the computational experiments with various data sets.  
+
+The results of the experiments show that the algorithms adapt well to multi-threaded environment. In fact, the efficiency profit is noticeable. Unfortunately, linear transformations are costly in time and usually affect negatively the accuracy of prediction. However, there is still a potential in the discussed approaches and there is still a lot to investigate.
+
+\end{abstract}
+\cleardoublepage
+
+%Acknowledgements
+\addcontentsline{toc}{chapter}{Acknowledgements}
+
+\chapter*{\centerline{Acknowledgement}}
+\thispagestyle{plain}
+   
+I would first like to thank my thesis supervisor, Dr. Krzysztof Dembczyński, from the Laboratory of Intelligent Decision Support Systems at Poznan University of Technology. The door to the office of Dr. Dembczyński was always open whenever I ran into a trouble spot or had a question about my research or writing. He consistently allowed this thesis to be my own work, but steered me in the right direction whenever he thought I needed it.
+
+I must also express my very profound gratitude to my parents for providing me with unfailing support and continuous encouragement throughout my years of study and through the process of researching and writing this thesis. This accomplishment would not have been possible without them. Thank you.
+
+\cleardoublepage
+
+% Table of contents.
+\tableofcontents* \cleardoublepage%
+
+\cleardoublepage
+\listoffigures
+
+\cleardoublepage
+\listoftables
+
+\nobibliography*
+
+% Main content of your thesis starts here.
+\mainmatter%
+
+\chapter{Introduction}
+
+\section{Motivation}
+
+In 1855 Mathew Fontaine Maury, nicknamed `Pathfinder of the Seas', published his impressive dissertation titled \textit{The Physical Geography of the Sea}. The thesis begun the revolution in a sea transport system which allowed to shorten time of long travels and to save a lot of resources. Before publishing the book, Maury collected and processed almost 1.2 million of single data. It was certainly very arduous work, because people had to make the calculation instead of computers. The data came mainly from journey log books written by captains of United States Navy. The `Pathfinder of the Seas' was one of the firsts who realized that there is a special value hidden in huge sets of data. It just needs to be explored \citep{Data}.  
+
+160 years after Maury's discoveries, we notice the meaning of `big data' almost everywhere: starting from pure science passing through finance, medicine or industry ending up at social media. Computers are capable of predicting whether a patient, who has had heart attack, will have a second heart attack or identify factors which are responsible for prostate cancer. It is also possible to predict a price of stock in 6 months from now, on the basis of company performance and economic data etc.
+It is worth emphasizing that such deep analyses are achieved through fast computing systems. Nowadays processing of 1.2 million records, which had been being analyzed by Maury and his collaborators for probably a few years, takes just a while. Collecting required information is not a problem as well. According to information from \textit{IBM} website,\footnote{\bibentry{IBM}} every day we create 2.5 quintillion bytes of data. The data comes from various sources: sensors used to gather climate information, posts to social media sites, digital pictures and videos, cell phones \textit{GPS} signal, and so on.
+
+As we see, the only thing left to do is to make sense of collected data: to extract important patterns and trends, and understand `what the data says'. In other words, we need to learn from data. The branch of science which studies the problem of `learning from data' is called machine learning. This thesis is devoted to algorithms which solve the multi-label classification task which is one of the fundamental problems of machine learning. The details connected with machine learning aspects, especially with the multi-label classification, are presented in the next section.
+
+
+\section{Machine learning tasks}
+
+Machine learning is a branch of computer science which focuses on creating an automatic system which can learn and improve itself from a gathered experience (data). There are three main types of machine learning tasks:
+
+\begin{itemize}
+\item supervised learning,
+\item unsupervised learning,
+\item reinforcement learning.
+\end{itemize}
+
+In the supervised learning the experience is represented by a set of exemplary input data with desired outputs. This set is provided by a `teacher' and the main goal is to find rules which allow predicting an output from a given input.
+
+The reinforcement learning is a more complicated issue. In this case we usually consider a dynamical environment with various states and an agent which can perform one of available actions in order to achieve a goal. In contrast to the supervised learning, there is no direct information about correct input-output pairs. As a result, an environment must be explored by an agent in order to gain a knowledge. In other words instead of a `teacher' there is a `nitpicker' which awards an agent for making a particular action. 
+
+The last type of machine learning tasks, the unsupervised learning, aims at finding hidden structures in unlabelled data. In this case there are no error and reward signals which could be used to evaluate a solution. In fact, this is the most difficult and also the most challenging aspect of machine learning. 
+
+In this study, as it has been already mentioned, we consider multi-label classification which is one of the fundamental supervised learning problems. 
+
+The general classification problem aims at matching a specific category (also called class) to a new observation, on the basis of a training set. A training set is a set of observations whose class, they belong to, is known. Let us notice that in the classification problem we can distinguish two separated problems: \textit{the binary classification} and \textit{the multi-class classification}. The difference between them is certainly connected with a number of classes. In the first case we have only two categories, whereas in the second one there are many of them. In other words, multi-class classification is an extension of binary classification for more than two categories. However, in both cases there is always one target (only one class is assigned to an object). If we increase a number of targets instead of a number of classes in binary classification, then we get the multi-label classification problem. In this case a subset of labels is predicted for a specific instance. Let us notice that there is also a relation between multi-class classification and multi-label classification. We can treat each subset of labels as an independent category and then simply transform the latter problem into the former one. 
+
+It is worth emphasizing that the dependencies between particular classification problems are used to design most of multi-label algorithms. 
+
+\section{Scope of thesis}
+
+This thesis is devoted to multi-label methods which are strongly based on linear algebra. In practice this means that the algorithms use linear transformation to project a training set to a new reduced linear space at first, and then train linear regression in the reduced space. In the next chapters we can find mathematical background of these approaches, details of implementation and results of experiments performed on various data sets. However, we should consider if such an approach really makes sense at first. First of all let us walk through the most known concepts which are usually used to solve multi-label problems.
+
+The simplest methods are based on transformation to multi-class problem. If we obtain a problem in such a form, we can solve it by one of standard learning algorithms (\textit{Naive Bayes classifier}, \textit{k-NN}, etc.). Unfortunately, such an approach has a significant defect which usually makes it useless. In fact, a number of classes grows exponentially with a number of labels!
+
+The most popular approach is the \textit{binary relevance method (BR)} which transforms any multi-label problem into one binary problem for each label (it is sometimes also called \textit{one-against-all}). In fact, this method trains $k$ classifiers $C_1, \cdots, C_{k}$ -- each classifier $C_j$ predicts a corresponding label $l_j$.  The main problem in this approach is connected with ignoring hidden information in a space of labels. This hidden information involves the interdependencies between particular labels. On the other hand, BR is simple and has low computational complexity. Moreover, it can be effectively parallelized because we build classifiers independently for each label. In fact, these are its main strengths \citep{Chain}.
+
+The algorithms presented in this dissertation extend the BR approach by preliminary projecting a training set to a new space. Let us notice that we can transform feature and label spaces into spaces of uncorrelated variables and then train a linear regressor for each label. In fact, we take into consideration this hidden information which is ignored by classic BR. Linear transformations can be also used to compress a training set in a sensible way. In fact, we save memory and time at the expense of losing accuracy. 
+
+BR is certainly a very general approach, so using linear regression is not required. However, this algorithm is very fast if it is well implemented. Its high efficiency is connected with linear algebra operations such as matrix multiplication and inversion that can be effectively performed in a multi-threaded environment. As a result, even for huge training sets, a sensible training time might be achieved. 
+
+It is worth emphasizing that for the purposes of the experiments the algorithms were implemented in C++11 programming language. This decision was dictated by an efficiency profit of using low-level programming language and a full control over a compilation process. Moreover, additional software tools have been implemented in order to perform computational experiments, for example, a parser for importing data sets in popular data formats (i.e. \textit{ARFF}) and a tool for measuring the predictive performance of the algorithms. As a result, these all elements were collected together and became a part of the library which can be used for multi-label classification.
+
+\chapter{Background}
+\section{Notation}
+
+We will denote random variables by uppercase letters $W$, $X$ etc. If $X$ is a multidimensional random variable then its components will be denoted by $X_i$. Specific observed values of $X$ are written by lowercase letters $x_i$ or $x_{ij}$ if $X$ is multidimensional. Matrices are denoted by bold uppercase $\boldsymbol{W}$, $\boldsymbol{X}$ in order to distinguish them from random variables. Vectors are represented by lowercase bold letters $\boldsymbol{w}$, $\boldsymbol{x}$ etc. For a matrix $\boldsymbol{X}$, $\boldsymbol{X}_{i}$ denotes its $i$-th row. Let us also assume that all vectors are column vectors. 
+
+$\boldsymbol{X} \in \mathbb{R}^{m \times n}$ symbol means that a matrix $\boldsymbol{X}$ has $m$ rows and $n$ columns and its elements are real numbers. For a $c \times d$  matrix $\boldsymbol{X}$, $\norm{\boldsymbol{X}}_{F}$ represents its Frobenius norm, $\boldsymbol{X}^P$ is its pseudo inverse and $\boldsymbol{A}^T$ is a matrix transposed to $\boldsymbol{A}$. 
+Let us also define a few useful functions:
+\begin{itemize}
+\item $tr(\boldsymbol{X})$ is a trace of a matrix $\boldsymbol{X}$, 
+\item $randn(n,k)$ generates an $n \times k$ random matrix using the normal distribution,
+\item $eig(\boldsymbol{X})$ returns eigenvalues and eigenvectors of a matrix $\boldsymbol{X}$,
+\item $round(\boldsymbol{x})$ rounds all values of a vector $\boldsymbol{x}$ to $1$ or $0$.
+\item $orthogonalize(\boldsymbol{X})$ returns orthonormal basis of a range space of a matrix $\boldsymbol{X}$,
+\item $head\_cols(\boldsymbol{X},h)$ returns first $h$ left columns of a matrix $\boldsymbol{X}$,
+\item $push\_front\_column(c,\boldsymbol{X})$ inserts a column $\boldsymbol{c}$ into $\boldsymbol{X}$ at the beginning,
+\item $push\_back\_column(c,\boldsymbol{X})$ pushes a column $\boldsymbol{c}$ at the end of $\boldsymbol{X}$,
+\item $rank(\boldsymbol{X})$ is a column rank of a matrix $\boldsymbol{X}$,
+\item $corr(\boldsymbol{x},\boldsymbol{y})$ returns a correlation between $\boldsymbol{x}$ and $\boldsymbol{y}$ . 
+
+\end{itemize}
+
+\section{Formal definition of multi-label classification}
+
+Given a value of an input vector (vector of features) $X$, we want to make a `good' prediction of an output vector (vector of labels) $Y$ which is usually denoted by $\hat{Y}$. Looking at this more formally, we look for a function $f$, such that:   
+
+\begin{equation}\label{eq:def}
+    f: X \rightarrow \{0,1\}^k 
+\end{equation}
+
+To find such function, we need data, usually a lot of it. Therefore, we assume we have available a set of measurements $\{(X_1, Y_1), (X_2, Y_2), \ldots, (X_m, Y_m)\}$, $Y_i\in\{0,1\}^k$, known as a training set. We certainly want our function (classifier) to be as accurate as it is possible (to be a `good' predictor). Thus, classifiers have to minimize a \textit{loss function} which represents price paid for inaccuracy of prediction. This function can be defined in various ways, however, in this thesis we want to minimize the \textit{square} loss function which is given by the following formula:
+
+\begin{equation}\label{eq:def}
+    V(Y,\hat{Y})= \sum\limits_{i=1}^{k}(Y_{i}-\hat{Y}_{i})^2
+\end{equation}
+
+
+\section{Solution based on linear regression}\label{sec:lr}
+
+In this section we focus on a solution based on linear regression (\textit{LR}). As it has been already mentioned, this method is our basic concept which is used by all the algorithms presented in this thesis. LR is a good example of the binary relevance approach where a regressor is computed independently for all labels. Let us now go through background which is behind linear regression. 
+
+Given a data set of observations $\{y_i, x_{i1}, x_{i2}, \ldots, x_{in}\}_{i=1}^{m}$, the linear regression analysis aims at studying a relationship between a dependent variable $Y$ and one or more explanatory variables $X_{j}$. The model of this relationship is described by a hyperplane which is given by the following formula:
+
+\begin{equation}\label{eq:LR1}
+    \hat{Y} = \hat{\beta_0} + \hat{\beta_1}X_{1} + \hat{\beta_2}X_{2} + \dots + \hat{\beta_n}X_{n}
+\end{equation}
+where $\hat{Y}$ is prediction of $Y$. The term $\hat{\beta_0}$ is not related with any of variables and is known as bias. 
+There is certainly an infinitive number of hyperplanes which can model a relationship for a given data set. However, we want the prediction error (difference between predicted value and real value) to be as low as it is possible. Furthermore, let us notice that adding $X_j$ variable to the model is used to explain the part of $Y$ that has not been explained by $X_{j-1}, X_{j-2}, \ldots X_1$ \citep{Weisberg}.
+
+There are a few approaches which can be used to find the best fitted hyperplane. We focus here on the \textit{least squares} approach. We look for coefficients $\hat{\beta_i}$ that minimize the residual sum of squares. In general it is comfortable to express all calculations in a matrix notation. Let $\boldsymbol{X} \in \mathbb{R}^{m \times (n+1)}$ be a design matrix (a matrix of values of independent variables) with each row an input vector (with a $1$ in the first position), $\boldsymbol{y} \in \mathbb{R}^{m}$ a vector of values of a dependent variable, $\boldsymbol{\beta} \in \mathbb{R}^{n+1}$ a vector of coefficients of the model and $\boldsymbol{\epsilon} \in \mathbb{R}^{m}$ a vector of prediction errors. The model is then described by the formula:
+
+\begin{equation}\label{eq:LR1}
+    \boldsymbol{y} = \boldsymbol{X}\boldsymbol{\beta} + \boldsymbol{\epsilon} 
+\end{equation}
+In order to estimate $\beta$, we need to solve the following optimization problem:
+
+\begin{equation}\label{eq:LR2}
+    \hat{\beta} = \argmin_{\beta}\sum\limits_{i=1}^{m}(y_{i}-\beta_{0}-\sum\limits_{j=1}^{n}x_{ij}\beta_j)^2
+\end{equation}
+which can be expressed in the matrix notation as:
+
+\begin{equation}\label{eq:LR3}
+    \boldsymbol{\hat{\beta}} = (\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})^T(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})
+\end{equation}
+
+The residual sum of squares is certainly a quadratic function with $n+1$ parameters, so we can differentiate it with respect to $\boldsymbol{\beta}$:
+
+\begin{equation}\label{eq:LR4}
+    \nabla_{\boldsymbol{\beta}} (\boldsymbol{y}-\boldsymbol{X}\boldsymbol{w})^T(\boldsymbol{y}-\boldsymbol{X}\bold{w}) = -2\boldsymbol{X}^T(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})
+\end{equation}
+The last thing, which left to do, is to set the first derivative to zero (we assume that $\boldsymbol{X}$ has full rank):
+
+\begin{equation}\label{eq:LR4}
+    \boldsymbol{X}^T(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta}) = 0
+\end{equation}
+in order to obtain a unique solution:
+
+\begin{equation}\label{eq:LR5}
+    \boldsymbol{\hat{\beta}} = (\boldsymbol{X}^T\boldsymbol{X})^{-1}\boldsymbol{X}^T\boldsymbol{y}
+\end{equation}
+The calculation of the derivative in \Cref{eq:LR4} is a bit tricky. It uses a trace of matrix and its properties. The full proof of \Cref{eq:LR5} can be found in \Cref{app:least}. Let us notice that although a matrix $\boldsymbol{X}^T\boldsymbol{X}$ is squared, there is no certainty that it is invertible. Thus, it is safely to use the pseudoinverse of a matrix \citep{Trevor}. Finally, we get the following equation:
+\begin{equation}\label{eq:LR_pseudo}
+    \boldsymbol{\hat{\beta}} = (\boldsymbol{X}^T\boldsymbol{X})^{P}\boldsymbol{X}^T\boldsymbol{y}
+\end{equation}
+A precise definition of the pseudoinverse can be found in \Cref{app:pseudo}.
+
+If we treat a matrix $\boldsymbol{X}$ as a feature space and a vector $\boldsymbol{y}$ as a vector of a label space, we can simply use linear regression to solve multi-label classification. \Cref{alg:LR0} presents the training procedure.
+
+\begin{algorithm}
+    \caption{Linear regression based classifier (I)}\label{alg:LR0}
+    \begin{algorithmic}[1]
+    \Function{build\_lr\_classifier}{$\boldsymbol{X}$,$\boldsymbol{Y}$}
+        \State $\boldsymbol{O} \gets [1, 1, \ldots]^T$ 
+        \State $\boldsymbol{\beta} \gets []$
+        \State $push\_front\_column(\boldsymbol{O}, \boldsymbol{X})$
+        \For {each column $\boldsymbol{y}$ of $\boldsymbol{Y}$}
+            \State $push\_back\_column($ $(\boldsymbol{X^T}\boldsymbol{X})^P\boldsymbol{X^T}\boldsymbol{y}$, $\boldsymbol{\beta})$ 
+        \EndFor
+        \State \textbf{return} $\boldsymbol{\beta}$
+    \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+There is certainly nothing surprising in \Cref{alg:LR0}. We simply create the model independently for each label. However, let us notice that the result of $(\boldsymbol{X^T}\boldsymbol{X})^P\boldsymbol{X^T}$ does not depend on $\boldsymbol{y}$. We can use this fact and calculate it ones instead of doing that in each iteration. The second version of the algorithm, which contains this modification, is shown in \Cref{alg:LR1}. 
+
+\begin{algorithm}
+    \caption{Linear regression based classifier (II)}\label{alg:LR1}
+    \begin{algorithmic}[1]
+    \Function{build\_lr\_classifier}{$\boldsymbol{X}$,$\boldsymbol{Y}$}
+        \State $\boldsymbol{O} \gets [1, 1, \ldots]^T$ 
+        \State $\boldsymbol{\beta} \gets []$
+        \State $push\_front\_column(\boldsymbol{O}, \boldsymbol{X})$
+        \State $\boldsymbol{H} \gets (\boldsymbol{X^T}\boldsymbol{X})^P\boldsymbol{X^T}$
+        \For {each column $\boldsymbol{y}$ of $\boldsymbol{Y}$}
+            \State $push\_back\_column($ $\boldsymbol{H}\boldsymbol{y}$, $\boldsymbol{\beta})$ 
+        \EndFor
+        \State \textbf{return} $\boldsymbol{\beta}$
+    \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+
+Having a trained classifier, we need a procedure which predicts a set of labels. This one is also simple and is presented in \Cref{alg:CL1}.
+
+\begin{algorithm}
+    \caption{Prediction algorithm for LR classifier}\label{alg:CL1}
+    \begin{algorithmic}[1]
+    \Function{build\_lr\_classifier}{$\boldsymbol{x}$, $\boldsymbol{\beta}$}
+        \State $\boldsymbol{z} \gets \boldsymbol{x}$ 
+        \State $push\_front\_column([1], \boldsymbol{z}^T)$ 
+        \State \textbf{return} $round(\boldsymbol{z}^T\boldsymbol{\beta})$
+    \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+There are, of course, pros and cons of the approach based on LR. First of all, it has all advantages and disadvantages of BR. LR is fast and it is rather simple to make fast implementation of this method. On the other hand, it ignores interdependencies between labels. Furthermore, we are not often satisfied with the least squares estimates. The problem is with prediction accuracy, because the estimates often have low bias but large variance. Such situation is characteristic for overfitting. We can deal with that by sacrificing a little bit bias in order to reduce the variance. The easiest way, to achieve that, is to select a subset of variables (features) by some strategy and then create a model. However, because the selection is a discrete process -- variables are retained or discarded -- it still often exhibits high variance. Thus, let us use \textit{regularization} (\textit{shrinkage}) which is more continuous and does not suffer as much from high variability \citep{Trevor}.
+
+In general, the regularization refers to a process of adding additional information to a mathematical or a statistical model. The most commonly used method of the regularization is \textit{Tikhonov regularization}. This method deals well with problems which are solved by the least squared estimation. To extend \Cref{eq:LR2} in order to take regularization into account, we need to include an additional term. This is presented by the following formula:
+
+\begin{equation}\label{eq:LR6}
+    \hat{\beta} = \argmin_{\beta}\{\sum\limits_{i=1}^{m}(y_{i}-\beta_0 - \sum\limits_{j=1}^{n}x_{ij}\beta_j)^2+\lambda\sum\limits_{j=1}^{n}\beta_{j}^2\}
+\end{equation}
+where $\lambda \geq 0$ is a complexity parameter which controls the amount of shrinkage: the larger the value of $\lambda$, the greater the amount of shrinkage.  The solution of \Cref{eq:LR6}, taking into account Tikhonov regularization, is then equivalent to:
+
+\begin{equation}\label{eq:LR7}
+    \boldsymbol{\hat{\beta}} = (\boldsymbol{X}^T\boldsymbol{X}+\lambda\boldsymbol{I})^{-1}\boldsymbol{X}^T\boldsymbol{y}
+\end{equation}
+where $I$ is the $(n+1)\times(n+1)$ identity matrix \citep{Trevor}.
+Let us notice that this time there is no need to use pseudoinverse, because $\boldsymbol{X}^T\boldsymbol{X}+\lambda\boldsymbol{I}$ is invertible. The proof of this fact can be found in \Cref{app:reg}. The learning procedure of the regularized LR classifier is shown in \Cref{alg:LR2}.
+
+\begin{algorithm}
+    \caption{Linear regression based classifier (III)}\label{alg:LR2}
+    \begin{algorithmic}[1]
+    \Function{build\_lr\_classifier}{$\boldsymbol{X}$,$\boldsymbol{Y}$}
+        \State $\boldsymbol{O} \gets [1, 1, \ldots]^T$ 
+        \State $\boldsymbol{\beta} \gets []$
+        \State $push\_front\_column(\boldsymbol{O}, \boldsymbol{X})$
+        \State $\boldsymbol{H} \gets (\boldsymbol{X^T}\boldsymbol{X}+\lambda\boldsymbol{I})^{-1}\boldsymbol{X^T}$
+        \For {each column $\boldsymbol{y}$ of $\boldsymbol{Y}$}
+            \State $push\_back\_column($ $\boldsymbol{H}\boldsymbol{y}$, $\boldsymbol{\beta})$ 
+        \EndFor
+        \State \textbf{return} $\boldsymbol{\beta}$
+    \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+Both solutions of the linear regression problem -- with the regularization and without it -- have similar computational complexity. In fact, multiplying and inverting of matrices are dominant operations in these approaches. Theoretically, these operations can be computed in $O(n^{2.373})$ time by algorithms based on \textit{Coppersmith–Winograd} method \citep{VVW}. However, this algorithm is not used in practice, because it is efficient only for very large matrices.
+
+\section{Feature and label space transformations with PCA}
+
+In this chapter we will discuss multi-label task algorithms which transform feature and label spaces by PCA algorithm. As it has been already mentioned, there are two goals which we would like to achieve by such transformation:
+\begin{itemize}
+    \item The reduction (compression) of a feature or/and label space. Let us notice that in the LR classifier learning procedure, we have to invert an $\boldsymbol{X^T}\boldsymbol{X}$ matrix. If we discard redundant variables, we can make this operation faster and decrease the complexity of the algorithm. On the other hand, we should remember that the compression affects the accuracy of predictions. In fact, it is a trade-off between speed and accuracy.
+    \item Transformation to the space where labels are uncorrelated. The LR classifier does not take into account correlation between labels. Unfortunately, it has an influence on accuracy of prediction. Doing such the transformation, we simply eliminate this problem. 
+\end{itemize}
+
+\subsection{Standard PCA method}\label{sec:pca}
+
+The main concept, which is behind \textit{Principal Component Analysis (PCA)}, is to reduce dimensionality of a data set consisting of a large number of interrelated variables, while retaining as much as possible of the variation present in a data set. Such reduction can be achieved by transforming to a new set of variables, the \textit{principal components (PCs)}, which are uncorrelated, and which are ordered so that the first few retain most of variation present in all of the original variables. Computation of the principal components reduces to the solution of an eigenvalue-eigenvector for a positive-semifdefinite symmetric matrix (a covariance or a correlation matrix) \citep{Jolliffe}. Looking at this more intuitively, the data set can be considered as a cloud of points while variables can be thought as their coordinates. All what we have to do is to find new coordinate system (ie. by rotation) such that the greatest variance by some projection of the data comes to lie on the first coordinate, the second greatest variance on the second coordinate, and so on. More information about eigenvalues and eigenvectors can be found in \Cref{app:eigen}. 
+
+Finding PCs can be obtained by the most known matrix decomposition which is called \textit{Singular Value Decomposition}(\textit{SVD}). More details connected with SVD is in \Cref{app:svd}. It is worth looking at that, because this decomposition is used in the rest of presented algorithms. Let $\boldsymbol{X} \in \mathbb{R}_{m \times n}$ be an input matrix where $n$ is a number of variables. Moreover, let us assume that $\boldsymbol{X}$ is centered (the mean in each column is equal to $0$). A covariance matrix $\boldsymbol{C} \in \mathbb{R}_{n \times n}$ is then equal to $\frac{\boldsymbol{X}^T\boldsymbol{X}}{n-1}$. Taking into account that $\boldsymbol{C}$ is a symmetric matrix, its SVD decomposition is equal to:
+
+\begin{equation}\label{eq:pca1}
+    \boldsymbol{C}=\boldsymbol{Q}\boldsymbol{\Sigma}{\boldsymbol{Q}^T}
+\end{equation}
+where $\boldsymbol{Q} \in \mathbb{R}^{m \times m}$ is an orthogonal matrix of eigenvectors (called also \textit{principal axes}), while $\boldsymbol{\Sigma} \in \mathbb{R}^{m \times m}$ is a diagonal matrix with eigenvalues in the decreasing order on its diagonal. 
+
+As we see, we have everything what we need to obtain principal components ($\boldsymbol{X}\boldsymbol{Q}$ is a desired matrix). However, we can modify the algorithm in order to make it more efficient. In fact, SVD of $\boldsymbol{X}$ is sufficient to compute principal components instead of the decomposition of $\boldsymbol{X}^T\boldsymbol{X}$, we do not need to calculate a covariance matrix. Let us prove this fact. First of all, let us consider as SVD decomposition of $\boldsymbol{X}$:
+
+\begin{equation}\label{eq:pca2}
+    \boldsymbol{X}=\boldsymbol{U}\boldsymbol{S}\boldsymbol{V}^{T}
+\end{equation}
+We can now use \Cref{eq:pca2} in order to calculate a covariance matrix $\boldsymbol{C}$:
+
+\begin{equation}\label{eq:pca3}
+    \boldsymbol{C}=\frac{\boldsymbol{X}^T\boldsymbol{X}}{n-1} = \frac{(\boldsymbol{U}\boldsymbol{S}\boldsymbol{V}^T)^T(\boldsymbol{U}\boldsymbol{S}\boldsymbol{V}^T)}{n-1} = \frac{\boldsymbol{V}\boldsymbol{S}\boldsymbol{U}^T\boldsymbol{U}\boldsymbol{S}\boldsymbol{V}^T}{n-1} = \boldsymbol{V}\frac{\boldsymbol{S}^{2}}{n-1}\boldsymbol{V}^{T} 
+\end{equation}
+As we see, a matrix $\boldsymbol{V}$ in SVD decomposition of $\boldsymbol{X}$ is a principal axes matrix! As a result, we can compute PCs with the following equation \citep{Jolliffe}: 
+
+\begin{equation}\label{eq:pca4}
+    \boldsymbol{PC} = \boldsymbol{X}\boldsymbol{V} = (\boldsymbol{U}\boldsymbol{S}\boldsymbol{V}^{T})\boldsymbol{V} = \boldsymbol{U}\boldsymbol{S}
+\end{equation}
+Having PCs computed, the reduction of feature (label) space is trivial: we simply discard last columns from a $\boldsymbol{PC}$ matrix.  
+Finally, we combine PCA transformation with the LR classifier. The learning procedure is shown in \Cref{alg:pca1} and the prediction procedure in \Cref{alg:pca2}. The most surprising fact is probably connected with the prediction procedure which seem to be confusing. We should remember that regression is performed on transformed data, so predictions are encoded. We must decode them to an original space \citep{PLST}. Fortunately, these operations are fast because of orthogonality of a principal axes matrix. The main problem in this approach is connected with the complexity of SVD which is $O(m^2n+n^3)$. For large matrices it is definitely too time-consuming. It means that the compression, which is one of the main goals, is useless in this case. In the next section, we will go through the algorithm based on random PCA. This method also uses eigendecomposition, but for definitely smaller matrices.
+
+\begin{algorithm}
+    \caption{LR classifier with preliminary PCA transformation}\label{alg:pca1}
+    \begin{algorithmic}[1]
+    
+    \Function{compute\_pca}{$\boldsymbol{X}$} 
+        \State Let $\boldsymbol{\bar{X}_i}$ be mean of an $i-th$ column of $\boldsymbol{X}$
+        \State $\boldsymbol{Z} \gets \boldsymbol{X}$
+        \State $i \gets 1$
+        \For {each column $\boldsymbol{z}$ of $\boldsymbol{Z}$}
+            \State Subtract $\boldsymbol{\bar{X}_i}$ from each element of $\boldsymbol{z}$ 
+            \State $i \gets i+1$ 
+        \EndFor
+        \State Perform SVD on $\boldsymbol{Z}$ to obtain $\boldsymbol{Z}$ = $\boldsymbol{U}\boldsymbol{\Sigma}\boldsymbol{V}^T$
+        \State \textbf{return} $(\boldsymbol{U}, \boldsymbol{\Sigma}, \boldsymbol{V})$
+    \EndFunction
+    \State
+    \Function{build\_pca\_classifier}{$\boldsymbol{X}$,$\boldsymbol{Y}$, transformFeature, transformLabel, hx, hy}
+        \State $\boldsymbol{\hat{X}} \gets \boldsymbol{X}$ 
+        \State $\boldsymbol{\hat{Y}} \gets \boldsymbol{Y}$ 
+        \If{transformFeature = true}
+            \State $(\boldsymbol{U_x}, \boldsymbol{\Sigma_{x}}, \boldsymbol{V_x}) \gets  computePCA(\boldsymbol{X})$
+            \State $\boldsymbol{\hat{X}} \gets head\_cols(\boldsymbol{U_x\Sigma_{x}}, hx)$
+        \EndIf
+        \If{transformLabel = true}
+            \State $(\boldsymbol{U_y}, \boldsymbol{\Sigma_{y}}, \boldsymbol{V_y}) \gets computePCA(\boldsymbol{Y})$
+            \State $\boldsymbol{\hat{Y}} \gets head\_cols(\boldsymbol{U_y\Sigma_{y}}, hy)$
+        \EndIf
+        \State \textbf{return} $build\_lr\_classifier(\boldsymbol{\hat{X}}, \boldsymbol{\hat{Y}})$ 
+    \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+    \caption{Label prediction with PCA classifier}\label{alg:pca2}
+    \begin{algorithmic}[1]
+        \Function{predict\_labels}{$\boldsymbol{\beta}$, $\boldsymbol{x}$, $\boldsymbol{V_x}$, $\boldsymbol{V_y}$, transformFeature, transformLabel, hx, hy}
+        \State Let $\boldsymbol{\bar{Y}_i}$ be mean of an $i-th$ column of a label space matrix
+        \State $\boldsymbol{\hat{x}} \gets \boldsymbol{x}$
+        \If{transformFeature = true}
+            \State $\boldsymbol{\hat{x}} = (\boldsymbol{\hat{x}}^T*head\_cols(\boldsymbol{V}_x, hx))^T$
+        \EndIf
+        \If{transformLabel = true}
+            \State $\boldsymbol{W} \gets head\_cols(\boldsymbol{V_y}, hy)$
+            \State $\boldsymbol{\hat{y}} \gets \boldsymbol{\hat{x}}^T\boldsymbol{\beta}W^T$
+            \State $i \gets 1$
+            \For {each element $\boldsymbol{e}$ of $\boldsymbol{\hat{y}}$}
+            \State $\boldsymbol{e} \gets \boldsymbol{e} + \boldsymbol{\bar{Y}_i}$
+                \State $i \gets i+1$
+            \EndFor
+            \State \textbf{return} $round(\boldsymbol{\hat{y}})$
+        \Else
+            \State \textbf{return} $round(\boldsymbol{\hat{x}}^T\boldsymbol{\beta})$
+        \EndIf
+    \EndFunction
+    
+    \end{algorithmic}
+\end{algorithm}
+
+\subsection{Random PCA method}\label{sec:rpca}
+
+Let us consider randomized version of PCA. The procedure is presented in \Cref{alg:rpca1} . 
+\begin{algorithm}
+    \caption{Randomized PCA}\label{alg:rpca1}
+    \begin{algorithmic}[1]
+        \Function{RPCA}{$\boldsymbol{X}$, k} 
+        \State $(p,q) \gets (20,1)$
+        \State $\boldsymbol{Q} \gets randn(n, k+p)$
+            \For{$i \in \{1,\ldots,q\}$}
+                \State $\boldsymbol{\psi} \gets \boldsymbol{X}^T\boldsymbol{X}\boldsymbol{Q}$
+                \State $\boldsymbol{Q} \gets orthogonalize(\boldsymbol{\psi})$
+            \EndFor
+            \State $\boldsymbol{F} \gets (\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{Q})^T(\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{Q})$
+            \State $(\boldsymbol{V},\boldsymbol{\Sigma}^2) \gets eig(\boldsymbol{F},k)$
+            \State $\boldsymbol{V} \gets (\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{Q})\boldsymbol{V}\boldsymbol{\Sigma}^P$
+            \State \textbf{return} $(\boldsymbol{V}, \boldsymbol{\Sigma})$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+The algorithm takes two parameters on its input: data matrix $\boldsymbol{X} \in \mathbb{R}^{m \times n}$ and a compression degree $k$ (a number of eigenvectors that are taken into account). The first step in this recipe is to find a range of a covariance matrix $\boldsymbol{X}^T\boldsymbol{X}$. The range of a matrix $\boldsymbol{A}$ can be understood as a collection of vectors $\boldsymbol{b}$ which satisfy the equation $\boldsymbol{A}\boldsymbol{x}=\boldsymbol{b}$. In other words, it is a set of all possible linear combinations of column vectors of a matrix $\boldsymbol{A}$. Let us notice that eigenvectors might appear frequently as the solutions of this equation. In fact, a range of $\boldsymbol{\psi}$ will tend to be more aligned with the space spanned by the top eigenvectors of $\boldsymbol{X}^T\boldsymbol{X}$ \citep{Mineiro}.
+
+The randomized range finder begins in 4. At first we start with a set of $k+p$ random vectors and probe a range. Next an orthogonal basis for $\boldsymbol{\psi}$ is computed. This operation is repeated $q$ times. We can certainly manipulate a parameter of $q$, however it should be rather low, because the complexity of computing an orthogonal basis is $O(nk^2)$. 
+Having a good approximation for a principal subspace of $\boldsymbol{X}^T\boldsymbol{X}$, the algorithm optimizes fully over that subspace and back out the solution. It is worth emphasizing that the last steps, including eigendecomposition of $\boldsymbol{F} \in \mathbb{R}^{(k+p) \times (k+p)}$, are cheap. It is caused by low dimensions of a matrix $\boldsymbol{F}$ \citep{Mineiro}. In order to find more detailed and formal discussion connected with the method we can see \citep{Halko}.
+
+The learning procedure and the prediction procedure are certainly very similar to \Cref{alg:pca1} and \Cref{alg:pca2}. We just have to replace standard PCA algorithm with the random one.
+
+\section{Label space reduction inspired by CCA}
+
+Multi-label classifiers based on the preliminary PCA compression of data have an essential disadvantage -- the transformation of a label (feature) space is made independently of a feature (label) space. In other words, a label (feature) space is not aware of the transformation of a feature (label) space. One of possibilities, to deal with this issue, is to use a statistical method called \textit{Canonical Correlation Analysis (\textit{CCA})} or other methods inspired by CCA.   
+
+\subsection{Canonical correlation analysis}
+
+Let us assume we are given two data sets: $X \in \mathbb{R}^{m \times n_1}$ and $Y \in \mathbb{R}^{m \times n_2}$. Without loss of generality we suppose that we have already subtracted mean from observation. CCA aims at finding a linear combination of $X$ coordinates that correlates well over data with a linear combination of $Y$ coordinates. In other words, we want to find the best matched pair of the linear combination of $X$ and $Y$ which have the largest coefficient of correlation. We certainly do not need to stop with a first-best pair. We can ask for a second-best pair, a third-best pair and so on \citep{William}.
+
+Formally, we can express this problem in matrix notation by the following equations:
+\begin{equation}\label{eq:cca1}
+    \boldsymbol{U}=\boldsymbol{X}\boldsymbol{W}_x^T,   \boldsymbol{V}=\bold{Y}\boldsymbol{W}_y^T    
+\end{equation}
+where $\boldsymbol{W}_x \in \mathbb{R}^{d \times n_1}$, $\boldsymbol{W}_y \in \mathbb{R}^{d \times n_2}$ are matrices of coefficients of linear combinations, $\boldsymbol{U} \in \mathbb{R}^{m \times d}$ and $\boldsymbol{V} \in \mathbb{R}^{m \times d}$ are matrices of evaluated linear combinations, and $d=min(rank(\boldsymbol{X}), rank(\boldsymbol{Y}))$ is a number of pairs. Let us denote the $i$-th row of $\boldsymbol{W}_x$, $\boldsymbol{W}_y$ by $\boldsymbol{W}_{xi}$ and suitably $\boldsymbol{W}_{yi}$. For $i=1,\ldots,d$ the following condition must be met \citep{William}.
+\begin{equation}\label{eq:cca2}
+    (\boldsymbol{W}_{xi}, \boldsymbol{W}_{yi})=\argmax_{\boldsymbol{W}_{xi}, \boldsymbol{W}_{yi}} corr(\boldsymbol{X}\boldsymbol{W}_{xi}, \boldsymbol{Y}\boldsymbol{W}_{yi}) = \argmax_{\boldsymbol{W}_{xi}, \boldsymbol{W}_{yi}} \left[\frac{\boldsymbol{U}^{T}_i\boldsymbol{V}_i}{\sqrt{\boldsymbol{U}^T_i\boldsymbol{U}_i}\sqrt{\boldsymbol{V}^{T}_i\boldsymbol{V}_i}}\right] 
+\end{equation}
+We should also remember that the correlation between $\boldsymbol{U}_i$ and $\boldsymbol{V}_j$ where $i\neq j$ is equal to $0$.
+
+Kettenring \citep{Kettenring} showed that CCA is equivalent to simultaneously solving the following constrained optimization problem:
+\begin{equation}\label{eq:cca3}
+\begin{split}
+    \min_{\boldsymbol{W}_x, \boldsymbol{W}_y} \norm{\boldsymbol{U}-\boldsymbol{V}}_{F}^2 = \min_{\boldsymbol{W}_x, \boldsymbol{W}_y} \norm{\boldsymbol{X}\boldsymbol{W}_x^T-\boldsymbol{Y}\boldsymbol{W}_y^T}_{F}^2 \\ 
+    \text{   subject to   } \boldsymbol{W}_x\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{W}_x^T=\boldsymbol{W}_y\boldsymbol{Y}^T\boldsymbol{Y}\boldsymbol{W}_y^T=I   
+\end{split}
+\end{equation}
+
+Pure CCA can be used in multi-label tasks: we simply perform it with matrices which represent feature and label spaces. Having $\boldsymbol{U}$ and $\boldsymbol{V}$ matrices, we again use linear regression to create the model. Unfortunately, such method is time-consuming. Let us notice that encoding and decoding data operations are slow, because $\boldsymbol{W}_x$ and $\boldsymbol{W}_y$ are not orthogonal (we cannot invert them by a simple transposition). The example algorithm, that perform CCA, is shown in \Cref{app:cca}. 
+
+Although pure CCA is very costly, we can use methods which are based on CCA concept. Such an algorithm will be discussed in the next section.
+
+\subsection{CPLST method}\label{sec:cplst}
+
+As it has been already mentioned, CCA can be thought as an optimization problem of finding minimal prediction error (\Cref{eq:cca3}) under the constraint $\boldsymbol{W}_x\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{W}_x^T=\boldsymbol{W}_y\boldsymbol{Y}^T\boldsymbol{Y}\boldsymbol{W}_y^T=\boldsymbol{I}$. Let us assume that we will transform only a label space. Thus, we can discard the constraint $\boldsymbol{W}_x\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{W}_x^T=\boldsymbol{I}$ because it is connected with a feature space which is not transformed. It is also worth enforcing orthogonalization of $\boldsymbol{W}_y$  which simplifies the decoding process. Finally, we obtain the following problem:
+
+\begin{equation}\label{eq:cplst1}
+    \min_{\boldsymbol{W}_x, \bold{W}_y} \norm{\boldsymbol{X}\boldsymbol{W}_x^T-\boldsymbol{Y}\boldsymbol{W}_y^T}_{F}^2  
+    \text{  subject to   } \boldsymbol{W}_y\boldsymbol{W}_y^T=\boldsymbol{I}   
+\end{equation}
+Let us notice that calculating $\boldsymbol{W}_x$ is simply linear regression from $\boldsymbol{X}$ to $\boldsymbol{Y}\boldsymbol{W}_y^T$:
+\begin{equation}\label{eq:cplst2}
+    \bold{X}\boldsymbol{W}_x^T=\boldsymbol{Y}\boldsymbol{W}_y^T \\
+\end{equation}
+In order to obtain $\boldsymbol{W}_x$ we can multiply both sides of \Cref{eq:cplst2} by $\boldsymbol{X}^{-1}$. However, $\boldsymbol{X}$ does not need to be invertible, so it is again safely to use the pseudoinverse of $\boldsymbol{X}$: 
+\begin{equation}\label{eq:cplst2_inv}
+    \boldsymbol{W}_x^T=\boldsymbol{X}^P\boldsymbol{Y}\boldsymbol{W}_y^T
+\end{equation}
+When optimal $\boldsymbol{W}_x$, calculated in \Cref{eq:cplst2_inv}, is inserted back into \Cref{eq:cplst1}, the optimization problem becomes:
+\begin{equation}\label{eq:cplst3}
+    \min_{\boldsymbol{W}_y\boldsymbol{W}_y^T=I} \norm{\boldsymbol{X}\boldsymbol{X}^P\boldsymbol{Y}\boldsymbol{W}_y^T-\boldsymbol{Y}\boldsymbol{W}_y^T}_{F}^2=\min_{\boldsymbol{W}_y\boldsymbol{W}_y^T=\boldsymbol{I}} \norm{(\boldsymbol{X}\boldsymbol{X}^P-\boldsymbol{I})\boldsymbol{Y}\boldsymbol{W}_y^T}_{F}^2
+\end{equation}
+For every matrix $\boldsymbol{A}$, $\norm{\boldsymbol{A}}_{F}^2=tr(\boldsymbol{A}^T\boldsymbol{A})$, so the above equation is equivalent to:
+\begin{equation}\label{eq:cplst4}
+    \min_{\boldsymbol{W}_y\boldsymbol{W}_y^T=\boldsymbol{I}} tr(\boldsymbol{W}_y\boldsymbol{Y}^T(\boldsymbol{I}-\boldsymbol{H})\boldsymbol{Y}\boldsymbol{W}_y^T)
+\end{equation}
+A matrix $\boldsymbol{H}=\boldsymbol{X}\boldsymbol{X}^P$ is sometimes called a hat matrix. The presented approach is called \textit{Orthogonally constraint CCA (OCCA)}. In order to solve \Cref{eq:cplst4}, we can consider eigenvectors that correspond to the largest eigenvalues of $\boldsymbol{Y}^T(\boldsymbol{H}-\boldsymbol{I})\boldsymbol{Y}$ (they can be computed by SVD decomposition) \citep{ChenLin}.
+
+As we see, OCCA aims at minimizing the prediction error described by \Cref{eq:cplst1}. Unfortunately, we have no certainty that the algorithm finds an orthogonal $\boldsymbol{W}_y$, we just hope it does. If $\boldsymbol{W}_y$ is not orthogonal the projection of a label space is encumbered with an error. This error is called an encoding error and is given by $\norm{\boldsymbol{Y}-\boldsymbol{Y}\boldsymbol{W}_y^T\boldsymbol{W}_y}_{F}^2$. The idea is to modify OCCA method in order to minimize the encoding error as well. Such an approach is referred to as \textit{CPLST} \citep{ChenLin} which stands for \textit{Conditional Principal Label Space Transformation}. First of all, let us add the encoding error term to \Cref{eq:cplst1}: 
+
+\begin{equation}\label{eq:cplst5}
+    \min_{\boldsymbol{W}_x, \boldsymbol{W}_y} \left(\norm{\boldsymbol{X}\boldsymbol{W}_x^T-\boldsymbol{Y}\boldsymbol{W}_y^T}_{F}^2 + \norm{\boldsymbol{Y}-\boldsymbol{Y}\boldsymbol{W}_y^T\boldsymbol{W}_y}_{F}^2\right)  
+    \text{  subject to   } \boldsymbol{W}_y\boldsymbol{W}_y^T=\boldsymbol{I}   
+\end{equation}
+If we use again \Cref{eq:cplst2} and the relation between a trace of matrix and its Frobenius norm, then we get:
+\begin{equation}\label{eq:cplst6}
+    \min_{\boldsymbol{W}_y\boldsymbol{W}_y^T} tr(\boldsymbol{W}_y\boldsymbol{Y}^T(\boldsymbol{I}-\boldsymbol{H})\boldsymbol{Y}\boldsymbol{W}_y^T-\boldsymbol{W}_y^T\boldsymbol{W}_y\boldsymbol{Y}^T\boldsymbol{Y}-\boldsymbol{Y}^T\boldsymbol{Y}\boldsymbol{W}_y^T\boldsymbol{W}_y+\boldsymbol{W}_y^T\boldsymbol{W}_y\boldsymbol{Y}^T\boldsymbol{Y}\boldsymbol{W}_y^T\boldsymbol{W}_y)  
+\end{equation}
+After eliminating a pair of $\boldsymbol{W}_y$ and $\boldsymbol{W}_y^T$ by cyclic permutation and combining the last three terms of \Cref{eq:cplst6}, we get:
+
+\begin{equation}\label{eq:cplst6}
+    \max_{\boldsymbol{W}_y\boldsymbol{W}_y^T} tr(\boldsymbol{W}_y\boldsymbol{Y}^T\boldsymbol{H}\boldsymbol{Y}\boldsymbol{W}_y^T)  
+\end{equation}
+The above problem can be solved analogously to OCCA -- by finding eigenvectors and eigenvalues of $\boldsymbol{Y}^T\boldsymbol{H}\boldsymbol{Y}$. Besides the balance between the prediction error and the encoding error, CPLST should be minimally faster than OCCA. It is an effect of decomposing $\boldsymbol{Y}^T\boldsymbol{H}\boldsymbol{Y}$ instead of $\boldsymbol{Y}^T(\boldsymbol{H}-\boldsymbol{I})\boldsymbol{Y}$. On the other hand, both methods are slower than the algorithms based on the PCA transformations. It is caused by calculating a matrix $\boldsymbol{H}$ what is time-consuming for large input data \citep{ChenLin}.
+
+The learning and prediction procedures are presented in \Cref{alg:cplst1} and \Cref{alg:cplst2}. Although, it might have seemed that the problem is complicated, the final algorithms are simple. In fact, they are similar to the approaches based on PCA. 
+
+\begin{algorithm}
+    \caption{Conditional Principal Label Space Transformation}\label{alg:cplst1}
+    \begin{algorithmic}[1]
+        \Function{build\_cplst\_classifier}{$\boldsymbol{X}$, $\boldsymbol{Y}$, h} 
+            \State Let $\boldsymbol{\bar{Y}_i}$ be mean of an $i-th$ column of $\boldsymbol{Y}$
+            \State $\boldsymbol{Z} \gets \boldsymbol{Y}$
+            \State $\boldsymbol{H} \gets \boldsymbol{X}\boldsymbol{X}^P$
+            \State $i \gets 1$
+            \For {each column $\boldsymbol{z}$ of $\boldsymbol{Z}$}
+                \State Subtract $\boldsymbol{\bar{Y}_i}$ from each element of $\boldsymbol{z}$ 
+                \State $i \gets i+1$ 
+            \EndFor
+            \State Perform SVD on $\boldsymbol{Z}^T\boldsymbol{H}\boldsymbol{Z}$ to obtain $\boldsymbol{Z}^T\boldsymbol{H}\boldsymbol{Z}=\boldsymbol{U}\boldsymbol{\Sigma} \boldsymbol{V}^T$
+            \State $\boldsymbol{\hat{Z}} \gets \boldsymbol{Z} * head\_cols(\boldsymbol{V},h)$
+            \State \textbf{return} $build\_lr\_classifier(\boldsymbol{X}, \boldsymbol{\hat{Z}})$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+
+\begin{algorithm}
+    \caption{Prediction with CPLST classifier}\label{alg:cplst2}
+    \begin{algorithmic}[1]
+        \Function{predict\_labels}{$\boldsymbol{x}$, $\boldsymbol{\beta}$, $\boldsymbol{V}$}
+            \State Let $\boldsymbol{\bar{Y}_i}$ be mean of an $i-th$ column of a label space matrix
+            \State $\boldsymbol{V}_h \gets head\_cols(\boldsymbol{V}, h)$
+            \State $\boldsymbol{y} \gets \boldsymbol{x}^T\boldsymbol{\beta}\boldsymbol{V}_h^T$
+            \State $i \gets 1$
+            \For {each element $\boldsymbol{e}$ of $\boldsymbol{y}$}
+            \State $\boldsymbol{e} \gets \boldsymbol{e} + \boldsymbol{\bar{Y}_i}$
+                \State $i \gets i+1$
+            \EndFor
+            \State \textbf{return} $round(y)$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+\chapter{Implementation}
+
+\section{Requirements}
+
+\subsection{General information}
+All the methods, which have been discussed in this thesis, are a part of a library that can be used to solve multi-label classification problems in practice. The library was called \textit{MLCPACK}, which stands for \textit{Multi-Label Classification PACKage}. 
+
+The \textit{API} was implemented in C++11 programming language and should be compiled by \textit{GCC ($>=$4.9)} in order to support all of new C++ features. The other compilers (\textit{Clang}, \textit{Visual C++ Compiler} etc.) have not been checked so far, so there is no warranty the build process succeeds in those cases.  The compilation process in managed by \textit{CMake} tool \citep{CMake} which is cross-platform and can be used in various operating systems. However, the library was tested only in \textit{Linux} environment (\textit{Debian 8.2}). 
+
+Besides using the standard C++ library, there are also two external libraries which must be installed in a system: 
+
+\begin{itemize}
+    \item \textit{Boost ($>=$1.55)}
+    \item \textit{Armadillo ($>=$6.100)}
+\end{itemize}
+The first one contains useful modules which extends possibilities of the standard library (unit tests, file system etc.), while Armadillo is an advanced linear algebra library which is discussed in the next section.  
+
+
+\subsection{Efficiency of linear algebra library}
+
+The efficiency of the algorithms, which are presented in Chapter 2, is strongly dependent on implementations of linear algebra operations such as pseudoinverse, SVD, etc. After analyzing available solutions, the API provided by Armadillo was chosen. Armadillo is high-quality library dedicated for C++ developers. The main strength of it is a good balance between a speed and ease of use. In fact, its syntax is similar to \textit{Matlab} environment. The example of source code is presented in \Cref{app:arma}.
+
+Usage of Armadillo is simple, as it is shown in \Cref{app:arma}. However, the most important issue is a real speed of matrix operations. According to the documentation, the API is integrated with \textit{LAPACK} and \textit{BLAS} what means that effectiveness of matrix multiplication or its decomposition are dependent on these libraries (they are known as rather fast). There is also a possibility of linking \textit{OpenBLAS} instead of standard BLAS. \textit{OpenBLAS} supports multithreading. The number of threads, involved in computation, can be easily controlled by setting specific environment variables,\footnote{\bibentry{Blas}} i.e., \textit{OPENBLAS\_NUM\_THREADS}. In the implementation of MLCPACK, OpenBLAS library is used.    
+
+\begin{figure}[h]
+\centering
+\caption{Efficiency of matrix multiplication.}
+\label{fig:mulperf}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        xlabel={size of matrix},
+        ylabel={time [s]},
+        xmin=0,
+        xmax=10500,
+        ymin=0,
+        ymax=200000,
+        ymode=log]
+        \addplot table [x=size, y=arma, col sep=semicolon] {figures/mul_test.csv};
+        \addlegendentry{Armadillo}
+        \addplot table [x=size, y=numpy, col sep=semicolon] {figures/mul_test.csv};
+        \addlegendentry{NumPy}
+    \end{axis}
+\end{tikzpicture}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\caption{Efficiency of SVD decomposition.}
+\label{fig:svdperf}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        xlabel={size of matrix},
+        ylabel={time [s]},
+        xmin=0,
+        xmax=4500,
+        ymin=0,
+        ymax=650]
+        \addplot table [x=size, y=arma, col sep=semicolon] {figures/svd_test.csv};
+        \addlegendentry{Armadillo}
+        \addplot table [x=size, y=numpy, col sep=semicolon] {figures/svd_test.csv};
+        \addlegendentry{NumPy}
+    \end{axis}
+\end{tikzpicture}
+\end{figure}
+
+
+\Cref{fig:mulperf} and \Cref{fig:svdperf} show the speed of basic matrix operations performed by Armadillo and \textit{NumPy} which is an analogous linear algebra module for \textit{Python} programming language. As we see, Armadillo is definitely faster than NumPy for matrix multiplication and SVD as well.   
+The experiment was run on the machine which has Intel Core i3-350M 2.26 GHz processor and 4096 MB of RAM. In case of Armadillo, the compilation of program was optimized (third level of optimization) and OpenBLAS was used instead of standard BLAS library. NumPy (1.8.2) was tested in \textit{Python3.4} environment (standard installation from Debian repository). Differences in time-consumption justify the choice of Armadillo and C++11 programming language.
+
+\section{Structure of project}
+
+MLCPACK consists of the two main modules:
+\begin{itemize}
+    \item \textit{Algorithms}
+    \item \textit{Utils}
+\end{itemize}
+
+\subsection{Description of Algorithms module}
+
+The Algorithms module contains all implementations of the algorithms discussed in this thesis. Its building is based on the \textit{Strategy} design pattern which is typical for specific family of algorithms. A client is allowed to simply rotate various methods. In other words, algorithms are replaced regardless of clients which use them. The structure of this module is shown in \Cref{fig:alg_sh}. 
+
+The base class for the algorithm implementations is \textit{IStrategy}. The class contains two pure virtual methods: \textit{learn} and \textit{classify} which must be implemented. The second function takes an object of \textit{Instance} type as an argument which certainly wraps a particular instance and returns binary vector of labels. The constructor of IStrategy takes an only one argument of \textit{Instances} type which represents a training set. Let us notice that the \textit{LinearRegression} class, which inherits directly from IStrategy, is a base class for the rest of the methods. The regressor is an important component for all the approaches, therefore this relation is represented by an inheritance. In LinearRegression there are also two additional methods: \textit{save} and \textit{load} which take one argument of \textit{string} type. These functions are responsible for a serialization of a trained classifier. The idea is to store such classifier on hard drive and load it into memory if it is needed. It certainly allows saving time, especially if we take into account massive training sets. In contrast to IStrategy interface, LinearRegression class and its deriving classes have more complex constructors. They require an additional argument which is the regularization parameter. Moreover, the constructors of classes connected with algorithms based on the reduction of spaces need also the reduction degree parameter. The `learning flow' is presented in \Cref{app:learning}.
+
+The Algorithms module also contains \textit{Evaluation} class which is used to evaluate particular methods. It allows measuring accuracy of classification by parameters, such as \textit{Micro-}, \textit{Instance-} and \textit{Macro-average of precision}, \textit{recall} and \textit{F1-score}. It also calculates \textit{Hamming loss} metric. The API is simple, as it is shown in \Cref{fig:alg_sh}. To construct the evaluator, we have to pass two arguments: a training set and a number of folds used for cross-validation. In order to start the whole process we certainly invoke the \textit{evaluate} method which takes a reference to the IStrategy object. The rest of the functions allow getting a specific accuracy metric. The `evaluating flow' is presented in \Cref{app:evaluating}.
+
+\begin{figure}
+\centering
+\caption{UML diagram of Algorithms module.}
+\label{fig:alg_sh}
+\includegraphics[scale=0.5]{figures/mlcpack.png}
+\end{figure}
+
+\subsection{Description of Utils module}
+
+The schema of the Utils module is shown in \Cref{fig:utils_sh}. The module contains classes which process and provide training data for IStrategy objects. The API was designed to support ARFF data format (the example of data written in this format is presented in \Cref{app:arff}), however there is a possibility to add different types of parsers. Each parser must inherit from the \textit{IParser} interface and implement two methods: \textit{parse} and \textit{getInstances}. The first method is certainly responsible for processing an input file, while the second method wraps parsed raw data by Instance and Instances objects. Let us notice that \textit{ArffParser} objects take an additional argument in its constructor. This second argument is a path to a file, in an \textit{XML} format, containing extra information which allows distinguishing which attributes are labels (\Cref{app:arff}).
+
+Instance and Instances classes are used to simplify performing various operations on data. An object of Instance type wraps a single instance in a data set. As we see in \Cref{fig:utils_sh}, this class contains methods which allow writing (\textit{setAttributeValue}) or reading (\textit{getValueOfAttr}) a value of a specific attribute of an instance. An object of the Instances type is a collection of Instance objects. \textit{getAttributeMat} and \textit{getTargetsMat} methods of this class are used to generate a matrix of features and a matrix of labels wrapped by objects provided by Armadillo library. There is also a method \textit{shuffle} which changes randomly an order of instances.  
+
+\begin{figure}
+\centering
+\caption{UML diagram of Utils module.}
+\label{fig:utils_sh}
+\includegraphics[scale=0.5]{figures/Utils.png}
+\end{figure}
+
+
+\chapter{Results}
+
+The computational experiment consisted off two parts: measuring of the accuracy of prediction and the time of training a classifier. 
+
+In the first part of the experiment (let us call it \textit{the accuracy experiment}) the accuracy of prediction was measured by typical metrics for multi-label classification -- a detailed description of these metrics can be found in \Cref{sec:metrics}. It is worth emphasizing that the computation was performed on six data sets which vary a number of instances and attributes. A particular training set was divided into equal halves: the first one was used to train a classifier and the second one was used to evaluate this classifier. Before starting the whole procedure, a specific training set was shuffled a few times in order to choose instances randomly for training process. The results of this part of the experiment are shown in \Cref{sec:exp_a}. They are gathered in tables which present values of a specific metric for a particular algorithm and a particular data set. There are also charts which present an influence of the reduction degree on values of the metrics.   
+
+The second part of the experiment was connected with measuring the time of training a classifier in a single-threaded and a multi-threaded environment as well (let us call it \textit{the efficiency experiment}). It is worth mentioning that this test was performed on the bookmarks data set with changeable number of instances. The results of this part of the experiment are shown in \Cref{sec:exp_e} and are visualized by charts which present a relation between the training time and the number of instances. 
+
+The computational experiment involved the following algorithms:
+\begin{itemize}
+    \item CPLST which is described in \Cref{sec:cplst}, 
+    \item LR which is described in \Cref{sec:lr},
+    \item OCCA which is described in \Cref{sec:cplst},
+    \item LRWithPCA which denotes linear regression with PCA transformation on a label space (\Cref{sec:pca}),
+    \item LRWithRandomPCA which denotes linear regression with randomized PCA compression on a label space (\Cref{sec:rpca}).
+\end{itemize}
+All of the tested approaches used linear regression with Tikhonov regularization. The regularization coefficient was equal to $7.0$. This value was set up experimentally and does not have to be optimal for different data sets. The algorithms with reduction discarded $40\%$ of variables in new linear spaces (reduction degree was equal to $0.6$).
+
+
+\section{Experiment environment}
+\subsection{Data sets used in the experiment}
+
+All of the data sets used in the experiment come from \textit{Mulan}\footnote{\bibentry{Mulan}} project web page. The sizes of sets are differentiated in order to check behaviours of the algorithms for a low, a medium and a high number of instances. The detailed information about data sets are presented in \Cref{tab:exp1}. 
+
+\begin{table}[h]
+\centering
+\caption{Statistics and details of data sets used in the experiment.}
+\label{tab:exp1}
+    \begin{tabular}{l|c|r|r|r}
+    name & domain & instances & features & labels \\ \hline \hline
+    scene & image &  2407  & 294 & 6 \\   
+    yeast & biology & 2417 & 103 & 14 \\
+    bibtex & audio & 7395 & 1836 & 159 \\
+    corel16k (10 samples) & images & 13811 $\pm$ 87 & 500 & 161 $\pm$ 9\\
+    EUR-Lex (directory codes) & text & 19348 & 5000 & 412 \\
+    bookmarks & text & 87856 & 2150 & 208
+    \end{tabular}
+\end{table}
+
+\subsection{Parameters of the computer used in the experiment}
+
+The experiment was performed on one of the available instances (m4.4xlarge) provided by \textit{Amazon Web Services}. It has 64 GB of memory and \textit{Intel Xeon® E5-2676 v3 (Haswell)} processor. Some details connected with CPU can be found in \Cref{tab:cpu}. The operating system, used in the experiment, was \textit{Ubuntu 14}.
+
+\begin{table}[h]
+\centering
+\caption{Extra information about Intel Xeon® E5-2676 v3 (Haswell).}
+\label{tab:cpu}
+    \begin{tabular}{l|l}
+    & \\ \hline \hline
+    Cache & 20 MB SmartCache \\
+    Bus speed & 8 GT/s QPI \\
+    Instruction set & 64-bit \\
+    Number of cores & 8 \\
+    Number of threads & 16 \\
+    Processor base frequency & 2.4 GHZ \\
+    Intel$^{®}$ Turbo Boost Technology$^{‡}$ & 2.0 \\
+    Intel$^{®}$ Turbo vPro Technology$^{‡}$ & yes \\ 
+    Intel$^{®}$ Turbo Hyper-Threading Technology$^{‡}$ & yes \\
+    Intel$^{®}$ Turbo Virtualization Technology$^{‡}$ & yes
+    \end{tabular}
+\end{table}
+
+The library was compiled by GCC 4.9 with the third optimization level (\textit{-O3} flag). The build process certainly takes more time and memory due to inlining functions or loop unrolling etc., however a performance of code is faster. We can find more information about the optimization flags in GCC documentation.\footnote{\bibentry{Opt}} It is also worth mentioning that OpenBLAS was used instead of standard BLAS API, in order to enhance the efficiency of linear algebra operations and to use multithreading. 
+
+\subsection{Metrics of accuracy}\label{sec:metrics}
+
+The accuracy of the algorithms was measured by the standard metrics used in multi-label classification. In order to define these metrics, we will use the following terminology:
+\begin{itemize}
+    \item \textit{True positive (TP)} -- a number of labels which were correctly predicted,
+    \item \textit{True negative (TN)} -- a number of labels which were correctly rejected,
+    \item \textit{False positive (FP)} -- a number of labels which were incorrectly predicted,
+    \item \textit{False negative (FN)} -- a number of labels which were incorrectly rejected.
+\end{itemize}
+
+\subsubsection{Precision and recall} 
+
+\textit{Precision} and \textit{recall} are very similar measures. Precision is a fraction of a number of labels predicted correctly to a number of all predicted labels, while recall (also called \textit{sensitivity}) is a fraction of a number of labels predicted correctly to a number of all appropriate labels. They can be simply described by the following formulas:  
+\begin{equation}
+\label{eq:exp2}
+precision=\frac{TP}{TP+FP}
+\end{equation}
+\begin{equation}
+\label{eq:exp3}
+recall=\frac{TP}{TP+FN}
+\end{equation}
+Although their definitions are always the same, they can be computed by three different methods:
+\begin{itemize}
+\item Macro-average -- in this method we compute precision and recall for each category independently. Finally we take the arithmetic average of these values.
+\item Micro-average -- this method is the most intuitive. We simply sum up true positives, false positives and false negatives for a whole set and then apply them to get the metric. 
+\item Instance-average -- in this approach we compute precision and recall for each instance. In the next step, similarly to Macro-average, the arithmetic average is calculated.
+\end{itemize}
+
+Unfortunately none of these methods is more significant than the others, so the best way is to use every approach in order to compare the accuracy of classifiers.  
+
+\subsubsection{F1 score}
+
+This metric is simply the harmonic average of precision and recall. Its value is certainly dependent on a chosen method of calculating precision and recall. As a result, we define Micro-, Macro-, Instance-average F1 score. We can express it by the following formula:
+\begin{equation}\label{eq:f1}
+F1=\frac{2*precision*recall}{precision+recall}   
+\end{equation}
+
+\subsubsection{Hamming loss}
+
+This metric\footnote{\bibentry{Loss}} can be defined as a fraction of a number of wrong labels ($FP+FN$) to a total number of labels. It is described by the following formula:
+\begin{equation}
+\label{eq:exp1}
+    HammingLoss(z_i, y_i)=\frac{1}{m}\sum\limits_{i=1}^{m}\frac{xor(z_i,y_i)}{k}
+\end{equation}
+where $m$ is a number of instances, $k$ is a number of labels, $y_{i}$ is an appropriate vector of labels  and $z_{i}$ is a predicted vector of labels. Let you notice that, unlike the other metrics, we want Hamming loss to be as low as possible.  
+
+\section{Presentation of results}
+
+\subsection{The accuracy experiment}\label{sec:exp_a}
+
+\subsubsection{The scene data set}
+
+\begin{table}[H]
+\centering
+\caption{Accuracy of methods for the scene data set.}
+\label{tab:exp2}
+\pgfplotstabletypeset [
+    col sep=semicolon,
+    columns/Method/.style={string type, column type={c|}},
+    columns/Macro F1 score/.style={column type={c|}},
+    columns/Micro F1 score/.style={column type={c|}},
+    columns/Instance F1 score/.style={column type={c|}},
+    columns/Hamming loss/.style={column type={c|}},
+    every head row/.style={after row=\hline\hline}
+]{figures/scene.csv}
+\end{table}
+
+\begin{figure}[H]
+%\centering
+\caption{Relation between reduction degree and accuracy for the scene data set.}
+\label{fig:scene}
+
+\begin{subfigure}{.5\textwidth}
+\caption{Hamming loss.}
+\label{fig:exp5}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Hamming loss},
+        width=7cm,
+        xmax=1,
+        ymax=0.35]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/scene_0.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/scene_0.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/scene_0.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/scene_0.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/scene_0.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\caption{Macro F1 score.}
+\label{fig:exp6}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Macro F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=1.5]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/scene_1.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/scene_1.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/scene_1.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/scene_1.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/scene_1.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+\begin{subfigure}{.5\textwidth}
+\caption{Micro F1 score.}
+\label{fig:exp7}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Micro F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=1.5]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/scene_2.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/scene_2.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/scene_2.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/scene_2.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/scene_2.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\caption{Instance F1 score.}
+\label{fig:exp8}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont},
+        xlabel={Degree of reduction},
+        ylabel={Instance F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=1.3]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/scene_3.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/scene_3.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/scene_3.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/scene_3.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/scene_3.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+
+\end{figure}
+
+
+\subsubsection{The yeast data set}
+
+\begin{table}[H]
+\centering
+\caption{Accuracy of methods for the yeast data set.}
+\label{tab:exp3}
+\pgfplotstabletypeset [
+    col sep=semicolon,
+    columns/Method/.style={string type, column type={c|}},
+    columns/Macro F1 score/.style={column type={c|}},
+    columns/Micro F1 score/.style={column type={c|}},
+    columns/Instance F1 score/.style={column type={c|}},
+    columns/Hamming loss/.style={column type={c|}},
+    every head row/.style={after row=\hline\hline}
+]{figures/yeast.csv}
+\end{table}
+
+\begin{figure}[H]
+%\centering
+\caption{Relation between reduction degree and accuracy for the yeast data set.}
+\label{fig:yeast}
+
+\begin{subfigure}{.5\textwidth}
+\caption{Hamming loss.}
+\label{fig:exp9}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Hamming loss},
+        width=7cm,
+        xmax=1,
+        ymax=0.25]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/yeast_0.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/yeast_0.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/yeast_0.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/yeast_0.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/yeast_0.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\caption{Macro F1 score.}
+\label{fig:exp10}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Macro F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=0.5]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/yeast_1.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/yeast_1.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/yeast_1.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/yeast_1.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/yeast_1.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+\begin{subfigure}{.5\textwidth}
+\caption{Micro F1 score.}
+\label{fig:exp11}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Micro F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=0.8]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/yeast_2.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/yeast_2.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/yeast_2.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/yeast_2.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/yeast_2.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\caption{Instance F1 score.}
+\label{fig:exp12}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont},
+        xlabel={Degree of reduction},
+        ylabel={Instance F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=0.8]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/yeast_3.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/yeast_3.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/yeast_3.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/yeast_3.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/yeast_3.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+\end{figure}
+
+\subsubsection{The bibtex data set.}
+
+\begin{table}[H]
+\centering
+\caption{Accuracy of methods for the bibtex data set}
+\label{tab:exp4}
+\pgfplotstabletypeset [
+    col sep=semicolon,
+    columns/Method/.style={string type, column type={c|}},
+    columns/Macro F1 score/.style={column type={c|}},
+    columns/Micro F1 score/.style={column type={c|}},
+    columns/Instance F1 score/.style={column type={c|}},
+    columns/Hamming loss/.style={column type={c|}},
+    every head row/.style={after row=\hline\hline}
+]{figures/bibtex.csv}
+\end{table}
+
+\begin{figure}[H]
+%\centering
+\caption{Relation between reduction degree and accuracy for the bibtex data set.}
+\label{fig:bibtex}
+
+\begin{subfigure}{.5\textwidth}
+\caption{Hamming loss.}
+\label{fig:exp13}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Hamming loss},
+        width=7cm,
+        xmax=1,
+        ymax=0.02]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/bibtex_0.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/bibtex_0.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/bibtex_0.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/bibtex_0.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/bibtex_0.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\caption{Macro F1 score.}
+\label{fig:exp14}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Macro F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=0.45]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/bibtex_1.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/bibtex_1.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/bibtex_1.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/bibtex_1.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/bibtex_1.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+\begin{subfigure}{.5\textwidth}
+\caption{Micro F1 score.}
+\label{fig:exp15}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Micro F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=0.75]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/bibtex_2.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/bibtex_2.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/bibtex_2.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/bibtex_2.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/bibtex_2.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\caption{Instance F1 score.}
+\label{fig:exp16}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont},
+        xlabel={Degree of reduction},
+        ylabel={Instance F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=0.65]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/bibtex_3.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/bibtex_3.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/bibtex_3.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/bibtex_3.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/bibtex_3.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+
+\end{figure}
+
+
+\subsubsection{The corel16k data set}
+
+\begin{table}[H]
+\centering
+\caption{Accuracy of methods for the corel16k data set.}
+\label{tab:exp5}
+\pgfplotstabletypeset [
+    col sep=semicolon,
+    columns/Method/.style={string type, column type={c|}},
+    columns/Macro F1 score/.style={column type={c|}},
+    columns/Micro F1 score/.style={column type={c|}},
+    columns/Instance F1 score/.style={column type={c|}},
+    columns/Hamming loss/.style={column type={c|}},
+    every head row/.style={after row=\hline\hline}
+]{figures/Corel16k001.csv}
+\end{table}
+
+\begin{figure}[H]
+%\centering
+\caption{Relation between reduction degree and accuracy for the corel16k data set.}
+\label{fig:corel16k}
+
+\begin{subfigure}{.5\textwidth}
+\caption{Hamming loss.}
+\label{fig:exp17}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Hamming loss},
+        width=7cm,
+        xmax=1,
+        ymax=0.02]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/Corel16k001_0.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/Corel16k001_0.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/Corel16k001_0.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/Corel16k001_0.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/Corel16k001_0.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\caption{Macro F1 score.}
+\label{fig:exp18}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Macro F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=0.05]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/Corel16k001_1.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/Corel16k001_1.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/Corel16k001_1.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/Corel16k001_1.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/Corel16k001_1.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+\begin{subfigure}{.5\textwidth}
+\caption{Micro F1 score.}
+\label{fig:exp19}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Micro F1 score},
+        ylabel style={yshift=0.4cm},
+        width=7cm,
+        xmax=1,
+        ymax=0.15]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/Corel16k001_2.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/Corel16k001_2.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/Corel16k001_2.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/Corel16k001_2.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/Corel16k001_2.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\caption{Instance F1 score.}
+\label{fig:exp20}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont},
+        xlabel={Degree of reduction},
+        ylabel={Instance F1 score},
+        ylabel style={yshift=0.4cm},
+        width=7cm,
+        xmax=1,
+        ymax=0.13]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/Corel16k001_3.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/Corel16k001_3.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/Corel16k001_3.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/Corel16k001_3.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/Corel16k001_3.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+
+\end{figure}
+
+\subsubsection{The EUR-Lex data set}
+
+\begin{table}[H]
+\centering
+\caption{Accuracy of methods for the EUR-Lex data set.}
+\label{tab:exp6}
+\pgfplotstabletypeset [
+    col sep=semicolon,
+    columns/Method/.style={string type, column type={c|}},
+    columns/Macro F1 score/.style={column type={c|}},
+    columns/Micro F1 score/.style={column type={c|}},
+    columns/Instance F1 score/.style={column type={c|}},
+    columns/Hamming loss/.style={column type={c|}},
+    every head row/.style={after row=\hline\hline}
+]{figures/eurlex.csv}
+\end{table}
+
+\begin{figure}[H]
+%\centering
+\caption{Relation between reduction degree and accuracy for the EUR-Lex data set.}
+\label{fig:eurlex}
+
+\begin{subfigure}{.5\textwidth}
+\caption{Hamming loss.}
+\label{fig:exp21}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Hamming loss},
+        width=7cm,
+        xmax=1,
+        ymax=0.05]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/eurlex_0.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/eurlex_0.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/eurlex_0.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/eurlex_0.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/eurlex_0.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\caption{Macro F1 score.}
+\label{fig:exp22}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Macro F1 score},
+        ylabel style={yshift=0.4cm},
+        width=7cm,
+        xmax=1,
+        ymax=0.15]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/eurlex_1.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/eurlex_1.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/eurlex_1.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/eurlex_1.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/eurlex_1.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+\begin{subfigure}{.5\textwidth}
+\caption{Micro F1 score.}
+\label{fig:exp23}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Micro F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=0.4]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/eurlex_2.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/eurlex_2.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/eurlex_2.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/eurlex_2.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/eurlex_2.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\caption{Instance F1 score.}
+\label{fig:exp24}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont},
+        xlabel={Degree of reduction},
+        ylabel={Instance F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=0.65]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/eurlex_3.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/eurlex_3.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/eurlex_3.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/eurlex_3.csv};
+        \addlegendentry{OCCA};
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/eurlex_3.csv};
+        \addlegendentry{LR}
+
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+
+\end{figure}
+
+\subsubsection{The bookmarks data set}
+
+\begin{table}[H]
+\centering
+\caption{Accuracy of methods for the bookmarks data set.}
+\label{tab:exp7}
+\pgfplotstabletypeset [
+    col sep=semicolon,
+    columns/Method/.style={string type, column type={c|}},
+    columns/Macro F1 score/.style={column type={c|}},
+    columns/Micro F1 score/.style={column type={c|}},
+    columns/Instance F1 score/.style={column type={c|}},
+    columns/Hamming loss/.style={column type={c|}},
+    every head row/.style={after row=\hline\hline}
+]{figures/bookmarks.csv}
+\end{table}
+
+\begin{figure}[H]
+%\centering
+\caption{Relation between reduction degree and accuracy for the bookmarks data set.}
+\label{fig:bookmarks}
+
+\begin{subfigure}{.5\textwidth}
+\caption{Hamming loss.}
+\label{fig:exp25}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Hamming loss},
+        width=7cm,
+        xmax=1,
+        ymax=0.01]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/bookmarks_0.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/bookmarks_0.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/bookmarks_0.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/bookmarks_0.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/bookmarks_0.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\caption{Macro F1 score.}
+\label{fig:exp26}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Macro F1 score},
+        ylabel style={yshift=0.4cm},
+        width=7cm,
+        xmax=1,
+        ymax=0.13]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/bookmarks_1.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/bookmarks_1.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/bookmarks_1.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/bookmarks_1.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/bookmarks_1.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+\begin{subfigure}{.5\textwidth}
+\caption{Micro F1 score.}
+\label{fig:exp27}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont}, 
+        xlabel={Degree of reduction},
+        ylabel={Micro F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=0.3]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/bookmarks_2.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/bookmarks_2.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/bookmarks_2.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/bookmarks_2.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/bookmarks_2.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\caption{Instance F1 score.}
+\label{fig:exp28}
+\begin{tikzpicture}
+    \begin{axis}[legend pos=north east,
+        legend style={font=\fontsize{7}{5}\selectfont},
+        xlabel={Degree of reduction},
+        ylabel={Instance F1 score},
+        width=7cm,
+        xmax=1,
+        ymax=0.25]
+        \addplot table [x=k, y=LRWithPCA, col sep=semicolon] {figures/bookmarks_3.csv};
+        \addlegendentry{LRWithPCA}
+        \addplot table [x=k, y=CPLST, col sep=semicolon] {figures/bookmarks_3.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=k, y=LRWithRandomPCA, col sep=semicolon] {figures/bookmarks_3.csv};
+        \addlegendentry{LRWithRandomPCA}
+        \addplot table [x=k, y=OCCA, col sep=semicolon] {figures/bookmarks_3.csv};
+        \addlegendentry{OCCA}
+        \addplot table [x=k, y=LR, col sep=semicolon] {figures/bookmarks_3.csv};
+        \addlegendentry{LR}
+    \end{axis}
+\end{tikzpicture}
+\end{subfigure}
+
+
+\end{figure}
+
+\newpage
+
+\subsection{The efficiency experiment}\label{sec:exp_e}
+
+\subsubsection{Single-threaded performance}
+
+\begin{figure}[H]
+\centering
+\caption{Efficiency of single-threaded LR and RPCA classifiers.}
+\label{fig:exp29}
+\begin{tikzpicture}[scale=0.88]
+    \begin{axis}[legend pos=north east,
+        xlabel={number of instances},
+        ylabel={time [s]},
+        ymax={60}]
+        \addplot table [x=instance, y=time, col sep=semicolon] {figures/LR1.csv};
+        \addlegendentry{LR}
+        \addplot table [x=instance, y=time, col sep=semicolon] {figures/LRWithRandomPCA1.csv};
+        \addlegendentry{LRWithRPCA}
+    \end{axis}
+\end{tikzpicture}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\caption{Efficiency of single-threaded OCCA and CPLST.}
+\label{fig:exp30}
+\begin{tikzpicture}[scale=0.88]
+    \begin{axis}[legend pos=north east,
+        xlabel={number of instances},
+        ylabel={time [s]},
+        ymax={1500}]
+        \addplot table [x=instance, y=time, col sep=semicolon] {figures/CPLST1.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=instance, y=time, col sep=semicolon] {figures/OCCA1.csv};
+        \addlegendentry{OCCA}
+    \end{axis}
+\end{tikzpicture}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\caption{Efficiency of single-threaded LRWithPCA.}
+\label{fig:exp31}
+\begin{tikzpicture}[scale=0.88]
+    \begin{axis}[legend pos=north east,
+        xlabel={number of instances},
+        ylabel={time [s]},
+        ymax={5000}]
+        \addplot table [x=instance, y=time, col sep=semicolon] {figures/LRWithPCA1.csv};
+        \addlegendentry{LRWithPCA}
+    \end{axis}
+\end{tikzpicture}
+\end{figure}
+
+\subsubsection{Multi-threaded performance}
+
+\begin{figure}[H]
+\centering
+\caption{Efficiency of multi-threaded LR and RPCA classifiers.}
+\label{fig:exp32}
+\begin{tikzpicture}[scale=0.90]
+    \begin{axis}[legend pos=north east,
+        xlabel={number of instances},
+        ylabel={time [s]},
+        ymax=16]
+        \addplot table [x=instance, y=time, col sep=semicolon] {figures/LR.csv};
+        \addlegendentry{LR}
+        \addplot table [x=instance, y=time, col sep=semicolon] {figures/LRWithRandomPCA.csv};
+        \addlegendentry{LRWithRPCA}
+    \end{axis}
+\end{tikzpicture}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\caption{Efficiency of multi-threaded OCCA and CPLST.}
+\label{fig:exp33}
+\begin{tikzpicture}[scale=0.90]
+    \begin{axis}[legend pos=north east,
+        xlabel={number of instances},
+        ylabel={time [s]},
+        ymax=300]
+        \addplot table [x=instance, y=time, col sep=semicolon] {figures/CPLST.csv};
+        \addlegendentry{CPLST}
+        \addplot table [x=instance, y=time, col sep=semicolon] {figures/OCCA.csv};
+        \addlegendentry{OCCA}
+
+    \end{axis}
+\end{tikzpicture}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\caption{Efficiency of multi-threaded LRWithPCA.}
+\label{fig:exp34}
+\begin{tikzpicture}[scale=0.90]
+    \begin{axis}[legend pos=north east,
+        xlabel={number of instances},
+        ylabel={time [s]},
+        ymax=2500]
+        \addplot table [x=instance, y=time, col sep=semicolon] {figures/LRWithPCA.csv};
+        \addlegendentry{LRWithPCA}
+    \end{axis}
+\end{tikzpicture}
+\end{figure}
+\chapter{Conclusion}
+
+\section{Discussion of the results from the accuracy experiment}
+
+The accuracy of classification of all the methods is strongly dependent on the training sets and the metric which is taken into account. The most `difficult' training set, for all the algorithms, is the corel16k. Besides Hamming loss, which is satisfying, the rest of metrics is levelled of $10^{-2}$ (\Cref{tab:exp5} and \Cref{fig:corel16k}) what is a very low score. It is worth emphasizing that the corel16k is the set of medium size among tested data sets, so it is hard to find a correlation between, for example, the number of labels and the accuracy. In fact, a nature and a domain of data set also affect the results. On the other hand, the domain is not a dominant factor. The scene data set, as well as the corel16k, is connected with images, but the results are definitely better for the scene (\Cref{tab:exp3}). It is worth mentioning that high scores were also achieved for the yeast set. Its domain is `biology'.
+
+The most effective approach, regardless of the metrics, is LR. This is not certainly something what we have expected, however this fact is explainable. We should remember that the rest of the methods use compression which might cause a fall of the accuracy. For these particular data sets, the reduction influences negatively the predictions. 
+
+Among the algorithms which use compression, the best results were given by CPLST. This is certainly not surprising, because the reduction of a label space is feature aware unlike PCA compression. Nevertheless, all the approaches use linear regression to create a classifier. Thus, they behave rather similarly for particular data sets. For instance, the characteristic features of all the methods are a low score of Macro-average F1 and a satisfying score of Hamming loss. 
+
+\Crefrange{fig:scene}{fig:bookmarks} show the relation between a value of a reduction degree and a value of specific metrics. As we see, the lower reduction degree we use, the worse scores we get in almost all cases. An interesting anomaly appears in the EUR-Lex. In this particular case Hamming loss increases regularly with a growth of a compression degree value. The situation is similar when it comes to Micro-average F1 (it should grow but it decreases). The domain of the EUR-Lex is `text' and it contains \textit{TF-IDF} representation of documents. It is possible that most of the features are useless and make noise in the data. It could explain this anomaly.  
+
+\section{Discussion of the results from the efficiency experiment}
+
+All the methods, which took part in the experiment, perform faster in a multi-threaded environment. The difference is noticeable -- for some algorithms a computation is even four times faster. It is certainly the result of efficient matrix operations (matrix multiplication, etc.) which are suitable for parallelization. It is also obvious that time-consumption grows with a number of instances.
+
+The best approach, when it comes to time-consumption, is again LR (\Cref{fig:exp29} and \Cref{fig:exp32}). Although the other methods create a classifier from compressed data, the time cost of such transformation is too high. However, the results achieved by LRWithRPCA are not much worse than in case of LR. Unlike the rest of the approaches based on preliminary compression, LRWithRPCA does not use SVD decomposition for large matrices. This fact explains why this method is faster. It is worth emphasizing that SVD has the complexity of $O(m^2n+n^3)$. 
+
+\Cref{fig:exp31,fig:exp34} show that the slowest approach is LRWithPCA. We should remember that only a label space was compressed by PCA in the experiment, because compressing a feature space was too time-consuming. As we see, this implementation is useless for massive data. 
+
+CPLST and OCCA (\Cref{fig:exp30,fig:exp33}) have almost the same time complexity. It is certainly not surprising, because both methods process matrices of the same size in a very similar way.
+
+\section{Future research}
+
+The research was conducted with medium size data sets, so it is sensible to check how the algorithms deal with much greater sets. It will also allow verifying if simple and effective implementation of LR is better than the methods based on reduction of feature and label spaces. 
+
+The efficiency experiment has shown that parallel computations have huge influence on time-consumption. Therefore, it is sensible to implement the algorithms for environments which use GPU to process. This will probably improve the efficiency for all the methods. It is also worth checking if an involvement of higher amount of cores (threads) in performance decreases time-consumption.  
+
+Among the tested algorithms there are two approaches which can be rejected: LRWithPCA and OCCA. The first one is definitely too slow and is also not satisfying when it comes to the accuracy. In fact, its random version gives similar accuracy results (sometimes even better). The second one is exactly as fast as the CPLST algorithm, but achieved worse scores in the accuracy experiment. 
+
+The most surprising aspect of the research is the result achieved by the LR algorithm in both experiments (especially in the second one). The reduction of feature and label spaces have aimed at decreasing dimensionallity of input data for linear regression. Unfortunately the reduction is too time-consuming towards building the regressor. However, the time achieved by LRWithRPCA is not much worse. Moreover, it is possible to manipulate the parameters of this method what can help obtain better results. In fact, this approach can be constantly improved.   
+
+Even though CPLST is not as efficient as LR and LRWithRPCA, this approach should also be studied (in general, methods inspired by CCA should be studied). Let us remind that the algorithm achieved better results than the algorithms which use PCA in the accuracy experiment. In this specific implementation of CPLST, linear regression is used to build the final classifier. Thus, it is sensible to check different solutions, for example, how logistic regression will cooperate with CPLST etc.
+
+\section{Summary}
+
+The thesis aimed at investigating the algorithms which solve multi-label classification tasks by transformation of feature and label spaces. It is worth reminding that such approach might cooperate well with binary relevance method. Besides, we can additionally compress data what might also decrease the time complexity. 
+
+The experiments showed that the LR algorithm is the fastest and the most accurate among all tested methods. It means that there is no point in using complicated algorithms in order to learn from massive data. In fact, simple and fast implementation of linear regression is sufficient. However, it does not mean the rest of the approaches is useless. We should remember that the experiments were conducted for particular class of data sets. We need to check how LR deals with much greater sets as well. Moreover, for data with noise, the reduction can be helpful because we can get rid of meaningless attributes. It is worth reminding that random PCA classifier was not much worse than LR, when it comes to efficiency. This approach can be constantly improved, so there is a lot to investigate.
+
+For the purposes of the experiments, the implementations of the algorithms were written in C++11 programming language and became a part of the library called MLCPACK. It is an additional outcome of the conducted research. The library was organized in a flexible way (strategy design pattern) and provides the interface which can be used to add new algorithms. Besides the algorithms, the library contains additional tools, such as an ARFF parser or a tool for measuring the predictive performance of the algorithms. It is worth mentioning that MLCPACK is prepared for working in a multi-threaded environment.
+
+% All appendices and extra material, if you have any.
+\cleardoublepage
+\begin{appendices}
+
+\chapter{Proofs and facts}
+
+\section{Least squares for multiple regression}
+\label{app:least}
+
+Given a design matrix $\boldsymbol{X} \in \mathbb{R}^{m \times (n+1)}$ and a vector of real values $\boldsymbol{y} \in \mathbb{R}^{n}$, we want to find $\boldsymbol{\beta}$, such that:
+\begin{equation}\label{eq:least0}
+    \boldsymbol{\hat{\beta}} = \argmin_{\boldsymbol{\beta} \in \mathbb{R}^{n+1}}(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})^T(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})
+\end{equation}
+Let us notice that we can treat $(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})^T(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})$ as the function of $\boldsymbol{\beta}$. So, we can solve \Cref{eq:least0} by finding the global minimum of this function. This, of course, can be achieved by calculating the derivative in respect to $\boldsymbol{\beta}$:
+\begin{equation}\label{eq:least1}
+    \nabla_{\boldsymbol{\beta}} \frac{1}{2}(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta})^T(\boldsymbol{y}-\boldsymbol{X}\boldsymbol{\beta}) = 0
+\end{equation}
+We will solve the above equation by using the relations between derivatives with matrices and the trace of a matrix \citep{LRV}. First of all, let us remind that for a square matrix $\boldsymbol{A} \in \mathbb{R}^{n \times n}$ its trace is defined as: $tr(\boldsymbol{A})= \sum\limits_{i=1}^{n}a_{ii}$. We also note a few facts about the trace:
+
+\begin{enumerate}
+    \item $tr(\boldsymbol{A}+\boldsymbol{B}) = tr(\boldsymbol{A})+tr(\boldsymbol{B})$
+    \item $tr(\boldsymbol{AB}) = tr(\boldsymbol{BA})$
+    \item $tr(\boldsymbol{ABC}) = tr(\boldsymbol{CAB}) = tr(\boldsymbol{BCA})$
+    \item $\nabla_{\boldsymbol{A}}tr(\boldsymbol{AB}) = \boldsymbol{B}^T$
+    \item $tr(\boldsymbol{A})=tr(\boldsymbol{A}^T)$
+    \item if $a \in \mathbb{R}$ then $tr(a)=a$
+    \item $\nabla_{\boldsymbol{A}}tr(\boldsymbol{ABA}^T\boldsymbol{C}) = \boldsymbol{CAB}+\boldsymbol{C}^T\boldsymbol{AB}^T$
+\end{enumerate}
+Calculating a dot product in \Cref{eq:least1} and using the property (6.) of a trace operator, we obtain:
+\begin{equation}\label{eq:least2}
+    \frac{1}{2} \nabla_{\boldsymbol{\beta}} tr(\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}-\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{y}-\boldsymbol{y}^T\boldsymbol{X}\boldsymbol{\beta}+\boldsymbol{y}^T\boldsymbol{y}) = 0
+\end{equation}
+Next, using the properties (1.), (3.) and again (6.), \Cref{eq:least2} can be expressed as:
+\begin{equation}\label{eq:least3}
+    \frac{1}{2}[\nabla_{\boldsymbol{\beta}}tr(\boldsymbol{\beta}\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{X})-\nabla_{\boldsymbol{\beta}}tr(\boldsymbol{y}^T\boldsymbol{X}\boldsymbol{\beta})-\nabla_{\boldsymbol{\beta}}tr(\boldsymbol{y}^T\boldsymbol{X}\boldsymbol{\beta})] = 0
+\end{equation}
+The derivative of $\boldsymbol{y}^T\boldsymbol{y}$ is $0$, because it does not depend on $\boldsymbol{\beta}$. Thus, it has been removed. Let us also notice that:
+\begin{equation}\label{eq:least4}
+    \nabla_{\boldsymbol{\beta}}tr(\boldsymbol{\beta}\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{X}) = \nabla_{\boldsymbol{\beta}}tr(\boldsymbol{\beta}\boldsymbol{I}\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{X}) = \boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}I + \boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}\boldsymbol{I} = \boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}+\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}
+\end{equation}
+because of the property (7.) of a trace operator and:
+\begin{equation}\label{eq:least5}
+    \nabla_{\boldsymbol{\beta}}tr(\boldsymbol{y}^T\boldsymbol{X}\boldsymbol{\beta}) = \boldsymbol{X}^T\boldsymbol{y}
+\end{equation}
+because of the property (4.).
+Now we can simply use \Cref{eq:least4} and \Cref{eq:least5} in \Cref{eq:least3} and calculate the desired derivative:
+\begin{equation}\label{eq:least6}
+    \frac{1}{2}[\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}+\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}-\boldsymbol{X}^T\boldsymbol{y}-\boldsymbol{X}^T\boldsymbol{y}] = 0
+\end{equation}
+Finally, we obtain $\boldsymbol{\beta}$ from \Cref{eq:least6}:
+\begin{equation}
+    \boldsymbol{\beta}=(\boldsymbol{X}^T\boldsymbol{X})^{-1}\boldsymbol{X}^T\boldsymbol{y}
+\end{equation}
+
+\newpage
+\section{Eigenvalues and eigenvectors of matrices}
+\label{app:eigen}
+
+Let a matrix $\boldsymbol{T} \in \mathbb{R}^{m \times n}$ be a linear transformation matrix. Such matrix can certainly express primary linear transformations, for instance rotation, scaling, transposition, etc. If there are a column vector $\boldsymbol{v}$ and a scalar $\lambda$, such that:
+\begin{equation}\label{eq:eigen1}
+    \boldsymbol{T}\boldsymbol{v}=\lambda{\boldsymbol{v}}
+\end{equation}
+then we call them an eigenvector and suitably an eigenvalue of a matrix $\boldsymbol{T}$. Intuitively an eigenvector $\boldsymbol{v}$ of a matrix $\boldsymbol{T}$ is transformed by $\boldsymbol{T}$ into itself. An eigenvalue can be then interpreted as a scale factor. Formally eigenvectors and eigenvalues characterize an endomorphism of a particular linear space.  
+
+The equation \ref{eq:eigen1} can be certainly stated equivalently as:
+
+\begin{equation}\label{eq:eigen2}
+    (\boldsymbol{T}-\lambda{\boldsymbol{I}})\boldsymbol{v}=0
+\end{equation}
+where $\boldsymbol{I}$ is the identity matrix. Let us notice that \Cref{eq:eigen2} has a solution if and only if the determinant of a matrix $(\boldsymbol{T}-\lambda{\boldsymbol{I}})$ is equal to zero. As a result, we can find eigenvalues by solving the following equation:
+\begin{equation}\label{eq:eigen3}
+    det(\boldsymbol{T}-\lambda{\boldsymbol{I}}) = (\lambda_1-\lambda)(\lambda_2-\lambda)\cdots(\lambda_n-\lambda) = 0
+\end{equation}
+\Cref{eq:eigen3} is called the characteristic equation, while its left-hand side is called the characteristic polynomial \citep{Banerjee}. In practice this method is not used to calculate eigenvectors and eigenvalues. The most popular algorithm is \textit{Power iteration} which is also called \textit{Von Mises iteration}.
+
+
+\newpage
+\section{Singular value decomposition}
+\label{app:svd}
+
+SVD decomposition is a particular factorization of a real or a complex matrix. Formally, each arbitrary matrix $\boldsymbol{X} \in \mathbb{R}^{n \times p}$ can be written as \citep{Jolliffe}:
+\begin{equation}
+    \boldsymbol{X}=\boldsymbol{U}\boldsymbol{\Sigma}{\boldsymbol{V}^T}
+\end{equation}
+where:
+\begin{enumerate}
+    \item $\boldsymbol{U}$ and $\boldsymbol{V}$ are $(n \times r)$, $(p \times r)$ matrices which have orthonormal columns. It means that $\boldsymbol{U}\boldsymbol{U}^T=\boldsymbol{I}$ and $\boldsymbol{V}\boldsymbol{V}^T=\boldsymbol{I}$, where $\boldsymbol{I}$ is the identity matrix,
+    \item $\boldsymbol{\Sigma}$ is an $(r \times r)$ matrix,
+    \item $r$ is a rank of $\boldsymbol{X}$.
+\end{enumerate}
+If $\boldsymbol{X}$ is a symmetric matrix, its decomposition is equivalent to:
+\begin{equation}
+    \boldsymbol{X}=\boldsymbol{V}\boldsymbol{\Sigma}{\boldsymbol{V}^T}
+\end{equation}
+The factorization with such properties can be computed using the following observations:
+\begin{itemize}
+    \item The columns of $\boldsymbol{U}$ matrix are eigenvectors of $\boldsymbol{X}\boldsymbol{X}^T$.
+    \item The columns of $\boldsymbol{V}$ matrix are eigenvectors of $\boldsymbol{X}^T\boldsymbol{X}$.
+    \item The values found on the diagonal entries of $\boldsymbol{\Sigma}$ are square roots of non-zero eigenvalues of both $\boldsymbol{X}\boldsymbol{X}^T$ and $\boldsymbol{X}^T\boldsymbol{X}$.
+\end{itemize}
+
+Besides a few interesting mathematical properties, the SVD decomposition has also an intuitive interpretation. If we assume that $\boldsymbol{X} \in \mathbb{R}^{n \times n}$ is a square matrix of a linear transformation with the positive determinant, then $\boldsymbol{\Sigma}$ can be thought as a scaling matrix while $\boldsymbol{V}^T$ and $\boldsymbol{U}$ can be viewed as rotation matrices. Therefore the expression $\boldsymbol{U}\boldsymbol{\Sigma}{\boldsymbol{V}^T}$ can be regarded as a composition of three geometrical transformations: two rotations and scaling.\footnote{\bibentry{SVD}}
+
+The standard SVD algorithm has complexity of $O(np^2+p^3)$ and consists off two steps. In the first step, an origin matrix is transformed into a bidiagonal matrix. It is usually made by \textit{Householder reflection} algorithm which is $O(np^2+p^3)$ in the worst case. The second step is connected with proceeding SVD on a reduced matrix obtained in the first step. This part of the algorithm costs $O(p^2)$ and is computed by \textit{QR} decomposition \citep{Banerjee}. 
+
+\newpage
+\section{Pseudoinverse of matrix}\label{app:pseudo}
+
+In this section we will define the pseudoinverse of a matrix $\boldsymbol{X}$ which is used if $\boldsymbol{X}$ is not invertible. Let us consider two cases: 
+\begin{itemize}
+    \item $\boldsymbol{X}$ is a diagonal square matrix,
+    \item $\boldsymbol{X}$ is an arbitrary square matrix.
+\end{itemize}
+Let us remind that in order to compute inverse of a diagonal matrix, we have to inverse its diagonal elements. The pseudoinverse of such matrix is very similar -- we simply inverse elements which are not equal to $0$. The second case is more complex. First of all let us decompose $\boldsymbol{X}$ by SVD (\Cref{app:svd}):
+\begin{equation}
+    \boldsymbol{X}=\boldsymbol{U}\boldsymbol{\Sigma}{\boldsymbol{V}^T}
+\end{equation}
+Now, using the fact that $(\boldsymbol{A}\boldsymbol{B})^{-1}=\boldsymbol{B}^{-1}\boldsymbol{A}^{-1}$, we can express the inverse of $\boldsymbol{X}$ in the following way:
+\begin{equation}\label{eq:invert}
+    \boldsymbol{X}^{-1}=(\boldsymbol{U}\boldsymbol{\Sigma}{\boldsymbol{V}^T})^{-1}=(\boldsymbol{V}^T)^{-1}{\boldsymbol{\Sigma}}^{-1}\boldsymbol{U}^{-1}
+\end{equation}
+$\boldsymbol{V}$ and $\boldsymbol{U}$ matrices are orthogonal so we can simplify \Cref{eq:invert}:
+\begin{equation}
+    \boldsymbol{X}^{-1}=\boldsymbol{V}{\boldsymbol{\Sigma}}^{-1}\boldsymbol{U}^T
+\end{equation}
+As we see, the problem is with the ivertibility of $\boldsymbol{\Sigma}$ matrix. However, $\boldsymbol{\Sigma}$ is diagonal and we have defined the pseudoinverse for such a matrix. Finally, we obtain the following definition:
+\begin{equation}
+    \boldsymbol{X}^P=\boldsymbol{V}\boldsymbol{\Sigma}^{P}{\boldsymbol{U}^T}
+\end{equation}
+
+\newpage
+\section{Invertibility of matrix in shrinkage regression}
+\label{app:reg}
+
+In this section we will show that it is not necessary to use pseudoinverse in shrinkage regression algorithm. Let us remind that the solution of shrinkage regression problem is given by the following formula:
+
+\begin{equation}\label{eq:shrink}
+    \boldsymbol{\hat{\beta}} = (\boldsymbol{X}^T\boldsymbol{X}+\lambda\boldsymbol{I})^{-1}\boldsymbol{X}^T\boldsymbol{y}
+\end{equation}
+
+In the proof we will use singular value decomposition. Using SVD of a symmetric matrix $\boldsymbol{X}^T\boldsymbol{X}$ and its properties, we can express $\boldsymbol{X}^T\boldsymbol{X}+\lambda\boldsymbol{I}$ as: 
+\begin{equation}\label{eq:inv_proof}
+\begin{split}
+    \boldsymbol{X}^T\boldsymbol{X} + \lambda\boldsymbol{I}&=\boldsymbol{V}\boldsymbol{\Sigma}\boldsymbol{V}^T + \lambda\boldsymbol{I} = \boldsymbol{V}\boldsymbol{\Sigma}\boldsymbol{V}^T + \lambda\boldsymbol{V}\boldsymbol{V}^T\boldsymbol{I}\boldsymbol{V}\boldsymbol{V}^T \\ 
+    = &\boldsymbol{V}(\boldsymbol{\Sigma} + \lambda\boldsymbol{V}^T\boldsymbol{I}\boldsymbol{V})\boldsymbol{V}^T = \boldsymbol{V}(\boldsymbol{\Sigma} + \lambda\boldsymbol{I})\boldsymbol{V}^T 
+\end{split}
+\end{equation}
+Let us notice that $\boldsymbol{V}(\boldsymbol{\Sigma} + \lambda\boldsymbol{I})\boldsymbol{V}^T$ is invertible, because $\boldsymbol{V}$ is invertible (it is orthogonal) and $\boldsymbol{\Sigma} +\lambda\boldsymbol{I}$ is invertible as well (this is a diagonal matrix and we have certainty that it does not have zeros on its diagonal).
+
+\newpage
+\section{CCA computing algorithm based on SVD decomposition}
+\label{app:cca}
+
+The algorithm based on SVD is not the fastest way of computing CCA. However, this approach is clear and shows the idea which is behind CCA. Let $\boldsymbol{X}$ and $\boldsymbol{Y}$ be $(m \times n)$ and $(m \times k)$ matrices. The first step of the method is to find SVD decomposition of $\boldsymbol{X}$ and $\boldsymbol{Y}$:
+\begin{equation}
+    \boldsymbol{X}=\boldsymbol{U}_1\boldsymbol{S}_1\boldsymbol{V}^T_1, \quad \boldsymbol{X}=\boldsymbol{U}_2\boldsymbol{S}_2\boldsymbol{V}^T_2
+\end{equation}
+Next, a matrix $\boldsymbol{U}_1^T\boldsymbol{U}_2$ is formed and also decomposed by SVD:
+\begin{equation}
+    \boldsymbol{U}_1^T\boldsymbol{U}_2 = \boldsymbol{Q}\boldsymbol{\Sigma}{\boldsymbol{L}^T}
+\end{equation}
+Finally, matrices of coefficients of linear combinations for $\boldsymbol{X}$ and $\boldsymbol{Y}$ are computed \citep{William}:
+\begin{equation}
+    \boldsymbol{W}_x=\boldsymbol{V}_1\boldsymbol{S}_1^{-1}\boldsymbol{Q}, \quad  \boldsymbol{W}_y=\boldsymbol{V}_2\boldsymbol{S}_2^{-1}\boldsymbol{L}
+\end{equation}
+
+
+\chapter{Multi-label classification library in practice}
+\section{Example of usage of Armadillo library}
+\label{app:arma}
+\lstinputlisting[numbers=left, language=C++, caption=armadillo.cpp]{listings/armadillo.cpp}
+
+\newpage
+\section{Example of data in ARFF format}
+\label{app:arff}
+\lstinputlisting[caption=iris.arff]{listings/iris.arff}
+\lstinputlisting[caption=iris.xml, language=xml]{listings/iris.xml}
+
+\newpage
+\section{Example of learning flow}
+\label{app:learning}
+\lstinputlisting[numbers=left, language=C++, caption=learning.cpp]{listings/learning.cpp}
+
+\newpage
+\section{Example of evaluation flow}
+\label{app:evaluating}
+\lstinputlisting[numbers=left, language=C++, caption=evaluation.cpp]{listings/evaluation.cpp}
+
+\end{appendices}
+
+% Bibliography (books, articles) starts here.
+
+\bibliographystyle{unsrtnat}{\bibliography{bibliography}}
+
+% Colophon is a place where you should let others know about copyrights etc.
+\ppcolophon
+
+\end{document}

@@ -2,7 +2,7 @@
 \chapter{Background}
 \section{Notation}
 
-We will denote random variables by uppercase letters $W$, $X$ etc. If $X$ is a multidimensional random variable then its components will be denoted by $X_i$. Specific observed values of $X$ are written by lowercase letters $x_i$ or $x_{ij}$ if $X$ is multidimensional. Matrices are denoted by bold uppercase $\boldsymbol{W}$, $\boldsymbol{X}$ in order to distinguish them from random variables. Vectors are represented by lowercase bold letters $\boldsymbol{w}$, $\boldsymbol{x}$ etc. For a matrix $\boldsymbol{X}$, $\boldsymbol{X}_{i}$ denotes its $i-th$ row and for vector $\boldsymbol{x}$, $\boldsymbol{x}_i$ is its $i-th$ element. Let us also assume that all vectors are column vectors. 
+We will denote random variables by uppercase letters $W$, $X$ etc. If $X$ is a multidimensional random variable then its components will be denoted by $X_i$. Specific observed values of $X$ are written by lowercase letters $x_i$ or $x_{ij}$ if $X$ is multidimensional. Matrices are denoted by bold uppercase $\boldsymbol{W}$, $\boldsymbol{X}$ in order to distinguish them from random variables. Vectors are represented by lowercase bold letters $\boldsymbol{w}$, $\boldsymbol{x}$ etc. For a matrix $\boldsymbol{X}$, $\boldsymbol{X}_{i}$ denotes its $i$-th row. Let us also assume that all vectors are column vectors. 
 
 $\boldsymbol{X} \in \mathbb{R}^{m \times n}$ symbol means that a matrix $\boldsymbol{X}$ has $m$ rows and $n$ columns and its elements are real numbers. For a $c \times d$  matrix $\boldsymbol{X}$, $\norm{\boldsymbol{X}}_{F}$ represents its Frobenius norm, $\boldsymbol{X}^P$ is its pseudo inverse and $\boldsymbol{A}^T$ is a matrix transposed to $\boldsymbol{A}$. 
 Let us also define a few useful functions:
@@ -14,48 +14,48 @@ Let us also define a few useful functions:
 \item $orthogonalize(\boldsymbol{X})$ returns orthonormal basis of a range space of a matrix $\boldsymbol{X}$,
 \item $head\_cols(\boldsymbol{X},h)$ returns first $h$ left columns of a matrix $\boldsymbol{X}$,
 \item $push\_front\_column(c,\boldsymbol{X})$ inserts a column $\boldsymbol{c}$ into $\boldsymbol{X}$ at the beginning,
-\item $push\_back\_column(c,\boldsymbol{X})$ push a column $\boldsymbol{c}$ at the end of $\boldsymbol{X}$,
+\item $push\_back\_column(c,\boldsymbol{X})$ pushes a column $\boldsymbol{c}$ at the end of $\boldsymbol{X}$,
 \item $rank(\boldsymbol{X})$ is a column rank of a matrix $\boldsymbol{X}$,
-\item $corr(x,y)$ return a correlation between $x$ and $y$ . 
+\item $corr(\boldsymbol{x},\boldsymbol{y})$ returns a correlation between $\boldsymbol{x}$ and $\boldsymbol{y}$ . 
 
 \end{itemize}
 
 \section{Formal definition of multi-label classification}
 
-Given a value of an input vector (vector of features) $X$, we want to make a 'good' prediction of an output vector (vector of labels) $Y$, which is usually denoted by $\hat{Y}$. Looking at this more formally, we look for a function $f$, such that:   
+Given a value of an input vector (vector of features) $X$, we want to make a `good' prediction of an output vector (vector of labels) $Y$ which is usually denoted by $\hat{Y}$. Looking at this more formally, we look for a function $f$, such that:   
 
 \begin{equation}\label{eq:def}
     f: X \rightarrow \{0,1\}^k 
 \end{equation}
 
-To find such function, we need data, usually a lot of it. Therefore, we assume we have available a set of measurements $\{(X_1, Y_1), (X_2, Y_2), \dots (X_m, Y_m)\}$, $Y_i\in\{0,1\}^k$, known as a training set. We certainly want our function (classifier) to be as accurate as it is possible (to be a 'good' predictor). Thus, classifiers have to minimize \textit{loss function for classification} which represents price paid for inaccuracy of prediction. This function can be defined in various ways, however in this thesis we want to minimize \textit{square} loss function which is given by the following formula:
+To find such function, we need data, usually a lot of it. Therefore, we assume we have available a set of measurements $\{(X_1, Y_1), (X_2, Y_2), \ldots, (X_m, Y_m)\}$, $Y_i\in\{0,1\}^k$, known as a training set. We certainly want our function (classifier) to be as accurate as it is possible (to be a `good' predictor). Thus, classifiers have to minimize a \textit{loss function} which represents price paid for inaccuracy of prediction. This function can be defined in various ways, however, in this thesis we want to minimize the \textit{square} loss function which is given by the following formula:
 
 \begin{equation}\label{eq:def}
-    V(Y,\hat{Y})= \sum\limits_{i=1}^{m}\sum\limits_{j=1}^{k}(y_{ij}-\hat{y}_{ij})^2
+    V(Y,\hat{Y})= \sum\limits_{i=1}^{k}(Y_{i}-\hat{Y}_{i})^2
 \end{equation}
 
 
-\section{Solution based on linear regression}
+\section{Solution based on linear regression}\label{sec:lr}
 
-In this section we focus on a solution based on linear regression (\textit{LR}). As it has been already mentioned, this method is our basic concept which is used by all the algorithms presented in this paper. LR is a good example of the binary relevance approach where a regressor is computed independently for all labels. Let us now go through background which is behind linear regression. 
+In this section we focus on a solution based on linear regression (\textit{LR}). As it has been already mentioned, this method is our basic concept which is used by all the algorithms presented in this thesis. LR is a good example of the binary relevance approach where a regressor is computed independently for all labels. Let us now go through background which is behind linear regression. 
 
-Given a data set of observations $\{y_i, x_{i1}, x_{i2}, \dots, x_{in}\}_{i=1}^{m}$, the linear regression analysis aims at studying a relationship between a dependent variable $Y$ and one or more explanatory variables $X_{j}$. The model of this relationship is described by a hyperplane which is given by the following formula:
+Given a data set of observations $\{y_i, x_{i1}, x_{i2}, \ldots, x_{in}\}_{i=1}^{m}$, the linear regression analysis aims at studying a relationship between a dependent variable $Y$ and one or more explanatory variables $X_{j}$. The model of this relationship is described by a hyperplane which is given by the following formula:
 
 \begin{equation}\label{eq:LR1}
     \hat{Y} = \hat{\beta_0} + \hat{\beta_1}X_{1} + \hat{\beta_2}X_{2} + \dots + \hat{\beta_n}X_{n}
 \end{equation}
-where $\hat{Y}$ is a predictor of a variable $Y$. The term $\hat{\beta_0}$ is not related with any of variables and is known as bias. 
-There is certainly an infinitive number of hyperplanes which can model a relationship for a given data set. However, we want the prediction error (difference between predicted value and real value) to be as low as it is possible. Furthermore, let us notice that adding $X_j$ variable to the model is used to explain the part of $Y$ that has not been explained by $X_{j-1}, X_{j-2}, \cdots X_1$. It means that the more explanatory variables we have, the more accurate model we get (\cite{Weisberg}).
+where $\hat{Y}$ is prediction of $Y$. The term $\hat{\beta_0}$ is not related with any of variables and is known as bias. 
+There is certainly an infinitive number of hyperplanes which can model a relationship for a given data set. However, we want the prediction error (difference between predicted value and real value) to be as low as it is possible. Furthermore, let us notice that adding $X_j$ variable to the model is used to explain the part of $Y$ that has not been explained by $X_{j-1}, X_{j-2}, \ldots X_1$ \citep{Weisberg}.
 
-There are a few approaches which can be used to find the best fitted hyperplane. We focus here on the \textit{least squares} approach. We look for coefficients $\hat{\beta_i}$ that minimize the residual sum of squares. In general it is comfortable to express all calculations in matrix notation. Let $\boldsymbol{X} \in \mathbb{R}^{m \times (n+1)}$ be a design matrix (a matrix of values of independent variables) with each row an input vector (with a $1$ in the first position), $\boldsymbol{y} \in \mathbb{R}^{m}$ a vector of values of a dependent variable, $\boldsymbol{\beta} \in \mathbb{R}^{n+1}$ a vector of coefficients of the model and $\boldsymbol{\epsilon} \in \mathbb{R}^{m}$ a vector of prediction errors. The model is then described by the formula:
+There are a few approaches which can be used to find the best fitted hyperplane. We focus here on the \textit{least squares} approach. We look for coefficients $\hat{\beta_i}$ that minimize the residual sum of squares. In general it is comfortable to express all calculations in a matrix notation. Let $\boldsymbol{X} \in \mathbb{R}^{m \times (n+1)}$ be a design matrix (a matrix of values of independent variables) with each row an input vector (with a $1$ in the first position), $\boldsymbol{y} \in \mathbb{R}^{m}$ a vector of values of a dependent variable, $\boldsymbol{\beta} \in \mathbb{R}^{n+1}$ a vector of coefficients of the model and $\boldsymbol{\epsilon} \in \mathbb{R}^{m}$ a vector of prediction errors. The model is then described by the formula:
 
 \begin{equation}\label{eq:LR1}
     \boldsymbol{y} = \boldsymbol{X}\boldsymbol{\beta} + \boldsymbol{\epsilon} 
 \end{equation}
-In order to estimate a vector $\boldsymbol{\beta}$, we need to solve the following optimization problem:
+In order to estimate $\beta$, we need to solve the following optimization problem:
 
 \begin{equation}\label{eq:LR2}
-    \boldsymbol{\hat{\beta}} = \argmin_{\boldsymbol{\beta} \in \mathbb{R}^{n+1}}\sum\limits_{i=1}^{m}(\boldsymbol{y}_{i}-\sum\limits_{j=1}^{n+1}\boldsymbol{x}_j\boldsymbol{\beta}_j)^2
+    \hat{\beta} = \argmin_{\beta}\sum\limits_{i=1}^{m}(y_{i}-\beta_{0}-\sum\limits_{j=1}^{n}x_{ij}\beta_j)^2
 \end{equation}
 which can be expressed in the matrix notation as:
 
@@ -78,36 +78,38 @@ in order to obtain a unique solution:
 \begin{equation}\label{eq:LR5}
     \boldsymbol{\hat{\beta}} = (\boldsymbol{X}^T\boldsymbol{X})^{-1}\boldsymbol{X}^T\boldsymbol{y}
 \end{equation}
-The calculation of the derivative in \Cref{eq:LR4} is a bit tricky. It uses a trace of matrix and its properties. The full proof of \Cref{eq:LR5} can be found in \Cref{app:least}. Let us notice that although a matrix $\boldsymbol{X}^T\boldsymbol{X}$ is squared, there is no certainty that it is invertible. Thus, it is safely to use a pseudo inverse (\cite{Trevor}).
+The calculation of the derivative in \Cref{eq:LR4} is a bit tricky. It uses a trace of matrix and its properties. The full proof of \Cref{eq:LR5} can be found in \Cref{app:least}. Let us notice that although a matrix $\boldsymbol{X}^T\boldsymbol{X}$ is squared, there is no certainty that it is invertible. Thus, it is safely to use the pseudoinverse of a matrix \citep{Trevor}. Finally, we get the following equation:
+\begin{equation}\label{eq:LR_pseudo}
+    \boldsymbol{\hat{\beta}} = (\boldsymbol{X}^T\boldsymbol{X})^{P}\boldsymbol{X}^T\boldsymbol{y}
+\end{equation}
+A precise definition of the pseudoinverse can be found in \Cref{app:pseudo}.
 
-If we treat a matrix $\boldsymbol{X}$ as a feature space and a vector $\boldsymbol{y}$ as a vector of a label space, we can simply use it in multi-label tasks. \Cref{alg:LR0} presents the training procedure.
+If we treat a matrix $\boldsymbol{X}$ as a feature space and a vector $\boldsymbol{y}$ as a vector of a label space, we can simply use linear regression to solve multi-label classification. \Cref{alg:LR0} presents the training procedure.
 
 \begin{algorithm}
     \caption{Linear regression based classifier (I)}\label{alg:LR0}
     \begin{algorithmic}[1]
     \Function{build\_lr\_classifier}{$\boldsymbol{X}$,$\boldsymbol{Y}$}
-        \State $\boldsymbol{Z} \gets \boldsymbol{X}$ 
-        \State $\boldsymbol{O} \gets [1, 1, \cdots]^T$ 
+        \State $\boldsymbol{O} \gets [1, 1, \ldots]^T$ 
         \State $\boldsymbol{\beta} \gets []$
-        \State $push\_front\_column(\boldsymbol{O}, \boldsymbol{Z})$
+        \State $push\_front\_column(\boldsymbol{O}, \boldsymbol{X})$
         \For {each column $\boldsymbol{y}$ of $\boldsymbol{Y}$}
-            \State $push\_back\_column($ $(\boldsymbol{Z^T}\boldsymbol{Z})^P\boldsymbol{Z^T}\boldsymbol{y}$, $\boldsymbol{\beta})$ 
+            \State $push\_back\_column($ $(\boldsymbol{X^T}\boldsymbol{X})^P\boldsymbol{X^T}\boldsymbol{y}$, $\boldsymbol{\beta})$ 
         \EndFor
         \State \textbf{return} $\boldsymbol{\beta}$
     \EndFunction
     \end{algorithmic}
 \end{algorithm}
-There is certainly nothing surprising in \Cref{alg:LR0}. We simply create the model independently for each label. However, let us notice that the result of $(\boldsymbol{Z^T}\boldsymbol{Z})^P\boldsymbol{Z^T}$ does not depend on $\boldsymbol{y}$. We can use this fact and calculate it ones instead of doing that in each iteration. The second version of the algorithm, which contains this modification, is shown in \Cref{alg:LR1}. 
+There is certainly nothing surprising in \Cref{alg:LR0}. We simply create the model independently for each label. However, let us notice that the result of $(\boldsymbol{X^T}\boldsymbol{X})^P\boldsymbol{X^T}$ does not depend on $\boldsymbol{y}$. We can use this fact and calculate it ones instead of doing that in each iteration. The second version of the algorithm, which contains this modification, is shown in \Cref{alg:LR1}. 
 
 \begin{algorithm}
     \caption{Linear regression based classifier (II)}\label{alg:LR1}
     \begin{algorithmic}[1]
     \Function{build\_lr\_classifier}{$\boldsymbol{X}$,$\boldsymbol{Y}$}
-        \State $\boldsymbol{Z} \gets \boldsymbol{X}$ 
-        \State $\boldsymbol{O} \gets [1, 1, \cdots]^T$ 
+        \State $\boldsymbol{O} \gets [1, 1, \ldots]^T$ 
         \State $\boldsymbol{\beta} \gets []$
-        \State $push\_front\_column(\boldsymbol{O}, \boldsymbol{Z})$
-        \State $\boldsymbol{H} \gets (\boldsymbol{Z^T}\boldsymbol{Z})^P\boldsymbol{Z^T}$
+        \State $push\_front\_column(\boldsymbol{O}, \boldsymbol{X})$
+        \State $\boldsymbol{H} \gets (\boldsymbol{X^T}\boldsymbol{X})^P\boldsymbol{X^T}$
         \For {each column $\boldsymbol{y}$ of $\boldsymbol{Y}$}
             \State $push\_back\_column($ $\boldsymbol{H}\boldsymbol{y}$, $\boldsymbol{\beta})$ 
         \EndFor
@@ -117,7 +119,7 @@ There is certainly nothing surprising in \Cref{alg:LR0}. We simply create the mo
 \end{algorithm}
 
 
-Having a trained classifier, we need a procedure which predicts a set of labels. This one is also simple and is presented in \Cref{alg:CL1}
+Having a trained classifier, we need a procedure which predicts a set of labels. This one is also simple and is presented in \Cref{alg:CL1}.
 
 \begin{algorithm}
     \caption{Prediction algorithm for LR classifier}\label{alg:CL1}
@@ -130,30 +132,29 @@ Having a trained classifier, we need a procedure which predicts a set of labels.
     \end{algorithmic}
 \end{algorithm}
 
-There are, of course, pros and cons of the approach based on LR. First of all, it has all advantages and disadvantages of BR. LR is fast and it is rather simple to make fast implementation of this method. On the other hand, it ignores interdependencies between labels. Furthermore, we are not often satisfied with the least squares estimates. The problem is with prediction accuracy, because the estimates often have low bias but large variance. Such situation is characteristic for overfitting. We can deal with that by sacrificing a little bit bias in order to reduce the variance. The easiest way, to achieve that, is to select a subset of variables (features) by some strategy and then create a model. However, because the selection is a discrete process - variables are retained or discarded - it still often exhibits high variance. Thus, let us use \textit{regularization} (\textit{shrinkage}) process which is more continuous and does not suffer as much from high variability (\cite{Trevor}).
+There are, of course, pros and cons of the approach based on LR. First of all, it has all advantages and disadvantages of BR. LR is fast and it is rather simple to make fast implementation of this method. On the other hand, it ignores interdependencies between labels. Furthermore, we are not often satisfied with the least squares estimates. The problem is with prediction accuracy, because the estimates often have low bias but large variance. Such situation is characteristic for overfitting. We can deal with that by sacrificing a little bit bias in order to reduce the variance. The easiest way, to achieve that, is to select a subset of variables (features) by some strategy and then create a model. However, because the selection is a discrete process -- variables are retained or discarded -- it still often exhibits high variance. Thus, let us use \textit{regularization} (\textit{shrinkage}) which is more continuous and does not suffer as much from high variability \citep{Trevor}.
 
 In general, the regularization refers to a process of adding additional information to a mathematical or a statistical model. The most commonly used method of the regularization is \textit{Tikhonov regularization}. This method deals well with problems which are solved by the least squared estimation. To extend \Cref{eq:LR2} in order to take regularization into account, we need to include an additional term. This is presented by the following formula:
 
 \begin{equation}\label{eq:LR6}
-    \boldsymbol{\hat{\beta}} = \argmin_{\boldsymbol{\beta} \in \mathbb{R}^{n+1}}\{\sum\limits_{i=1}^{m}(\boldsymbol{y}_{i}-\sum\limits_{j=1}^{n+1}\boldsymbol{x}_j\boldsymbol{\beta}_j)^2+\lambda\sum\limits_{j=2}^{n+1}\boldsymbol{\beta}_j^2\}
+    \hat{\beta} = \argmin_{\beta}\{\sum\limits_{i=1}^{m}(y_{i}-\beta_0 - \sum\limits_{j=1}^{n}x_{ij}\beta_j)^2+\lambda\sum\limits_{j=1}^{n}\beta_{j}^2\}
 \end{equation}
 where $\lambda \geq 0$ is a complexity parameter which controls the amount of shrinkage: the larger the value of $\lambda$, the greater the amount of shrinkage.  The solution of \Cref{eq:LR6}, taking into account Tikhonov regularization, is then equivalent to:
 
 \begin{equation}\label{eq:LR7}
     \boldsymbol{\hat{\beta}} = (\boldsymbol{X}^T\boldsymbol{X}+\lambda\boldsymbol{I})^{-1}\boldsymbol{X}^T\boldsymbol{y}
 \end{equation}
-where $I$ is the $(n+1)\times(n+1)$ identity matrix (\cite{Trevor}). 
-Let us notice that this time there is no need to use pseudo inverse, because $\boldsymbol{X}^T\boldsymbol{X}+\lambda\boldsymbol{I}$ is invertible. The proof of this fact can be found in \Cref{app:reg}. The learning procedure of regularized LR classifier is shown in \Cref{alg:LR2}
+where $I$ is the $(n+1)\times(n+1)$ identity matrix \citep{Trevor}.
+Let us notice that this time there is no need to use pseudoinverse, because $\boldsymbol{X}^T\boldsymbol{X}+\lambda\boldsymbol{I}$ is invertible. The proof of this fact can be found in \Cref{app:reg}. The learning procedure of the regularized LR classifier is shown in \Cref{alg:LR2}.
 
 \begin{algorithm}
     \caption{Linear regression based classifier (III)}\label{alg:LR2}
     \begin{algorithmic}[1]
     \Function{build\_lr\_classifier}{$\boldsymbol{X}$,$\boldsymbol{Y}$}
-        \State $\boldsymbol{Z} \gets \boldsymbol{X}$ 
-        \State $\boldsymbol{O} \gets [1, 1, \cdots]^T$ 
+        \State $\boldsymbol{O} \gets [1, 1, \ldots]^T$ 
         \State $\boldsymbol{\beta} \gets []$
-        \State $push\_front\_column(\boldsymbol{O}, \boldsymbol{Z})$
-        \State $\boldsymbol{H} \gets (\boldsymbol{Z^T}\boldsymbol{Z}+\lambda\boldsymbol{I})^{-1}\boldsymbol{Z^T}$
+        \State $push\_front\_column(\boldsymbol{O}, \boldsymbol{X})$
+        \State $\boldsymbol{H} \gets (\boldsymbol{X^T}\boldsymbol{X}+\lambda\boldsymbol{I})^{-1}\boldsymbol{X^T}$
         \For {each column $\boldsymbol{y}$ of $\boldsymbol{Y}$}
             \State $push\_back\_column($ $\boldsymbol{H}\boldsymbol{y}$, $\boldsymbol{\beta})$ 
         \EndFor
@@ -162,19 +163,19 @@ Let us notice that this time there is no need to use pseudo inverse, because $\b
     \end{algorithmic}
 \end{algorithm}
 
-Both the solutions of the linear regression problem: with the regularization and without it have similar complexity. The operations which affect the complexity in these approaches, are multiplying and inverting of matrices which can be computed in $O(n^{2.373})$ time by algorithms based on \textit{Coppersmith–Winograd} method (\cite{VVW}). 
+Both solutions of the linear regression problem -- with the regularization and without it -- have similar computational complexity. In fact, multiplying and inverting of matrices are dominant operations in these approaches. Theoretically, these operations can be computed in $O(n^{2.373})$ time by algorithms based on \textit{Coppersmith–Winograd} method \citep{VVW}. However, this algorithm is not used in practice, because it is efficient only for very large matrices.
 
 \section{Feature and label space transformations with PCA}
 
-In this chapter we will discuss multi-label task algorithms which transform feature and label spaces by PCA algorithm. As it has been already mentioned, there are two goals which we would like to achieve by such the transformations:
+In this chapter we will discuss multi-label task algorithms which transform feature and label spaces by PCA algorithm. As it has been already mentioned, there are two goals which we would like to achieve by such transformation:
 \begin{itemize}
-    \item The reduction (compression) of a feature or/and label space. Let us notice that in LR classifier learning procedure, we have to invert an $\boldsymbol{X^T}\boldsymbol{X}$ matrix. If we discard redundant variables, we can make this operation faster and decrease the complexity of the algorithm. On the other hand, we should remember that the compression affects the accuracy of predictions. In fact, it is a trade-off between speed and accuracy.
-    \item Transformation to the space where labels are uncorrelated. LR classifier does not take into account correlation between labels. Unfortunately, it has an influence on accuracy of prediction. Doing such the transformation, we simply eliminate this problem. 
+    \item The reduction (compression) of a feature or/and label space. Let us notice that in the LR classifier learning procedure, we have to invert an $\boldsymbol{X^T}\boldsymbol{X}$ matrix. If we discard redundant variables, we can make this operation faster and decrease the complexity of the algorithm. On the other hand, we should remember that the compression affects the accuracy of predictions. In fact, it is a trade-off between speed and accuracy.
+    \item Transformation to the space where labels are uncorrelated. The LR classifier does not take into account correlation between labels. Unfortunately, it has an influence on accuracy of prediction. Doing such the transformation, we simply eliminate this problem. 
 \end{itemize}
 
-\subsection{Standard PCA method}
+\subsection{Standard PCA method}\label{sec:pca}
 
-The main concept, which is behind \textit{Principal Component Analysis (PCA)}, is to reduce dimensionality of a data set consisting of a large number of interrelated variables, while retaining as much as possible of the variation present in a data set. Such the reduction can be achieved by transforming to a new set of variables, the \textit{principal components (PCs)}, which are uncorrelated, and which are ordered so that the first few retain most of variation present in all of the original variables. Computation of the principal components reduces to the solution of an eigenvalue-eigenvector for a positive-semifdefinite symmetric matrix (a covariance or a correlation matrix) (\cite{Jolliffe}). Looking at this more intuitively, the data set can be considered as a cloud of points while variables can be thought as their coordinates. All what we have to do is to find new coordinate system (ie. by rotation) such that the greatest variance by some projection of the data comes to lie on the first coordinate, the second greatest variance on the second coordinate, and so on. More information about eigenvalues and eigenvectors can be found in \Cref{app:eigen}. 
+The main concept, which is behind \textit{Principal Component Analysis (PCA)}, is to reduce dimensionality of a data set consisting of a large number of interrelated variables, while retaining as much as possible of the variation present in a data set. Such reduction can be achieved by transforming to a new set of variables, the \textit{principal components (PCs)}, which are uncorrelated, and which are ordered so that the first few retain most of variation present in all of the original variables. Computation of the principal components reduces to the solution of an eigenvalue-eigenvector for a positive-semifdefinite symmetric matrix (a covariance or a correlation matrix) \citep{Jolliffe}. Looking at this more intuitively, the data set can be considered as a cloud of points while variables can be thought as their coordinates. All what we have to do is to find new coordinate system (ie. by rotation) such that the greatest variance by some projection of the data comes to lie on the first coordinate, the second greatest variance on the second coordinate, and so on. More information about eigenvalues and eigenvectors can be found in \Cref{app:eigen}. 
 
 Finding PCs can be obtained by the most known matrix decomposition which is called \textit{Singular Value Decomposition}(\textit{SVD}). More details connected with SVD is in \Cref{app:svd}. It is worth looking at that, because this decomposition is used in the rest of presented algorithms. Let $\boldsymbol{X} \in \mathbb{R}_{m \times n}$ be an input matrix where $n$ is a number of variables. Moreover, let us assume that $\boldsymbol{X}$ is centered (the mean in each column is equal to $0$). A covariance matrix $\boldsymbol{C} \in \mathbb{R}_{n \times n}$ is then equal to $\frac{\boldsymbol{X}^T\boldsymbol{X}}{n-1}$. Taking into account that $\boldsymbol{C}$ is a symmetric matrix, its SVD decomposition is equal to:
 
@@ -193,13 +194,13 @@ We can now use \Cref{eq:pca2} in order to calculate a covariance matrix $\boldsy
 \begin{equation}\label{eq:pca3}
     \boldsymbol{C}=\frac{\boldsymbol{X}^T\boldsymbol{X}}{n-1} = \frac{(\boldsymbol{U}\boldsymbol{S}\boldsymbol{V}^T)^T(\boldsymbol{U}\boldsymbol{S}\boldsymbol{V}^T)}{n-1} = \frac{\boldsymbol{V}\boldsymbol{S}\boldsymbol{U}^T\boldsymbol{U}\boldsymbol{S}\boldsymbol{V}^T}{n-1} = \boldsymbol{V}\frac{\boldsymbol{S}^{2}}{n-1}\boldsymbol{V}^{T} 
 \end{equation}
-As we see, a matrix $\boldsymbol{V}$ in SVD decomposition of $\boldsymbol{X}$ is a principal axes matrix! As a result, we can compute PCs with the following equation (\cite{Jolliffe}): 
+As we see, a matrix $\boldsymbol{V}$ in SVD decomposition of $\boldsymbol{X}$ is a principal axes matrix! As a result, we can compute PCs with the following equation \citep{Jolliffe}: 
 
 \begin{equation}\label{eq:pca4}
     \boldsymbol{PC} = \boldsymbol{X}\boldsymbol{V} = (\boldsymbol{U}\boldsymbol{S}\boldsymbol{V}^{T})\boldsymbol{V} = \boldsymbol{U}\boldsymbol{S}
 \end{equation}
 Having PCs computed, the reduction of feature (label) space is trivial: we simply discard last columns from a $\boldsymbol{PC}$ matrix.  
-Finally, we combine PCA transformation with LR classifier. The learning procedure is shown in \Cref{alg:pca1} and the prediction procedure in \Cref{alg:pca2}. The most surprising fact is probably connected with the prediction procedure which seem to be confusing. We should remember that regression is performed on transformed data, so predictions are encoded. We must decode them to an original space. Fortunately, these operations are fast because of orthogonality of a principal axes matrix. The main problem in this approach is connected with the complexity of SVD which is $O(m^2n+n^3)$. For large matrices it is definitely too time-consuming. It means that the compression, which is one of the main goals, is useless in this case. In the next section, we will go through the algorithm based on random PCA. This method also uses eigendecomposition, but for definitely smaller matrices.
+Finally, we combine PCA transformation with the LR classifier. The learning procedure is shown in \Cref{alg:pca1} and the prediction procedure in \Cref{alg:pca2}. The most surprising fact is probably connected with the prediction procedure which seem to be confusing. We should remember that regression is performed on transformed data, so predictions are encoded. We must decode them to an original space \citep{PLST}. Fortunately, these operations are fast because of orthogonality of a principal axes matrix. The main problem in this approach is connected with the complexity of SVD which is $O(m^2n+n^3)$. For large matrices it is definitely too time-consuming. It means that the compression, which is one of the main goals, is useless in this case. In the next section, we will go through the algorithm based on random PCA. This method also uses eigendecomposition, but for definitely smaller matrices.
 
 \begin{algorithm}
     \caption{LR classifier with preliminary PCA transformation}\label{alg:pca1}
@@ -259,16 +260,16 @@ Finally, we combine PCA transformation with LR classifier. The learning procedur
     \end{algorithmic}
 \end{algorithm}
 
-\subsection{Random PCA method}
+\subsection{Random PCA method}\label{sec:rpca}
 
-Let us consider randomized version of PCA. The procedure is presented in \Cref{alg:rpca1} (\cite{Mineiro}). 
+Let us consider randomized version of PCA. The procedure is presented in \Cref{alg:rpca1} . 
 \begin{algorithm}
     \caption{Randomized PCA}\label{alg:rpca1}
     \begin{algorithmic}[1]
         \Function{RPCA}{$\boldsymbol{X}$, k} 
         \State $(p,q) \gets (20,1)$
         \State $\boldsymbol{Q} \gets randn(n, k+p)$
-            \For{$i \in \{1,\cdots,q\}$}
+            \For{$i \in \{1,\ldots,q\}$}
                 \State $\boldsymbol{\psi} \gets \boldsymbol{X}^T\boldsymbol{X}\boldsymbol{Q}$
                 \State $\boldsymbol{Q} \gets orthogonalize(\boldsymbol{\psi})$
             \EndFor
@@ -279,32 +280,32 @@ Let us consider randomized version of PCA. The procedure is presented in \Cref{a
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
-The algorithm takes two parameters on its input: data matrix $\boldsymbol{X} \in \mathbb{R}^{m \times n}$ and a compression degree $k$ (a number of eigenvectors that are taken into account). The first step in this recipe is to find a range of a covariance matrix $\boldsymbol{X}^T\boldsymbol{X}$. The range of a matrix $\boldsymbol{A}$ can be understood as a collection of vectors $\boldsymbol{b}$ which satisfy the equation $\boldsymbol{A}\boldsymbol{x}=\boldsymbol{b}$. In other words, it is a set of all possible linear combinations of column vectors of a matrix $\boldsymbol{A}$. Let us notice that eigenvectors might appear frequently as the solutions of this equation. In fact, a range of $\boldsymbol{\psi}$ will tend to be more aligned with the space spanned by the top eigenvectors of $\boldsymbol{X}^T\boldsymbol{X}$ \cite{Mineiro}. 
+The algorithm takes two parameters on its input: data matrix $\boldsymbol{X} \in \mathbb{R}^{m \times n}$ and a compression degree $k$ (a number of eigenvectors that are taken into account). The first step in this recipe is to find a range of a covariance matrix $\boldsymbol{X}^T\boldsymbol{X}$. The range of a matrix $\boldsymbol{A}$ can be understood as a collection of vectors $\boldsymbol{b}$ which satisfy the equation $\boldsymbol{A}\boldsymbol{x}=\boldsymbol{b}$. In other words, it is a set of all possible linear combinations of column vectors of a matrix $\boldsymbol{A}$. Let us notice that eigenvectors might appear frequently as the solutions of this equation. In fact, a range of $\boldsymbol{\psi}$ will tend to be more aligned with the space spanned by the top eigenvectors of $\boldsymbol{X}^T\boldsymbol{X}$ \citep{Mineiro}.
 
 The randomized range finder begins in 4. At first we start with a set of $k+p$ random vectors and probe a range. Next an orthogonal basis for $\boldsymbol{\psi}$ is computed. This operation is repeated $q$ times. We can certainly manipulate a parameter of $q$, however it should be rather low, because the complexity of computing an orthogonal basis is $O(nk^2)$. 
-Having a good approximation for a principal subspace of $\boldsymbol{X}^T\boldsymbol{X}$, we optimize fully over that subspace and back out the solution. It is worth emphasizing that the last steps, including eigendecomposition of $\boldsymbol{F} \in \mathbb{R}^{(k+p) \times (k+p)}$, are cheap. It is caused by low dimensions of a matrix $\boldsymbol{F}$ (\cite{Mineiro}).
+Having a good approximation for a principal subspace of $\boldsymbol{X}^T\boldsymbol{X}$, the algorithm optimizes fully over that subspace and back out the solution. It is worth emphasizing that the last steps, including eigendecomposition of $\boldsymbol{F} \in \mathbb{R}^{(k+p) \times (k+p)}$, are cheap. It is caused by low dimensions of a matrix $\boldsymbol{F}$ \citep{Mineiro}. In order to find more detailed and formal discussion connected with the method we can see \citep{Halko}.
 
 The learning procedure and the prediction procedure are certainly very similar to \Cref{alg:pca1} and \Cref{alg:pca2}. We just have to replace standard PCA algorithm with the random one.
 
 \section{Label space reduction inspired by CCA}
 
-Multi-label classifiers based on the preliminary PCA compression of data have an essential disadvantage - the transformation of a label (feature) space is made independently of a feature (label) space. In other words, a label (feature) space is not aware of the transformation of a feature (label) space. One of possibilities, to deal with this issue, is to use a statistical method called \textit{Canonical Correlation Analysis (\textit{CCA})} or rather methods inspired by CCA.   
+Multi-label classifiers based on the preliminary PCA compression of data have an essential disadvantage -- the transformation of a label (feature) space is made independently of a feature (label) space. In other words, a label (feature) space is not aware of the transformation of a feature (label) space. One of possibilities, to deal with this issue, is to use a statistical method called \textit{Canonical Correlation Analysis (\textit{CCA})} or other methods inspired by CCA.   
 
 \subsection{Canonical correlation analysis}
 
-Let us assume we are given two data sets: $X \in \mathbb{R}^{m \times n_1}$ and $Y \in \mathbb{R}^{m \times n_2}$. Without loss of generality we suppose that we have already subtracted mean from observation. CCA aims at finding a linear combination of $X$ coordinates that correlates well over data with a linear combination of $Y$ coordinates. In other words, we want to find the best matched pair of the linear combination of $X$ and $Y$ which have the largest coefficient of correlation. We certainly do not need to stop with a first-best pair. We can ask for a second-best pair, a third-best pair and so on (\cite{William}).
+Let us assume we are given two data sets: $X \in \mathbb{R}^{m \times n_1}$ and $Y \in \mathbb{R}^{m \times n_2}$. Without loss of generality we suppose that we have already subtracted mean from observation. CCA aims at finding a linear combination of $X$ coordinates that correlates well over data with a linear combination of $Y$ coordinates. In other words, we want to find the best matched pair of the linear combination of $X$ and $Y$ which have the largest coefficient of correlation. We certainly do not need to stop with a first-best pair. We can ask for a second-best pair, a third-best pair and so on \citep{William}.
 
 Formally, we can express this problem in matrix notation by the following equations:
 \begin{equation}\label{eq:cca1}
     \boldsymbol{U}=\boldsymbol{X}\boldsymbol{W}_x^T,   \boldsymbol{V}=\bold{Y}\boldsymbol{W}_y^T    
 \end{equation}
-where $\boldsymbol{W}_x \in \mathbb{R}^{d \times n_1}$, $\boldsymbol{W}_y \in \mathbb{R}^{d \times n_2}$ are matrices of coefficients of linear combinations. $\boldsymbol{U} \in \mathbb{R}^{m \times d}$ and $\boldsymbol{V} \in \mathbb{R}^{m \times d}$ certainly are matrices of evaluated linear combinations. $d=min(rank(\boldsymbol{X}), rank(\boldsymbol{Y}))$ is a number of pairs. Let us denote $i-th$ rows of $\boldsymbol{W}_x$, $\boldsymbol{W}_y$ by $\boldsymbol{W}_{xi}$ and suitably $\boldsymbol{W}_{yi}$. For $i=1,\cdots,d$ the following condition must be met (\cite{William}):
+where $\boldsymbol{W}_x \in \mathbb{R}^{d \times n_1}$, $\boldsymbol{W}_y \in \mathbb{R}^{d \times n_2}$ are matrices of coefficients of linear combinations, $\boldsymbol{U} \in \mathbb{R}^{m \times d}$ and $\boldsymbol{V} \in \mathbb{R}^{m \times d}$ are matrices of evaluated linear combinations, and $d=min(rank(\boldsymbol{X}), rank(\boldsymbol{Y}))$ is a number of pairs. Let us denote the $i$-th row of $\boldsymbol{W}_x$, $\boldsymbol{W}_y$ by $\boldsymbol{W}_{xi}$ and suitably $\boldsymbol{W}_{yi}$. For $i=1,\ldots,d$ the following condition must be met \citep{William}.
 \begin{equation}\label{eq:cca2}
     (\boldsymbol{W}_{xi}, \boldsymbol{W}_{yi})=\argmax_{\boldsymbol{W}_{xi}, \boldsymbol{W}_{yi}} corr(\boldsymbol{X}\boldsymbol{W}_{xi}, \boldsymbol{Y}\boldsymbol{W}_{yi}) = \argmax_{\boldsymbol{W}_{xi}, \boldsymbol{W}_{yi}} \left[\frac{\boldsymbol{U}^{T}_i\boldsymbol{V}_i}{\sqrt{\boldsymbol{U}^T_i\boldsymbol{U}_i}\sqrt{\boldsymbol{V}^{T}_i\boldsymbol{V}_i}}\right] 
 \end{equation}
-We should also remember that the correlation between $\boldsymbol{U}_i$ and $\boldsymbol{V}_i$ where $i\neq j$ is equal to $0$.
+We should also remember that the correlation between $\boldsymbol{U}_i$ and $\boldsymbol{V}_j$ where $i\neq j$ is equal to $0$.
 
-Kettenring showed that CCA is equivalent to simultaneously solving the following constrained optimization problem (\cite{ChenLin}):
+Kettenring \citep{Kettenring} showed that CCA is equivalent to simultaneously solving the following constrained optimization problem:
 \begin{equation}\label{eq:cca3}
 \begin{split}
     \min_{\boldsymbol{W}_x, \boldsymbol{W}_y} \norm{\boldsymbol{U}-\boldsymbol{V}}_{F}^2 = \min_{\boldsymbol{W}_x, \boldsymbol{W}_y} \norm{\boldsymbol{X}\boldsymbol{W}_x^T-\boldsymbol{Y}\boldsymbol{W}_y^T}_{F}^2 \\ 
@@ -312,26 +313,27 @@ Kettenring showed that CCA is equivalent to simultaneously solving the following
 \end{split}
 \end{equation}
 
-Pure CCA can be used in multi-label tasks: we simply perform it with matrices which represent feature and label spaces. Having $\boldsymbol{U}$ and $\boldsymbol{V}$ matrices, we again use linear regression to create the model. Unfortunately, such the method is time-consuming. Let us notice that encoding and decoding data operations are slow, because $\boldsymbol{W}_x$ and $\boldsymbol{W}_y$ are not orthogonal (we cannot invert them by a simple transposition). The example algorithm, that perform CCA, is shown in \Cref{app:cca}. 
+Pure CCA can be used in multi-label tasks: we simply perform it with matrices which represent feature and label spaces. Having $\boldsymbol{U}$ and $\boldsymbol{V}$ matrices, we again use linear regression to create the model. Unfortunately, such method is time-consuming. Let us notice that encoding and decoding data operations are slow, because $\boldsymbol{W}_x$ and $\boldsymbol{W}_y$ are not orthogonal (we cannot invert them by a simple transposition). The example algorithm, that perform CCA, is shown in \Cref{app:cca}. 
 
-Although there is no point in using pure CCA to build a classifier, we can use methods which are based on CCA concept. Such the algorithm will be discussed in the next section.
+Although pure CCA is very costly, we can use methods which are based on CCA concept. Such an algorithm will be discussed in the next section.
 
-\subsection{CPLST method}
+\subsection{CPLST method}\label{sec:cplst}
 
-As it has been already mentioned, CCA can be thought as an optimization problem of finding minimal prediction error (\Cref{eq:cca3}) under the constraint $\boldsymbol{W}_x\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{W}_x^T=\boldsymbol{W}_y\boldsymbol{Y}^T\boldsymbol{Y}\boldsymbol{W}_y^T=\boldsymbol{I}$. As long as we take into account only a label space, we can discard $\boldsymbol{W}_x\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{W}_x^T=\boldsymbol{I}$ constraint because it is connected with a feature space which is not transformed. It is also worth enforcing orthogonalization of $\boldsymbol{W}_y$  which simplifies the decoding process. Finally, we obtain the following problem:
+As it has been already mentioned, CCA can be thought as an optimization problem of finding minimal prediction error (\Cref{eq:cca3}) under the constraint $\boldsymbol{W}_x\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{W}_x^T=\boldsymbol{W}_y\boldsymbol{Y}^T\boldsymbol{Y}\boldsymbol{W}_y^T=\boldsymbol{I}$. Let us assume that we will transform only a label space. Thus, we can discard the constraint $\boldsymbol{W}_x\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{W}_x^T=\boldsymbol{I}$ because it is connected with a feature space which is not transformed. It is also worth enforcing orthogonalization of $\boldsymbol{W}_y$  which simplifies the decoding process. Finally, we obtain the following problem:
 
 \begin{equation}\label{eq:cplst1}
     \min_{\boldsymbol{W}_x, \bold{W}_y} \norm{\boldsymbol{X}\boldsymbol{W}_x^T-\boldsymbol{Y}\boldsymbol{W}_y^T}_{F}^2  
     \text{  subject to   } \boldsymbol{W}_y\boldsymbol{W}_y^T=\boldsymbol{I}   
 \end{equation}
-Let us notice that calculating $\boldsymbol{W}_x$ is simply linear regression from $\boldsymbol{X}$ to $\boldsymbol{Y}\boldsymbol{W}_y^T$. It means that optimal $\boldsymbol{W}_x$ is determined by the following equation:
+Let us notice that calculating $\boldsymbol{W}_x$ is simply linear regression from $\boldsymbol{X}$ to $\boldsymbol{Y}\boldsymbol{W}_y^T$:
 \begin{equation}\label{eq:cplst2}
-\begin{split}
     \bold{X}\boldsymbol{W}_x^T=\boldsymbol{Y}\boldsymbol{W}_y^T \\
-    \boldsymbol{W}_x^T=\boldsymbol{X}^P\boldsymbol{Y}\boldsymbol{W}_y^T
-\end{split}
 \end{equation}
-When optimal $\boldsymbol{W}_x$, calculated in \Cref{eq:cplst2} is inserted back into \Cref{eq:cplst1}, the optimization problem becomes:
+In order to obtain $\boldsymbol{W}_x$ we can multiply both sides of \Cref{eq:cplst2} by $\boldsymbol{X}^{-1}$. However, $\boldsymbol{X}$ does not need to be invertible, so it is again safely to use the pseudoinverse of $\boldsymbol{X}$: 
+\begin{equation}\label{eq:cplst2_inv}
+    \boldsymbol{W}_x^T=\boldsymbol{X}^P\boldsymbol{Y}\boldsymbol{W}_y^T
+\end{equation}
+When optimal $\boldsymbol{W}_x$, calculated in \Cref{eq:cplst2_inv}, is inserted back into \Cref{eq:cplst1}, the optimization problem becomes:
 \begin{equation}\label{eq:cplst3}
     \min_{\boldsymbol{W}_y\boldsymbol{W}_y^T=I} \norm{\boldsymbol{X}\boldsymbol{X}^P\boldsymbol{Y}\boldsymbol{W}_y^T-\boldsymbol{Y}\boldsymbol{W}_y^T}_{F}^2=\min_{\boldsymbol{W}_y\boldsymbol{W}_y^T=\boldsymbol{I}} \norm{(\boldsymbol{X}\boldsymbol{X}^P-\boldsymbol{I})\boldsymbol{Y}\boldsymbol{W}_y^T}_{F}^2
 \end{equation}
@@ -339,9 +341,9 @@ For every matrix $\boldsymbol{A}$, $\norm{\boldsymbol{A}}_{F}^2=tr(\boldsymbol{A
 \begin{equation}\label{eq:cplst4}
     \min_{\boldsymbol{W}_y\boldsymbol{W}_y^T=\boldsymbol{I}} tr(\boldsymbol{W}_y\boldsymbol{Y}^T(\boldsymbol{I}-\boldsymbol{H})\boldsymbol{Y}\boldsymbol{W}_y^T)
 \end{equation}
-A matrix $\boldsymbol{H}=\boldsymbol{X}\boldsymbol{X}^P$ is sometimes called a hat matrix. The presented approach is called \textit{Orthogonally constraint CCA (OCCA)}. In order to solve \Cref{eq:cplst4}, we can consider eigenvectors that correspond to the largest eigenvalues of $\boldsymbol{Y}^T(\boldsymbol{H}-\boldsymbol{I})\boldsymbol{Y}$ (they can be computed by SVD decomposition) (\cite{ChenLin}).
+A matrix $\boldsymbol{H}=\boldsymbol{X}\boldsymbol{X}^P$ is sometimes called a hat matrix. The presented approach is called \textit{Orthogonally constraint CCA (OCCA)}. In order to solve \Cref{eq:cplst4}, we can consider eigenvectors that correspond to the largest eigenvalues of $\boldsymbol{Y}^T(\boldsymbol{H}-\boldsymbol{I})\boldsymbol{Y}$ (they can be computed by SVD decomposition) \citep{ChenLin}.
 
-As we see, OCCA aims at minimizing the prediction error described by \Cref{eq:cplst1}. Unfortunately, we have no certainty that the algorithm finds an orthogonal $\boldsymbol{W}_y$, we just hope it does. If $\boldsymbol{W}_y$ is not orthogonal the projection of a label space is encumbered with an error. This error is called an encoding error and is given by $\norm{\boldsymbol{Y}-\boldsymbol{Y}\boldsymbol{W}_y^T\boldsymbol{W}_y}_{F}^2$. The idea is to modify OCCA method in order to minimize the encoding error as well. We will call such approach \textit{CPLST} which stands for \textit{Conditional Principal Label Space Transformation}. First of all, let us add the encoding error term to \Cref{eq:cplst1}: 
+As we see, OCCA aims at minimizing the prediction error described by \Cref{eq:cplst1}. Unfortunately, we have no certainty that the algorithm finds an orthogonal $\boldsymbol{W}_y$, we just hope it does. If $\boldsymbol{W}_y$ is not orthogonal the projection of a label space is encumbered with an error. This error is called an encoding error and is given by $\norm{\boldsymbol{Y}-\boldsymbol{Y}\boldsymbol{W}_y^T\boldsymbol{W}_y}_{F}^2$. The idea is to modify OCCA method in order to minimize the encoding error as well. Such an approach is referred to as \textit{CPLST} \citep{ChenLin} which stands for \textit{Conditional Principal Label Space Transformation}. First of all, let us add the encoding error term to \Cref{eq:cplst1}: 
 
 \begin{equation}\label{eq:cplst5}
     \min_{\boldsymbol{W}_x, \boldsymbol{W}_y} \left(\norm{\boldsymbol{X}\boldsymbol{W}_x^T-\boldsymbol{Y}\boldsymbol{W}_y^T}_{F}^2 + \norm{\boldsymbol{Y}-\boldsymbol{Y}\boldsymbol{W}_y^T\boldsymbol{W}_y}_{F}^2\right)  
@@ -356,7 +358,7 @@ After eliminating a pair of $\boldsymbol{W}_y$ and $\boldsymbol{W}_y^T$ by cycli
 \begin{equation}\label{eq:cplst6}
     \max_{\boldsymbol{W}_y\boldsymbol{W}_y^T} tr(\boldsymbol{W}_y\boldsymbol{Y}^T\boldsymbol{H}\boldsymbol{Y}\boldsymbol{W}_y^T)  
 \end{equation}
-The above problem can be solved analogously to OCCA - by finding eigenvectors and eigenvalues of $\boldsymbol{Y}^T\boldsymbol{H}\boldsymbol{Y}$. Besides balance between the prediction error and the encoding error, CPLST should be minimally faster than OCCA. It is an effect of decomposing $\boldsymbol{Y}^T\boldsymbol{H}\boldsymbol{Y}$ instead of $\boldsymbol{Y}^T(\boldsymbol{H}-\boldsymbol{I})\boldsymbol{Y}$. On the other hand, both the methods are slower than the algorithms based on the PCA transformations. It is caused by calculating a matrix $\boldsymbol{H}$ what is time-consuming for large input data (\cite{ChenLin}).
+The above problem can be solved analogously to OCCA -- by finding eigenvectors and eigenvalues of $\boldsymbol{Y}^T\boldsymbol{H}\boldsymbol{Y}$. Besides the balance between the prediction error and the encoding error, CPLST should be minimally faster than OCCA. It is an effect of decomposing $\boldsymbol{Y}^T\boldsymbol{H}\boldsymbol{Y}$ instead of $\boldsymbol{Y}^T(\boldsymbol{H}-\boldsymbol{I})\boldsymbol{Y}$. On the other hand, both methods are slower than the algorithms based on the PCA transformations. It is caused by calculating a matrix $\boldsymbol{H}$ what is time-consuming for large input data \citep{ChenLin}.
 
 The learning and prediction procedures are presented in \Cref{alg:cplst1} and \Cref{alg:cplst2}. Although, it might have seemed that the problem is complicated, the final algorithms are simple. In fact, they are similar to the approaches based on PCA. 
 
